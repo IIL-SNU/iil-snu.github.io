@@ -230,7 +230,7 @@
       <legend>Seed / fabrication / propagation</legend>
       <div class="row"><label>seed</label><input id="seedInput" type="number" value="20260601" step="1" /><span class="value">rng</span></div>
       <div class="row"><label>max_gray</label><input data-key="maxGray" type="range" min="200" max="255" step="1" /><span class="value"></span></div>
-      <div class="row"><label>z / focal proxy (mm)</label><input data-key="zMm" type="range" min="0" max="10" step="0.1" /><span class="value"></span></div>
+      <div class="row"><label>z / focal proxy (mm)</label><input data-key="zMm" type="range" min="0" max="20" step="0.1" /><span class="value"></span></div>
       <div class="row"><label>gamma</label><input data-key="gamma" type="range" min="0.15" max="1.8" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>nonlinear contrast</label><input data-key="nonlinearContrast" type="range" min="0.5" max="2.5" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>final blur σ(px)</label><input data-key="finalBlur" type="range" min="0" max="4" step="0.05" /><span class="value"></span></div>
@@ -321,7 +321,7 @@
     </div>
 
     <div class="card" style="margin-top:12px;">
-      <h2>Propagation z sweep <small>0, 1, 2, 3, 5, 8, 10 mm</small></h2>
+      <h2>Propagation z sweep <small>0, 1, 2, 3, 5, 8, 10, 15, 20 mm</small></h2>
       <div class="sweepGrid" id="sweepGrid"></div>
     </div>
 
@@ -344,7 +344,7 @@ const WAVELENGTH_M = 550e-9;
 const N_MAT = 1.52, N_AIR = 1.0;
 // Preview FOV uses the real active width 2200 px * 2.7 um, downsampled to 256 px.
 const PIXEL_M = (2200 * 2.7e-6) / W;
-const Z_SWEEP = [0, 1, 2, 3, 5, 8, 10];
+const Z_SWEEP = [0, 1, 2, 3, 5, 8, 10, 15, 20];
 
 const defaults = {
   maxGray: 235, zMm: 1.0,
