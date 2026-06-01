@@ -345,8 +345,9 @@
       <div class="pcaWrap">
         <canvas id="pcaCanvas" width="720" height="420"></canvas>
         <div class="pcaLegend">
-          <div><span class="dot" style="background:#ff8a3d"></span>MLA <span class="dot" style="background:#74d27d;margin-left:12px;"></span>Perlin <span class="dot" style="background:#69b3ff;margin-left:12px;"></span>Voronoi</div>
+          <div><span class="dot" style="background:#ff8a3d"></span>MLA <span class="dot" style="background:#74d27d;margin-left:12px;"></span>Perlin <span class="dot" style="background:#69b3ff;margin-left:12px;"></span>Voronoi <span class="dot" style="background:#ff4fd8;margin-left:12px;"></span>current generated</div>
           <div id="pcaStatus" style="margin-top:8px;">Loading PCA data…</div>
+          <div id="pcaAxisInfo" class="note mono" style="font-size:11px;margin-top:8px;white-space:pre-wrap;"></div>
           <div class="note" style="font-size:11px;margin-top:8px;">
             PCA는 현재 dataset gray mask를 active crop → physical height proxy → radial spectrum + gradient orientation feature로 만든 뒤 SVD로 계산했다.
             raw-pixel PCA보다 MLA/Perlin/Voronoi clustering이 잘 되는 feature PCA다. plot을 클릭하면 dataset mask를 로드하지 않고, 미리 뽑아둔 generated parameter bank에서 해당 위치 근처 후보를 확률적으로 골라 새 mask를 생성한다. Alt/Option-click만 nearest dataset mask fallback이다.
@@ -519,6 +520,7 @@ let datasetPCA = null;
 let generatedBank = null;
 let selectedPcaPoint = null;
 let selectedGeneratedTarget = null;
+let currentPcaPoint = null;
 let timer = null;
 
 class RNG {
@@ -1187,6 +1189,120 @@ async function loadGrayImageResampled(url) {
   return resampleGray(src.gray, src.width, src.height, W, H);
 }
 
+function currentGrayToPcaInput(gray, minG, maxG) {
+  if (!datasetPCA || !gray || !datasetPCA.pca_width || !datasetPCA.pca_height) return null;
+  const pw = Number(datasetPCA.pca_width), ph = Number(datasetPCA.pca_height);
+  const small = resampleGray(gray, W, H, pw, ph);
+  const out = new Float32Array(pw * ph);
+  const den = Math.max(Number(maxG) - Number(minG), 1);
+  const scale = Number(maxG) / 255;
+  for (let i=0; i<out.length; i++) out[i] = clamp((small[i] - Number(minG)) / den, 0, 1) * scale;
+  return {arr: out, width: pw, height: ph};
+}
+
+function radialPowerFeature(img, width, height, bins=48) {
+  const n = width * height;
+  let mean = 0;
+  for (let i=0; i<n; i++) mean += img[i];
+  mean /= Math.max(n, 1);
+  const re = numericArray(n), im = numericArray(n);
+  for (let i=0; i<n; i++) re[i] = img[i] - mean;
+  fft2dSized(re, im, width, height, false);
+  const sums = new Float64Array(bins), counts = new Uint32Array(bins);
+  const hw = width / 2, hh = height / 2;
+  for (let y=0; y<height; y++) {
+    const fy = (y < hh ? y : y - height) / Math.max(hh, 1);
+    for (let x=0; x<width; x++) {
+      const fx = (x < hw ? x : x - width) / Math.max(hw, 1);
+      const r = Math.sqrt(fx*fx + fy*fy);
+      if (r >= 0 && r < 1) {
+        const b = Math.min(bins - 1, Math.floor(r * bins));
+        const idx = y*width + x;
+        sums[b] += Math.log1p(re[idx]*re[idx] + im[idx]*im[idx]);
+        counts[b] += 1;
+      }
+    }
+  }
+  const out = new Float32Array(bins);
+  for (let i=0; i<bins; i++) out[i] = counts[i] ? sums[i] / counts[i] : 0;
+  return out;
+}
+
+function orientationFeature(img, width, height, bins=24) {
+  const sums = new Float64Array(bins), counts = new Uint32Array(bins);
+  for (let y=0; y<height; y++) {
+    const ym = Math.max(0, y-1), yp = Math.min(height-1, y+1);
+    for (let x=0; x<width; x++) {
+      const xm = Math.max(0, x-1), xp = Math.min(width-1, x+1);
+      const gx = (img[y*width + xp] - img[y*width + xm]) / (xp === xm ? 1 : (xp - xm));
+      const gy = (img[yp*width + x] - img[ym*width + x]) / (yp === ym ? 1 : (yp - ym));
+      const mag = Math.hypot(gx, gy);
+      let ang = (Math.atan2(gy, gx) + Math.PI) % Math.PI;
+      const b = Math.min(bins - 1, Math.floor(ang / Math.PI * bins));
+      sums[b] += mag; counts[b] += 1;
+    }
+  }
+  const out = new Float32Array(bins);
+  for (let i=0; i<bins; i++) out[i] = counts[i] ? sums[i] / counts[i] : 0;
+  return out;
+}
+
+function projectGrayToDatasetPca(gray, minG, maxG) {
+  if (!datasetPCA || !datasetPCA.feature_mean || !datasetPCA.pca_components) return null;
+  const sample = currentGrayToPcaInput(gray, minG, maxG);
+  if (!sample) return null;
+  const radial = radialPowerFeature(sample.arr, sample.width, sample.height, 48);
+  const orient = orientationFeature(sample.arr, sample.width, sample.height, 24);
+  const feat = new Float64Array(72);
+  for (let i=0; i<48; i++) feat[i] = radial[i];
+  for (let i=0; i<24; i++) feat[48+i] = orient[i];
+  const mu = datasetPCA.feature_mean, sd = datasetPCA.feature_std, center = datasetPCA.feature_center || new Array(72).fill(0);
+  const pcs = [];
+  for (const comp of datasetPCA.pca_components) {
+    let v = 0;
+    for (let i=0; i<feat.length; i++) v += (((feat[i] - mu[i]) / Math.max(sd[i], 1e-9)) - (center[i] || 0)) * comp[i];
+    pcs.push(v);
+  }
+  return {pc1: pcs[0], pc2: pcs[1], pc3: pcs[2] || 0, pc4: pcs[3] || 0, domain: 'generated'};
+}
+
+function updateCurrentPcaMarker() {
+  if (!datasetPCA || !state.gray || state.gray.length !== N) return;
+  const pc = projectGrayToDatasetPca(state.gray, params.minGray, params.maxGray);
+  if (!pc) return;
+  currentPcaPoint = {...pc, label: state.sourceLabel || state.source || 'current'};
+}
+
+function featureLabelText(name) {
+  if (!name) return '';
+  if (name.startsWith('radial_')) {
+    const idx = Number(name.slice(7));
+    return `R${idx}`;
+  }
+  if (name.startsWith('orientation_')) {
+    const idx = Number(name.slice(12));
+    return `θ${idx}`;
+  }
+  return name;
+}
+
+function formatLoadings(loads) {
+  if (!loads) return '';
+  const pos = (loads.positive || []).slice(0, 4).map(x => `${featureLabelText(x.feature)} ${Number(x.loading).toFixed(3)}`).join(', ');
+  const neg = (loads.negative || []).slice(0, 4).map(x => `${featureLabelText(x.feature)} ${Number(x.loading).toFixed(3)}`).join(', ');
+  return `+ ${pos}\n- ${neg}`;
+}
+
+function updatePcaAxisInfo() {
+  const el = document.getElementById('pcaAxisInfo');
+  if (!el || !datasetPCA) return;
+  const ev = datasetPCA.explained_variance_ratio || [];
+  const loads = datasetPCA.pc_axis_loadings || {};
+  el.textContent =
+    `PC1 ${(100*(ev[0] || 0)).toFixed(1)}%: low-frequency radial bins positive, mid/high-frequency radial bins negative\n${formatLoadings(loads.pc1)}\n` +
+    `PC2 ${(100*(ev[1] || 0)).toFixed(1)}%: broad low-frequency radial power positive, mid-frequency radial power negative\n${formatLoadings(loads.pc2)}`;
+}
+
 function domainColor(domain) {
   if (domain === 'mla') return '#ff8a3d';
   if (domain === 'perlin') return '#74d27d';
@@ -1253,6 +1369,14 @@ function drawDatasetPCA() {
     ctx.beginPath(); ctx.arc(q.x, q.y, 9.5, 0, 2*Math.PI); ctx.stroke();
     ctx.fillStyle = '#f7d15c'; ctx.font = '11px ui-monospace, monospace';
     ctx.fillText('target', q.x + 10, q.y - 7);
+  }
+  if (currentPcaPoint) {
+    const q = pcaToCanvas(currentPcaPoint, w, h);
+    ctx.strokeStyle = '#ff4fd8'; ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.arc(q.x, q.y, 10.5, 0, 2*Math.PI); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(q.x - 6, q.y); ctx.lineTo(q.x + 6, q.y); ctx.moveTo(q.x, q.y - 6); ctx.lineTo(q.x, q.y + 6); ctx.stroke();
+    ctx.fillStyle = '#ffb6ef'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText('current', q.x + 11, q.y + 12);
   }
 }
 function nearestPcaPoint(pc1, pc2) {
@@ -1383,13 +1507,14 @@ async function loadDatasetPcaPoint(pointOrId) {
   state.referenceKey = null;
   const res = propagate(state.heightNorm, params.zMm);
   state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
+  updateCurrentPcaMarker();
   drawGray(document.getElementById('grayCanvas'), state.gray);
   drawHeat(document.getElementById('waveCanvas'), state.wave);
   renderComponents();
   updateMetrics(performance.now() - t0);
   dumpParams();
   drawDatasetPCA();
-  document.getElementById('pcaStatus').textContent = `selected ${point.label} · FL=${point.fl_mm ?? 'n/a'}mm · gray ${point.min_gray}-${point.max_gray} · PC=(${point.pc1.toFixed(2)}, ${point.pc2.toFixed(2)})`;
+  document.getElementById('pcaStatus').textContent = `selected ${point.label} · FL=${point.fl_mm ?? 'n/a'}mm · gray ${point.min_gray}-${point.max_gray} · dataset PC=(${point.pc1.toFixed(2)}, ${point.pc2.toFixed(2)}) · projected current=(${currentPcaPoint?.pc1.toFixed(2)}, ${currentPcaPoint?.pc2.toFixed(2)})`;
 }
 async function initDatasetPCA() {
   const status = document.getElementById('pcaStatus');
@@ -1398,6 +1523,8 @@ async function initDatasetPCA() {
     datasetPCA = await res.json();
     const ev = datasetPCA.explained_variance_ratio || [];
     status.textContent = `loaded ${datasetPCA.n} masks · feature PCA · PC1 ${(100*ev[0]).toFixed(1)}%, PC2 ${(100*ev[1]).toFixed(1)}%, silhouette ${Number(datasetPCA.silhouette_pc12 ?? 0).toFixed(2)} · loading generated candidate bank…`;
+    updatePcaAxisInfo();
+    updateCurrentPcaMarker();
     drawDatasetPCA();
     initGeneratedBank();
   } catch (err) {
@@ -1431,12 +1558,14 @@ async function loadReferenceMask(key) {
   selectedGeneratedTarget = null;
   const res = propagate(state.heightNorm, params.zMm);
   state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
+  updateCurrentPcaMarker();
   drawGray(document.getElementById('grayCanvas'), state.gray);
   drawHeat(document.getElementById('waveCanvas'), state.wave);
   renderComponents();
   document.getElementById('referenceNote').textContent = `${meta.label}: ${meta.note}`;
   updateMetrics(performance.now() - t0);
   dumpParams();
+  drawDatasetPCA();
 }
 
 function setResolution(key, rerun=true) {
@@ -1450,6 +1579,7 @@ function setResolution(key, rerun=true) {
     if (c) { c.width = W; c.height = H; }
   }
   state = {gray: null, heightNorm: null, wave: null, components: {}, metrics: {}, source: 'generated'};
+  currentPcaPoint = null;
   if (key === 'original') {
     const auto = document.getElementById('autoUpdate');
     if (auto) auto.checked = false;
@@ -1467,12 +1597,14 @@ function updateAll(runSweep=false) {
   if (state.source === 'generated' || !state.gray || state.gray.length !== N) generateSample();
   const res = propagate(state.heightNorm, params.zMm);
   state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
+  updateCurrentPcaMarker();
   drawGray(document.getElementById('grayCanvas'), state.gray);
   drawHeat(document.getElementById('waveCanvas'), state.wave);
   renderComponents();
   updateMetrics(performance.now() - t0);
   if (runSweep) renderSweep();
   dumpParams();
+  drawDatasetPCA();
 }
 function renderComponents() {
   const grid = document.getElementById('componentGrid');
@@ -1597,7 +1729,7 @@ function applyCodePreset(code, seed, atomCombine, note, run=true) {
   document.getElementById('presetNote').textContent = note || '';
   refreshControlValues();
   if (run) updateAll(true);
-  else { dumpParams(); document.getElementById('grayInfo').textContent = `preset loaded · ${W}×${H} · click Generate + Propagate`; }
+  else { currentPcaPoint = null; dumpParams(); document.getElementById('grayInfo').textContent = `preset loaded · ${W}×${H} · click Generate + Propagate`; drawDatasetPCA(); }
 }
 function applySelectedPreset(run=true) {
   state.source = 'generated'; state.sourceLabel = 'generated';
