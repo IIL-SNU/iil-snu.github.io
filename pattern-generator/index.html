@@ -179,7 +179,7 @@
 <header>
   <h1>Parameterized Smooth-Field Generator + Angular-Spectrum Wave Propagation</h1>
   <div class="subtitle">
-    Offline standalone HTML. 8-bit gray floor/min and max gray are adjustable, h<sub>max</sub>=15µm. Browser preview uses 512×256 to keep 100–300µm lenslet features resolvable.
+    Offline standalone HTML. Original active size is 2200×1400 px @ 2.7µm. Browser preview resolution is selectable; 512×256 is the default compromise.
   </div>
 </header>
 
@@ -229,6 +229,12 @@
     <fieldset>
       <legend>Seed / fabrication / propagation</legend>
       <div class="row"><label>seed</label><input id="seedInput" type="number" value="20260601" step="1" /><span class="value">rng</span></div>
+      <div class="row"><label>preview res</label><select id="resolutionSelect">
+        <option value="256x128">256×128 fast</option>
+        <option value="512x256" selected>512×256 default</option>
+        <option value="1024x512">1024×512 slow</option>
+        <option value="original" disabled>2200×1400 original/offline</option>
+      </select><span class="value">FFT preview</span></div>
       <div class="row"><label>min_gray</label><input data-key="minGray" type="range" min="0" max="254" step="1" /><span class="value"></span></div>
       <div class="row"><label>max_gray</label><input data-key="maxGray" type="range" min="1" max="255" step="1" /><span class="value"></span></div>
       <div class="row"><label>z / focal proxy (mm)</label><input data-key="zMm" type="range" min="0" max="20" step="0.1" /><span class="value"></span></div>
@@ -296,7 +302,7 @@
     <div class="note">
       이 HTML은 서버 없이 브라우저에서 generator와 wave propagation을 바로 계산한다. wave propagation은 학습 코드의
       <code>LFmodel.MO_forward_batch</code> convention(thin phase → 2× zero padding → ASM → center crop → amplitude max-normalize)에 맞춘 preview이다.
-      1–5mm focus를 만드는 100–300µm feature가 256×128 preview에서는 under-resolved되어 best z가 길게 보일 수 있어 512×256으로 올렸다.
+      1–5mm focus를 만드는 100–300µm feature가 256×128 preview에서는 under-resolved되어 best z가 길게 보일 수 있어 기본값은 512×256이다. 원본 2200×1400 검증은 offline/Python 경로에서 보는 게 맞다.
     </div>
 
     <section class="canvasGrid">
@@ -339,17 +345,27 @@
 <script>
 'use strict';
 
-const W = 512, H = 256, N = W * H;
+const RESOLUTIONS = {
+  '256x128': {w: 256, h: 128},
+  '512x256': {w: 512, h: 256},
+  '1024x512': {w: 1024, h: 512}
+};
+let W = 512, H = 256, N = W * H;
 const DEFAULT_MIN_GRAY = 90;
 const H_MAX_M = 15e-6;
 const WAVELENGTH_M = 550e-9;
 const N_MAT = 1.56, N_AIR = 1.0;
-// Match the original active design FOV: 2200×1400 px at 2.7 µm pitch.
-const ACTIVE_WIDTH_M = 2200 * 2.7e-6;
-const ACTIVE_HEIGHT_M = 1400 * 2.7e-6;
-const PIXEL_X_M = ACTIVE_WIDTH_M / W;
-const PIXEL_Y_M = ACTIVE_HEIGHT_M / H;
-const PIXEL_M = Math.sqrt(PIXEL_X_M * PIXEL_Y_M);
+// Original active design: 2200×1400 px at 2.7 µm pitch.
+const ORIGINAL_W = 2200, ORIGINAL_H = 1400, ORIGINAL_PIXEL_M = 2.7e-6;
+const ACTIVE_WIDTH_M = ORIGINAL_W * ORIGINAL_PIXEL_M;
+const ACTIVE_HEIGHT_M = ORIGINAL_H * ORIGINAL_PIXEL_M;
+let PIXEL_X_M, PIXEL_Y_M, PIXEL_M;
+function updatePhysicalSampling() {
+  PIXEL_X_M = ACTIVE_WIDTH_M / W;
+  PIXEL_Y_M = ACTIVE_HEIGHT_M / H;
+  PIXEL_M = Math.sqrt(PIXEL_X_M * PIXEL_Y_M);
+}
+updatePhysicalSampling();
 const Z_SWEEP = [0, 1, 2, 3, 5, 8, 10, 15, 20];
 
 const defaults = {
@@ -981,6 +997,20 @@ function drawUnit(canvas, arr) {
   ctx.putImageData(img, 0, 0);
 }
 
+function setResolution(key, rerun=true) {
+  const cfg = RESOLUTIONS[key] || RESOLUTIONS['512x256'];
+  W = cfg.w;
+  H = cfg.h;
+  N = W * H;
+  updatePhysicalSampling();
+  for (const id of ['grayCanvas', 'waveCanvas']) {
+    const c = document.getElementById(id);
+    if (c) { c.width = W; c.height = H; }
+  }
+  state = {gray: null, heightNorm: null, wave: null, components: {}, metrics: {}};
+  if (rerun) updateAll(false);
+}
+
 function updateAll(runSweep=false) {
   const t0 = performance.now();
   generateSample();
@@ -1018,8 +1048,8 @@ function renderSweep() {
   }
 }
 function updateMetrics(ms) {
-  document.getElementById('grayInfo').textContent = `floor=${params.minGray}, max=${params.maxGray}, ${ms.toFixed(0)} ms`;
-  document.getElementById('waveInfo').textContent = `z=${params.zMm.toFixed(1)} mm`;
+  document.getElementById('grayInfo').textContent = `floor=${params.minGray}, max=${params.maxGray}, ${W}×${H}, ${ms.toFixed(0)} ms`;
+  document.getElementById('waveInfo').textContent = `z=${params.zMm.toFixed(1)} mm · ${W}×${H}`;
   document.getElementById('mGray').textContent = `${state.metrics.grayMin} … ${state.metrics.grayMax}`;
   document.getElementById('mHeight').textContent = `0 … ${state.metrics.heightMaxUm.toFixed(2)} µm`;
   document.getElementById('mPeak').textContent = `${state.metrics.peak.toFixed(2)}`;
@@ -1033,6 +1063,7 @@ function paramsToCodeNames() {
   return {
     min_gray: Math.round(params.minGray),
     max_gray: Math.round(params.maxGray),
+    preview_width: W, preview_height: H, original_width: ORIGINAL_W, original_height: ORIGINAL_H,
     spectral_weight: params.spectralWeight, spectral_centroid: params.spectralCentroid, spectral_bandwidth: params.spectralBandwidth,
     spectral_slope: params.spectralSlope, spectral_anisotropy: params.spectralAnisotropy, spectral_orientation_rad: params.spectralOrientation,
     rank_weight: params.rankWeight, rank_modes: Math.round(params.rankModes), rank_max_mode: Math.round(params.rankMaxMode), rank_decay: params.rankDecay,
@@ -1275,7 +1306,7 @@ async function downloadRandomSeedZip() {
       files.push({name: `sample_${String(i).padStart(4,'0')}_seed${seed}_wave_z${params.zMm.toFixed(1)}mm.png`, data: await canvasToPngBytes(waveCanvas)});
       waveMetrics = {peak_to_mean_p999_preview: res.peakToMean, bright_frac_preview: res.brightFrac};
     }
-    manifest.push({index: i, seed, min_gray: params.minGray, max_gray: params.maxGray, z_mm: params.zMm, ...waveMetrics});
+    manifest.push({index: i, seed, min_gray: params.minGray, max_gray: params.maxGray, preview_width: W, preview_height: H, z_mm: params.zMm, ...waveMetrics});
   }
   files.push({name: 'params.json', data: JSON.stringify(paramsToCodeNames(), null, 2)});
   files.push({name: 'manifest.json', data: JSON.stringify(manifest, null, 2)});
@@ -1312,6 +1343,7 @@ document.getElementById('sweepBtn').addEventListener('click', () => { if (!state
 document.getElementById('randomBtn').addEventListener('click', randomizeParams);
 document.getElementById('resetBtn').addEventListener('click', resetParams);
 document.getElementById('seedInput').addEventListener('change', scheduleUpdate);
+document.getElementById('resolutionSelect').addEventListener('change', (e) => setResolution(e.target.value, true));
 document.getElementById('downloadGray').addEventListener('click', () => downloadCanvas('grayCanvas', 'graymap.png'));
 document.getElementById('downloadWave').addEventListener('click', () => downloadCanvas('waveCanvas', `wave_z${params.zMm.toFixed(1)}mm.png`));
 document.getElementById('downloadZipBtn').addEventListener('click', downloadRandomSeedZip);
@@ -1321,6 +1353,7 @@ document.getElementById('copyParams').addEventListener('click', async () => {
   document.getElementById('paramDump').textContent = txt;
 });
 
+setResolution(document.getElementById('resolutionSelect').value, false);
 syncControls();
 initGrids();
 document.getElementById('presetNote').textContent = PRESETS.mla_metric.label + ': ' + PRESETS.mla_metric.note;
