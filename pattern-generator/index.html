@@ -179,7 +179,7 @@
 <header>
   <h1>Parameterized Smooth-Field Generator + Angular-Spectrum Wave Propagation</h1>
   <div class="subtitle">
-    Offline standalone HTML. 8-bit gray floor=90, max gray variable, h<sub>max</sub>=15µm. Browser preview is downsampled for real-time interaction.
+    Offline standalone HTML. 8-bit gray floor/min and max gray are adjustable, h<sub>max</sub>=15µm. Browser preview is downsampled for real-time interaction.
   </div>
 </header>
 
@@ -229,7 +229,8 @@
     <fieldset>
       <legend>Seed / fabrication / propagation</legend>
       <div class="row"><label>seed</label><input id="seedInput" type="number" value="20260601" step="1" /><span class="value">rng</span></div>
-      <div class="row"><label>max_gray</label><input data-key="maxGray" type="range" min="200" max="255" step="1" /><span class="value"></span></div>
+      <div class="row"><label>min_gray</label><input data-key="minGray" type="range" min="0" max="254" step="1" /><span class="value"></span></div>
+      <div class="row"><label>max_gray</label><input data-key="maxGray" type="range" min="1" max="255" step="1" /><span class="value"></span></div>
       <div class="row"><label>z / focal proxy (mm)</label><input data-key="zMm" type="range" min="0" max="20" step="0.1" /><span class="value"></span></div>
       <div class="row"><label>gamma</label><input data-key="gamma" type="range" min="0.15" max="1.8" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>nonlinear contrast</label><input data-key="nonlinearContrast" type="range" min="0.5" max="2.5" step="0.01" /><span class="value"></span></div>
@@ -338,7 +339,7 @@
 'use strict';
 
 const W = 256, H = 128, N = W * H;
-const MIN_GRAY = 90;
+const DEFAULT_MIN_GRAY = 90;
 const H_MAX_M = 15e-6;
 const WAVELENGTH_M = 550e-9;
 const N_MAT = 1.56, N_AIR = 1.0;
@@ -351,7 +352,7 @@ const PIXEL_M = Math.sqrt(PIXEL_X_M * PIXEL_Y_M);
 const Z_SWEEP = [0, 1, 2, 3, 5, 8, 10, 15, 20];
 
 const defaults = {
-  maxGray: 235, zMm: 1.0,
+  minGray: DEFAULT_MIN_GRAY, maxGray: 235, zMm: 1.0,
   gamma: 1.0, nonlinearContrast: 1.15, finalBlur: 1.2, slopeLimit: 0.42,
   spectralWeight: 0.24, rankWeight: 0.10, zernikeWeight: 0.08, atomWeight: 0.30, ridgeWeight: 0.24, levelsetWeight: 0.04, rippleWeight: 0.0,
   spectralCentroid: 0.070, spectralBandwidth: 0.060, spectralSlope: -1.2, spectralAnisotropy: 1.0, spectralOrientation: 0.0,
@@ -814,6 +815,14 @@ function applyTone(arr) {
   return out;
 }
 
+function grayBounds() {
+  const minG = clamp(Math.round(Number(params.minGray ?? DEFAULT_MIN_GRAY)), 0, 254);
+  const maxG = clamp(Math.round(Number(params.maxGray ?? 255)), minG + 1, 255);
+  params.minGray = minG;
+  params.maxGray = maxG;
+  return {minG, maxG};
+}
+
 function generateSample() {
   const seed = Number(document.getElementById('seedInput').value) || 1;
   const rng = new RNG(seed);
@@ -847,17 +856,22 @@ function generateSample() {
   unit = curvatureProjection(unit);
   unit = applyTone(unit);
 
+  const {minG, maxG} = grayBounds();
   const gray = new Uint8ClampedArray(N);
   let gmin = 255, gmax = 0;
   for (let i=0; i<N; i++) {
-    const g = Math.round(MIN_GRAY + clamp(unit[i],0,1) * (params.maxGray - MIN_GRAY));
-    gray[i] = clamp(g, MIN_GRAY, params.maxGray);
+    const g = Math.round(minG + clamp(unit[i],0,1) * (maxG - minG));
+    gray[i] = clamp(g, minG, maxG);
     gmin = Math.min(gmin, gray[i]); gmax = Math.max(gmax, gray[i]);
   }
   const hnorm = new Float32Array(N);
-  for (let i=0; i<N; i++) hnorm[i] = clamp((gray[i] - MIN_GRAY) / Math.max(params.maxGray - MIN_GRAY, 1), 0, 1) * (params.maxGray / 255);
+  for (let i=0; i<N; i++) {
+    // Projector gray floor maps to zero physical height.
+    // max_gray maps to H_MAX_M * max_gray/255, matching the current audit convention.
+    hnorm[i] = clamp((gray[i] - minG) / Math.max(maxG - minG, 1), 0, 1) * (maxG / 255);
+  }
   state.gray = gray; state.heightNorm = hnorm; state.components = comps;
-  state.metrics.grayMin = gmin; state.metrics.grayMax = gmax; state.metrics.heightMaxUm = (params.maxGray / 255) * 15;
+  state.metrics.grayMin = gmin; state.metrics.grayMax = gmax; state.metrics.heightMinUm = 0; state.metrics.heightMaxUm = (maxG / 255) * 15;
 }
 
 function propagate(heightNorm, zMm) {
@@ -1003,10 +1017,10 @@ function renderSweep() {
   }
 }
 function updateMetrics(ms) {
-  document.getElementById('grayInfo').textContent = `floor=90, max=${params.maxGray}, ${ms.toFixed(0)} ms`;
+  document.getElementById('grayInfo').textContent = `floor=${params.minGray}, max=${params.maxGray}, ${ms.toFixed(0)} ms`;
   document.getElementById('waveInfo').textContent = `z=${params.zMm.toFixed(1)} mm`;
   document.getElementById('mGray').textContent = `${state.metrics.grayMin} … ${state.metrics.grayMax}`;
-  document.getElementById('mHeight').textContent = `${state.metrics.heightMaxUm.toFixed(2)} µm`;
+  document.getElementById('mHeight').textContent = `0 … ${state.metrics.heightMaxUm.toFixed(2)} µm`;
   document.getElementById('mPeak').textContent = `${state.metrics.peak.toFixed(2)}`;
   document.getElementById('mBright').textContent = `${(100*state.metrics.bright).toFixed(2)} %`;
 }
@@ -1016,6 +1030,7 @@ function dumpParams() {
 }
 function paramsToCodeNames() {
   return {
+    min_gray: Math.round(params.minGray),
     max_gray: Math.round(params.maxGray),
     spectral_weight: params.spectralWeight, spectral_centroid: params.spectralCentroid, spectral_bandwidth: params.spectralBandwidth,
     spectral_slope: params.spectralSlope, spectral_anisotropy: params.spectralAnisotropy, spectral_orientation_rad: params.spectralOrientation,
@@ -1038,19 +1053,32 @@ function scheduleUpdate() {
   timer = setTimeout(() => updateAll(false), 160);
 }
 function syncControls() {
+  grayBounds();
   for (const el of document.querySelectorAll('input[type="range"][data-key]')) {
     const key = el.dataset.key;
     el.value = params[key];
     el.parentElement.querySelector('.value').textContent = formatValue(params[key]);
     el.addEventListener('input', () => {
       params[key] = Number(el.value);
-      el.parentElement.querySelector('.value').textContent = formatValue(params[key]);
+      if (key === 'minGray' || key === 'maxGray') {
+        grayBounds();
+        refreshControlValues();
+      } else {
+        el.parentElement.querySelector('.value').textContent = formatValue(params[key]);
+      }
       scheduleUpdate();
     });
   }
   document.getElementById('atomCombine').addEventListener('change', scheduleUpdate);
 }
 function refreshControlValues() {
+  grayBounds();
+  const minEl = document.querySelector('input[data-key="minGray"]');
+  const maxEl = document.querySelector('input[data-key="maxGray"]');
+  if (minEl && maxEl) {
+    minEl.max = String(Math.max(0, params.maxGray - 1));
+    maxEl.min = String(Math.min(255, params.minGray + 1));
+  }
   for (const el of document.querySelectorAll('input[type="range"][data-key]')) {
     const key = el.dataset.key;
     el.value = params[key];
@@ -1065,7 +1093,7 @@ function formatValue(v) {
 
 function applyCodePreset(code, seed, atomCombine, note) {
   const map = {
-    max_gray: 'maxGray',
+    min_gray: 'minGray', max_gray: 'maxGray',
     spectral_weight: 'spectralWeight', spectral_centroid: 'spectralCentroid', spectral_bandwidth: 'spectralBandwidth', spectral_slope: 'spectralSlope', spectral_anisotropy: 'spectralAnisotropy', spectral_orientation_rad: 'spectralOrientation',
     rank_weight: 'rankWeight', rank_modes: 'rankModes', rank_max_mode: 'rankMaxMode', rank_decay: 'rankDecay',
     zernike_weight: 'zernikeWeight', zernike_max_order: 'zernikeOrder', defocus_bias: 'defocusBias', astigmatism_bias: 'astigBias', tilt_strength: 'tiltStrength',
@@ -1246,7 +1274,7 @@ async function downloadRandomSeedZip() {
       files.push({name: `sample_${String(i).padStart(4,'0')}_seed${seed}_wave_z${params.zMm.toFixed(1)}mm.png`, data: await canvasToPngBytes(waveCanvas)});
       waveMetrics = {peak_to_mean_p999_preview: res.peakToMean, bright_frac_preview: res.brightFrac};
     }
-    manifest.push({index: i, seed, max_gray: params.maxGray, z_mm: params.zMm, ...waveMetrics});
+    manifest.push({index: i, seed, min_gray: params.minGray, max_gray: params.maxGray, z_mm: params.zMm, ...waveMetrics});
   }
   files.push({name: 'params.json', data: JSON.stringify(paramsToCodeNames(), null, 2)});
   files.push({name: 'manifest.json', data: JSON.stringify(manifest, null, 2)});
