@@ -212,7 +212,20 @@
       </div>
     </fieldset>
 
-
+    <fieldset>
+      <legend>Reference sample masks</legend>
+      <div class="row"><label>sample</label><select id="referenceSelect">
+        <option value="voronoi">Voronoi sample mask</option>
+        <option value="mla">MLA 3mm sample mask</option>
+        <option value="perlin">Perlin sample mask</option>
+      </select><span class="value">static</span></div>
+      <div class="buttons" style="margin-bottom:0;">
+        <button class="primary" id="loadReferenceBtn">Load sample + propagate</button>
+      </div>
+      <div class="note" id="referenceNote" style="font-size:11px;margin-bottom:0;">
+        실제/기존 sample mask를 현재 preview 해상도로 resample해서 z slider와 sweep에 그대로 사용한다.
+      </div>
+    </fieldset>
 
     <fieldset>
       <legend>Batch download</legend>
@@ -233,7 +246,7 @@
         <option value="256x128">256×128 fast</option>
         <option value="512x256" selected>512×256 default</option>
         <option value="1024x512">1024×512 slow</option>
-        <option value="original" disabled>2200×1400 original/offline</option>
+        <option value="original">2200×1400 original — very slow</option>
       </select><span class="value">FFT preview</span></div>
       <div class="row"><label>min_gray</label><input data-key="minGray" type="range" min="0" max="254" step="1" /><span class="value"></span></div>
       <div class="row"><label>max_gray</label><input data-key="maxGray" type="range" min="1" max="255" step="1" /><span class="value"></span></div>
@@ -302,7 +315,7 @@
     <div class="note">
       이 HTML은 서버 없이 브라우저에서 generator와 wave propagation을 바로 계산한다. wave propagation은 학습 코드의
       <code>LFmodel.MO_forward_batch</code> convention(thin phase → 2× zero padding → ASM → center crop → amplitude max-normalize)에 맞춘 preview이다.
-      1–5mm focus를 만드는 100–300µm feature가 256×128 preview에서는 under-resolved되어 best z가 길게 보일 수 있어 기본값은 512×256이다. 원본 2200×1400 검증은 offline/Python 경로에서 보는 게 맞다.
+      1–5mm focus를 만드는 100–300µm feature가 256×128 preview에서는 under-resolved되어 best z가 길게 보일 수 있어 기본값은 512×256이다. 원본 2200×1400도 선택 가능하지만 브라우저에서 수백 MB 메모리와 긴 계산 시간이 필요하므로 수동 실행을 권장한다.
     </div>
 
     <section class="canvasGrid">
@@ -345,18 +358,19 @@
 <script>
 'use strict';
 
+// Original active design: 2200×1400 px at 2.7 µm pitch.
+const ORIGINAL_W = 2200, ORIGINAL_H = 1400, ORIGINAL_PIXEL_M = 2.7e-6;
 const RESOLUTIONS = {
   '256x128': {w: 256, h: 128},
   '512x256': {w: 512, h: 256},
-  '1024x512': {w: 1024, h: 512}
+  '1024x512': {w: 1024, h: 512},
+  'original': {w: ORIGINAL_W, h: ORIGINAL_H}
 };
 let W = 512, H = 256, N = W * H;
 const DEFAULT_MIN_GRAY = 90;
 const H_MAX_M = 15e-6;
 const WAVELENGTH_M = 550e-9;
 const N_MAT = 1.56, N_AIR = 1.0;
-// Original active design: 2200×1400 px at 2.7 µm pitch.
-const ORIGINAL_W = 2200, ORIGINAL_H = 1400, ORIGINAL_PIXEL_M = 2.7e-6;
 const ACTIVE_WIDTH_M = ORIGINAL_W * ORIGINAL_PIXEL_M;
 const ACTIVE_HEIGHT_M = ORIGINAL_H * ORIGINAL_PIXEL_M;
 let PIXEL_X_M, PIXEL_Y_M, PIXEL_M;
@@ -459,8 +473,29 @@ const PRESETS = {
   }
 };
 
+const REFERENCE_MASKS = {
+  voronoi: {
+    label: 'Voronoi sample mask',
+    url: 'samples/reference_voronoi.png',
+    minGray: 0, maxGray: 198,
+    note: 'mask_voro/justflatfielding_int8ffMapTargetSingle.bmp: nonzero bbox crop 후 2200×1400 active FOV 중앙 배치. Absolute gray preserved.'
+  },
+  mla: {
+    label: 'MLA 3mm sample mask',
+    url: 'samples/reference_mla_3mm.png',
+    minGray: 0, maxGray: 130,
+    note: 'data/MLA_through_focus/mla_3mm.npz의 mla_heightmap_m을 gray=height/15um*255로 변환. Physical height preserved.'
+  },
+  perlin: {
+    label: 'Perlin sample mask',
+    url: 'samples/reference_perlin.png',
+    minGray: 0, maxGray: 255,
+    note: '기존 Perlin reference graymap을 2200×1400 active FOV로 resize. Absolute 0–255 gray preserved.'
+  }
+};
+
 let params = {...defaults};
-let state = {gray: null, heightNorm: null, wave: null, components: {}, metrics: {}};
+let state = {gray: null, heightNorm: null, wave: null, components: {}, metrics: {}, source: 'generated'};
 let timer = null;
 
 class RNG {
@@ -525,6 +560,10 @@ function quantile(arr, q) {
   return tmp[Math.floor(clamp(q,0,1) * (tmp.length-1))];
 }
 
+function isPowerOfTwo(n) { return n > 0 && (n & (n - 1)) === 0; }
+function nextPowerOfTwo(n) { return 2 ** Math.ceil(Math.log2(Math.max(1, n))); }
+function numericArray(length) { return length > 8_000_000 ? new Float32Array(length) : new Float64Array(length); }
+
 function fft1d(re, im, inverse=false) {
   const n = re.length;
   for (let i = 1, j = 0; i < n; i++) {
@@ -576,16 +615,25 @@ function fft2d(re, im, inverse=false) {
 }
 
 function spectralField(rng, c=params.spectralCentroid, bw=params.spectralBandwidth, slope=params.spectralSlope) {
-  const re = new Float64Array(N), im = new Float64Array(N);
-  for (let i = 0; i < N; i++) re[i] = rng.normal();
-  fft2d(re, im, false);
+  // Active W/H can be non power-of-two for the original 2200×1400 mode.
+  // The browser FFT kernel is radix-2, so spectral synthesis is done on a padded
+  // power-of-two grid and then cropped back to the active canvas.
+  const FW = isPowerOfTwo(W) ? W : nextPowerOfTwo(W);
+  const FH = isPowerOfTwo(H) ? H : nextPowerOfTwo(H);
+  const FN = FW * FH;
+  const re = numericArray(FN), im = numericArray(FN);
+  for (let y = 0; y < H; y++) {
+    const off = y * FW;
+    for (let x = 0; x < W; x++) re[off + x] = rng.normal();
+  }
+  fft2dSized(re, im, FW, FH, false);
   const angle = params.spectralOrientation;
   const anis = Math.max(params.spectralAnisotropy, 1e-3);
   const ca = Math.cos(angle), sa = Math.sin(angle);
-  for (let y = 0; y < H; y++) {
-    const fy = (y <= H/2 ? y : y-H) / H;
-    for (let x = 0; x < W; x++) {
-      const fx = (x <= W/2 ? x : x-W) / W;
+  for (let y = 0; y < FH; y++) {
+    const fy = (y < FH/2 ? y : y-FH) / FH;
+    for (let x = 0; x < FW; x++) {
+      const fx = (x < FW/2 ? x : x-FW) / FW;
       const kxr = ca * fx + sa * fy;
       const kyr = -sa * fx + ca * fy;
       let kr = Math.sqrt((kxr/anis)**2 + (kyr*anis)**2) / 0.70710678;
@@ -594,12 +642,17 @@ function spectralField(rng, c=params.spectralCentroid, bw=params.spectralBandwid
       env *= sigmoid((kr - low) / Math.max(low*0.35, 1e-4));
       env *= sigmoid((high - kr) / Math.max(high*0.10, 1e-4));
       if (x === 0 && y === 0) env = 0;
-      const idx = y*W+x;
+      const idx = y*FW+x;
       re[idx] *= env; im[idx] *= env;
     }
   }
-  fft2d(re, im, true);
-  return Float32Array.from(re);
+  fft2dSized(re, im, FW, FH, true);
+  const out = new Float32Array(N);
+  for (let y = 0; y < H; y++) {
+    const src = y * FW, dst = y * W;
+    for (let x = 0; x < W; x++) out[dst + x] = re[src + x];
+  }
+  return out;
 }
 
 function rankField(rng) {
@@ -839,6 +892,22 @@ function grayBounds() {
   params.maxGray = maxG;
   return {minG, maxG};
 }
+function heightNormFromGray(gray, minG, maxG) {
+  const hnorm = new Float32Array(gray.length);
+  for (let i=0; i<gray.length; i++) {
+    hnorm[i] = clamp((gray[i] - minG) / Math.max(maxG - minG, 1), 0, 1) * (maxG / 255);
+  }
+  return hnorm;
+}
+function setGrayState(gray, minG, maxG, source, label, components={}) {
+  const hnorm = heightNormFromGray(gray, minG, maxG);
+  let gmin = 255, gmax = 0;
+  for (let i=0; i<gray.length; i++) { gmin = Math.min(gmin, gray[i]); gmax = Math.max(gmax, gray[i]); }
+  state.gray = gray; state.heightNorm = hnorm; state.components = components || {};
+  state.source = source || 'generated'; state.sourceLabel = label || source || 'generated';
+  state.metrics.grayMin = gmin; state.metrics.grayMax = gmax;
+  state.metrics.heightMinUm = 0; state.metrics.heightMaxUm = (maxG / 255) * 15;
+}
 
 function generateSample() {
   const seed = Number(document.getElementById('seedInput').value) || 1;
@@ -881,22 +950,18 @@ function generateSample() {
     gray[i] = clamp(g, minG, maxG);
     gmin = Math.min(gmin, gray[i]); gmax = Math.max(gmax, gray[i]);
   }
-  const hnorm = new Float32Array(N);
-  for (let i=0; i<N; i++) {
-    // Projector gray floor maps to zero physical height.
-    // max_gray maps to H_MAX_M * max_gray/255, matching the current audit convention.
-    hnorm[i] = clamp((gray[i] - minG) / Math.max(maxG - minG, 1), 0, 1) * (maxG / 255);
-  }
-  state.gray = gray; state.heightNorm = hnorm; state.components = comps;
-  state.metrics.grayMin = gmin; state.metrics.grayMax = gmax; state.metrics.heightMinUm = 0; state.metrics.heightMaxUm = (maxG / 255) * 15;
+  setGrayState(gray, minG, maxG, 'generated', 'generated', comps);
 }
 
 function propagate(heightNorm, zMm) {
   // Browser port of LFmodel.MO_forward_batch for a single sample:
   // thin phase mask -> 2x zero padding -> ASM -> center crop -> abs amplitude -> max normalize.
-  const WP = W * 2, HP = H * 2, NP = WP * HP;
-  const padX = Math.floor(W / 2), padY = Math.floor(H / 2);
-  const re = new Float64Array(NP), im = new Float64Array(NP);
+  // Original 2200×1400 mode pads to the next radix-2 FFT size.
+  // This is larger than the training code's exact 2× pad, but preserves the same
+  // active FOV and avoids circular wrap more conservatively.
+  const WP = nextPowerOfTwo(W * 2), HP = nextPowerOfTwo(H * 2), NP = WP * HP;
+  const padX = Math.floor((WP - W) / 2), padY = Math.floor((HP - H) / 2);
+  const re = numericArray(NP), im = numericArray(NP);
   const k = 2 * Math.PI / WAVELENGTH_M;
 
   for (let y=0; y<H; y++) {
@@ -997,6 +1062,42 @@ function drawUnit(canvas, arr) {
   ctx.putImageData(img, 0, 0);
 }
 
+function loadImageElement(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+async function loadReferenceMask(key) {
+  const meta = REFERENCE_MASKS[key] || REFERENCE_MASKS.voronoi;
+  const t0 = performance.now();
+  const img = await loadImageElement(meta.url);
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, 0, 0, W, H);
+  const data = ctx.getImageData(0, 0, W, H).data;
+  const gray = new Uint8ClampedArray(N);
+  for (let i=0; i<N; i++) gray[i] = data[4*i];
+  params.minGray = meta.minGray;
+  params.maxGray = meta.maxGray;
+  refreshControlValues();
+  setGrayState(gray, meta.minGray, meta.maxGray, 'reference', meta.label, {});
+  state.referenceKey = key;
+  const res = propagate(state.heightNorm, params.zMm);
+  state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
+  drawGray(document.getElementById('grayCanvas'), state.gray);
+  drawHeat(document.getElementById('waveCanvas'), state.wave);
+  renderComponents();
+  document.getElementById('referenceNote').textContent = `${meta.label}: ${meta.note}`;
+  updateMetrics(performance.now() - t0);
+  dumpParams();
+}
+
 function setResolution(key, rerun=true) {
   const cfg = RESOLUTIONS[key] || RESOLUTIONS['512x256'];
   W = cfg.w;
@@ -1007,13 +1108,22 @@ function setResolution(key, rerun=true) {
     const c = document.getElementById(id);
     if (c) { c.width = W; c.height = H; }
   }
-  state = {gray: null, heightNorm: null, wave: null, components: {}, metrics: {}};
+  state = {gray: null, heightNorm: null, wave: null, components: {}, metrics: {}, source: 'generated'};
+  if (key === 'original') {
+    const auto = document.getElementById('autoUpdate');
+    if (auto) auto.checked = false;
+    const msg = `original ${W}×${H} selected · FFT pad ${nextPowerOfTwo(W*2)}×${nextPowerOfTwo(H*2)} · very slow`;
+    const gi = document.getElementById('grayInfo'), wi = document.getElementById('waveInfo');
+    if (gi) gi.textContent = msg;
+    if (wi) wi.textContent = 'click Generate + Propagate to run';
+    if (!rerun) return;
+  }
   if (rerun) updateAll(false);
 }
 
 function updateAll(runSweep=false) {
   const t0 = performance.now();
-  generateSample();
+  if (state.source !== 'reference' || !state.gray || state.gray.length !== N) generateSample();
   const res = propagate(state.heightNorm, params.zMm);
   state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
   drawGray(document.getElementById('grayCanvas'), state.gray);
@@ -1048,7 +1158,7 @@ function renderSweep() {
   }
 }
 function updateMetrics(ms) {
-  document.getElementById('grayInfo').textContent = `floor=${params.minGray}, max=${params.maxGray}, ${W}×${H}, ${ms.toFixed(0)} ms`;
+  document.getElementById('grayInfo').textContent = `${state.sourceLabel || state.source || 'generated'} · floor=${params.minGray}, max=${params.maxGray}, ${W}×${H}, ${ms.toFixed(0)} ms`;
   document.getElementById('waveInfo').textContent = `z=${params.zMm.toFixed(1)} mm · ${W}×${H}`;
   document.getElementById('mGray').textContent = `${state.metrics.grayMin} … ${state.metrics.grayMax}`;
   document.getElementById('mHeight').textContent = `0 … ${state.metrics.heightMaxUm.toFixed(2)} µm`;
@@ -1063,6 +1173,7 @@ function paramsToCodeNames() {
   return {
     min_gray: Math.round(params.minGray),
     max_gray: Math.round(params.maxGray),
+    source: state.source || 'generated', source_label: state.sourceLabel || '',
     preview_width: W, preview_height: H, original_width: ORIGINAL_W, original_height: ORIGINAL_H,
     spectral_weight: params.spectralWeight, spectral_centroid: params.spectralCentroid, spectral_bandwidth: params.spectralBandwidth,
     spectral_slope: params.spectralSlope, spectral_anisotropy: params.spectralAnisotropy, spectral_orientation_rad: params.spectralOrientation,
@@ -1147,12 +1258,14 @@ function applyCodePreset(code, seed, atomCombine, note) {
   updateAll(true);
 }
 function applySelectedPreset() {
+  state.source = 'generated'; state.sourceLabel = 'generated';
   const key = document.getElementById('presetSelect').value;
   const preset = PRESETS[key] || PRESETS.default_mixed;
   applyCodePreset(preset.code, preset.seed, preset.atomCombine, `${preset.label}: ${preset.note}${preset.sourceName ? ' Source=' + preset.sourceName : ''}`);
 }
 
 function randomizeParams() {
+  state.source = 'generated'; state.sourceLabel = 'generated';
   const seed = Math.floor(Math.random()*1e9);
   document.getElementById('seedInput').value = seed;
   const r = new RNG(seed ^ 0x9e3779b9);
@@ -1203,6 +1316,7 @@ function randomizeParams() {
   updateAll(true);
 }
 function resetParams() {
+  state.source = 'generated'; state.sourceLabel = 'generated';
   params = {...defaults};
   document.getElementById('seedInput').value = 20260601;
   document.getElementById('atomCombine').value = 'sum';
@@ -1338,15 +1452,22 @@ function initGrids() {
 }
 
 document.getElementById('applyPresetBtn').addEventListener('click', applySelectedPreset);
-document.getElementById('generateBtn').addEventListener('click', () => updateAll(false));
+document.getElementById('generateBtn').addEventListener('click', () => { state.source = 'generated'; state.sourceLabel = 'generated'; updateAll(false); });
 document.getElementById('sweepBtn').addEventListener('click', () => { if (!state.gray) generateSample(); renderSweep(); });
 document.getElementById('randomBtn').addEventListener('click', randomizeParams);
 document.getElementById('resetBtn').addEventListener('click', resetParams);
 document.getElementById('seedInput').addEventListener('change', scheduleUpdate);
-document.getElementById('resolutionSelect').addEventListener('change', (e) => setResolution(e.target.value, true));
+document.getElementById('resolutionSelect').addEventListener('change', (e) => {
+  const wasReference = state.source === 'reference';
+  const refKey = state.referenceKey || document.getElementById('referenceSelect').value;
+  setResolution(e.target.value, false);
+  if (wasReference) loadReferenceMask(refKey);
+  else if (e.target.value !== 'original') updateAll(false);
+});
 document.getElementById('downloadGray').addEventListener('click', () => downloadCanvas('grayCanvas', 'graymap.png'));
 document.getElementById('downloadWave').addEventListener('click', () => downloadCanvas('waveCanvas', `wave_z${params.zMm.toFixed(1)}mm.png`));
 document.getElementById('downloadZipBtn').addEventListener('click', downloadRandomSeedZip);
+document.getElementById('loadReferenceBtn').addEventListener('click', () => loadReferenceMask(document.getElementById('referenceSelect').value));
 document.getElementById('copyParams').addEventListener('click', async () => {
   const txt = JSON.stringify(paramsToCodeNames(), null, 2);
   try { await navigator.clipboard.writeText(txt); } catch (e) {}
