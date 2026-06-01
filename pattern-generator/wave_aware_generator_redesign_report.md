@@ -26,9 +26,11 @@ Audit script는 `LFmodel.MO_forward_batch`와 같은 convention으로 계산했�
 - center crop
 - gray→height: `height_norm=(gray-min_gray)/(max_gray-min_gray) * max_gray/255`, `h_max=15µm`
 
-Figure:
+Figure 아래 reference z sweep은 native 2200×1400, 2.7µm grid에서 LFmodel-style ASM으로 다시 계산했다. 초기 보고서의 220×140 downsample propagation은 고주파/곡률을 잃어 reference propagation 판단용으로 부적절했으므로 폐기한다.
 
 ![reference z sweep](/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/reports/domain_distribution_audit/final_figures_20260601/fig_wave_focus_reference_sweep.png)
+
+Reference metric 표는 downsample audit의 정량 proxy라 absolute z보다는 domain 간 상대 비교만 봐야 한다. 실제 reference propagation 판단은 위 native-resolution figure를 기준으로 한다.
 
 Reference 결과 요약:
 
@@ -78,7 +80,7 @@ Figure:
 
 해석:
 
-- Audit의 absolute best-z는 downsample/grid/score에 영향을 받으므로 training target 그대로의 focal length 숫자로 보기는 어렵다.
+- Metric audit의 absolute best-z는 downsample/grid/score에 영향을 받으므로 training target 그대로의 focal length 숫자로 보기는 어렵다. Reference z-sweep figure는 이 문제 때문에 native resolution으로 재생성했다.
 - 그래도 domain 간 상대 비교는 명확하다.
   - Perlin은 1--5mm point-focus curvature가 가장 부족하다.
   - MLA/Voronoi는 curvature fraction이 있지만, Voronoi는 edge-like high-frequency 성분이 많아 focus plane이 길게 밀리는 경향이 있다.
@@ -174,7 +176,8 @@ HTML viewer:
 
 ## 9. 산출물
 
-- Analysis script: `/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/reports/domain_distribution_audit/final_figures_20260601/analyze_wave_focus_features.py`
+- Metric audit script: `/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/reports/domain_distribution_audit/final_figures_20260601/analyze_wave_focus_features.py`
+- Native reference propagation script: `/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/reports/domain_distribution_audit/final_figures_20260601/make_reference_sweep_fullres.py`
 - Metrics CSV: `/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/reports/domain_distribution_audit/final_figures_20260601/wave_focus_feature_metrics.csv`
 - Summary JSON: `/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/reports/domain_distribution_audit/final_figures_20260601/wave_focus_feature_summary.json`
 - Reference sweep figure: `/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/reports/domain_distribution_audit/final_figures_20260601/fig_wave_focus_reference_sweep.png`
