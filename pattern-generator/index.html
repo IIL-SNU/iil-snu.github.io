@@ -274,7 +274,7 @@
 
     <fieldset>
       <legend>Spectral random field</legend>
-      <div class="row"><label>centroid</label><input data-key="spectralCentroid" type="range" min="0.005" max="0.35" step="0.001" /><span class="value"></span></div>
+      <div class="row"><label>centroid</label><input data-key="spectralCentroid" type="range" min="0.005" max="1.0" step="0.001" /><span class="value"></span></div>
       <div class="row"><label>bandwidth</label><input data-key="spectralBandwidth" type="range" min="0.005" max="0.22" step="0.001" /><span class="value"></span></div>
       <div class="row"><label>slope</label><input data-key="spectralSlope" type="range" min="-3.5" max="0.7" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>anisotropy</label><input data-key="spectralAnisotropy" type="range" min="0.35" max="3.0" step="0.01" /><span class="value"></span></div>
@@ -349,7 +349,7 @@
           <div id="pcaStatus" style="margin-top:8px;">Loading PCA data…</div>
           <div class="note" style="font-size:11px;margin-top:8px;">
             PCA는 현재 dataset gray mask를 active crop → physical height proxy → radial spectrum + gradient orientation feature로 만든 뒤 SVD로 계산했다.
-            raw-pixel PCA보다 MLA/Perlin/Voronoi clustering이 잘 되는 feature PCA다. plot을 클릭하면 그 위치에서 가장 가까운 dataset pattern을 로드해 현재 z에서 propagation한다.
+            raw-pixel PCA보다 MLA/Perlin/Voronoi clustering이 잘 되는 feature PCA다. plot을 클릭하면 dataset mask를 로드하지 않고, 미리 뽑아둔 generated parameter bank에서 해당 위치 근처 후보를 확률적으로 골라 새 mask를 생성한다. Alt/Option-click만 nearest dataset mask fallback이다.
           </div>
         </div>
       </div>
@@ -516,7 +516,9 @@ const REFERENCE_MASKS = {
 let params = {...defaults};
 let state = {gray: null, heightNorm: null, wave: null, components: {}, metrics: {}, source: 'generated'};
 let datasetPCA = null;
+let generatedBank = null;
 let selectedPcaPoint = null;
+let selectedGeneratedTarget = null;
 let timer = null;
 
 class RNG {
@@ -1091,10 +1093,105 @@ function loadImageElement(url) {
     img.src = url;
   });
 }
+
+function imageToGrayArray(img) {
+  const sw = img.naturalWidth || img.width;
+  const sh = img.naturalHeight || img.height;
+  const canvas = document.createElement('canvas');
+  canvas.width = sw; canvas.height = sh;
+  const ctx = canvas.getContext('2d', {willReadFrequently: true});
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, sw, sh).data;
+  const gray = new Uint8ClampedArray(sw * sh);
+  for (let i=0; i<gray.length; i++) gray[i] = data[4*i];
+  return {gray, width: sw, height: sh};
+}
+
+function cubicWeight(t) {
+  // Catmull-Rom bicubic kernel.  Used only for unavoidable upsampling.
+  const a = -0.5;
+  const x = Math.abs(t);
+  if (x <= 1) return (a + 2)*x*x*x - (a + 3)*x*x + 1;
+  if (x < 2) return a*x*x*x - 5*a*x*x + 8*a*x - 4*a;
+  return 0;
+}
+
+function areaResampleGray(src, sw, sh, dw, dh) {
+  const dst = new Uint8ClampedArray(dw * dh);
+  const sx = sw / dw, sy = sh / dh;
+  for (let y=0; y<dh; y++) {
+    const y0 = y * sy, y1 = (y + 1) * sy;
+    const iy0 = Math.floor(y0), iy1 = Math.ceil(y1);
+    for (let x=0; x<dw; x++) {
+      const x0 = x * sx, x1 = (x + 1) * sx;
+      const ix0 = Math.floor(x0), ix1 = Math.ceil(x1);
+      let sum = 0, wsum = 0;
+      for (let iy=iy0; iy<iy1; iy++) {
+        if (iy < 0 || iy >= sh) continue;
+        const wy = Math.max(0, Math.min(y1, iy + 1) - Math.max(y0, iy));
+        if (wy <= 0) continue;
+        const off = iy * sw;
+        for (let ix=ix0; ix<ix1; ix++) {
+          if (ix < 0 || ix >= sw) continue;
+          const wx = Math.max(0, Math.min(x1, ix + 1) - Math.max(x0, ix));
+          const wgt = wx * wy;
+          sum += src[off + ix] * wgt;
+          wsum += wgt;
+        }
+      }
+      dst[y*dw + x] = Math.round(sum / Math.max(wsum, 1e-12));
+    }
+  }
+  return dst;
+}
+
+function bicubicResampleGray(src, sw, sh, dw, dh) {
+  const dst = new Uint8ClampedArray(dw * dh);
+  const sx = sw / dw, sy = sh / dh;
+  for (let y=0; y<dh; y++) {
+    const gy = (y + 0.5) * sy - 0.5;
+    const yb = Math.floor(gy);
+    for (let x=0; x<dw; x++) {
+      const gx = (x + 0.5) * sx - 0.5;
+      const xb = Math.floor(gx);
+      let sum = 0, wsum = 0;
+      for (let j=-1; j<=2; j++) {
+        const yy = clamp(yb + j, 0, sh - 1);
+        const wy = cubicWeight(gy - (yb + j));
+        for (let i=-1; i<=2; i++) {
+          const xx = clamp(xb + i, 0, sw - 1);
+          const wx = cubicWeight(gx - (xb + i));
+          const wgt = wx * wy;
+          sum += src[yy*sw + xx] * wgt;
+          wsum += wgt;
+        }
+      }
+      dst[y*dw + x] = clamp(Math.round(sum / Math.max(wsum, 1e-12)), 0, 255);
+    }
+  }
+  return dst;
+}
+
+function resampleGray(src, sw, sh, dw, dh) {
+  if (sw === dw && sh === dh) return Uint8ClampedArray.from(src);
+  // Downsample with exact pixel-area averaging to avoid browser-dependent
+  // interpolation.  Upsampling still needs interpolation, so use bicubic.
+  if (dw <= sw && dh <= sh) return areaResampleGray(src, sw, sh, dw, dh);
+  return bicubicResampleGray(src, sw, sh, dw, dh);
+}
+
+async function loadGrayImageResampled(url) {
+  const img = await loadImageElement(url);
+  const src = imageToGrayArray(img);
+  return resampleGray(src.gray, src.width, src.height, W, H);
+}
+
 function domainColor(domain) {
   if (domain === 'mla') return '#ff8a3d';
   if (domain === 'perlin') return '#74d27d';
   if (domain === 'voronoi') return '#69b3ff';
+  if (domain === 'generated') return '#ffffff';
   return '#d7dde8';
 }
 function pcaToCanvas(point, width, height) {
@@ -1134,11 +1231,28 @@ function drawDatasetPCA() {
     ctx.arc(q.x, q.y, selectedPcaPoint && selectedPcaPoint.id === p.id ? 5.2 : 3.2, 0, 2*Math.PI);
     ctx.fill();
   }
+  if (generatedBank && Array.isArray(generatedBank.candidates)) {
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = 0.16;
+    const stride = Math.max(1, Math.ceil(generatedBank.candidates.length / 900));
+    for (let i=0; i<generatedBank.candidates.length; i+=stride) {
+      const c = generatedBank.candidates[i];
+      const q = pcaToCanvas(c, w, h);
+      ctx.beginPath(); ctx.arc(q.x, q.y, 1.35, 0, 2*Math.PI); ctx.fill();
+    }
+  }
   ctx.globalAlpha = 1;
   if (selectedPcaPoint) {
     const q = pcaToCanvas(selectedPcaPoint, w, h);
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(q.x, q.y, 8.0, 0, 2*Math.PI); ctx.stroke();
+  }
+  if (selectedGeneratedTarget) {
+    const q = pcaToCanvas(selectedGeneratedTarget, w, h);
+    ctx.strokeStyle = '#f7d15c'; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.arc(q.x, q.y, 9.5, 0, 2*Math.PI); ctx.stroke();
+    ctx.fillStyle = '#f7d15c'; ctx.font = '11px ui-monospace, monospace';
+    ctx.fillText('target', q.x + 10, q.y - 7);
   }
 }
 function nearestPcaPoint(pc1, pc2) {
@@ -1152,23 +1266,118 @@ function nearestPcaPoint(pc1, pc2) {
   }
   return best;
 }
+
+function nearestGeneratedCandidates(pc1, pc2, k=64) {
+  if (!generatedBank || !Array.isArray(generatedBank.candidates)) return [];
+  const sx = Math.max(datasetPCA.pc1_max - datasetPCA.pc1_min, 1e-6);
+  const sy = Math.max(datasetPCA.pc2_max - datasetPCA.pc2_min, 1e-6);
+  const arr = [];
+  for (const c of generatedBank.candidates) {
+    const dx = (c.pc1 - pc1) / sx, dy = (c.pc2 - pc2) / sy;
+    arr.push({candidate: c, dist: Math.sqrt(dx*dx + dy*dy)});
+  }
+  arr.sort((a,b) => a.dist - b.dist);
+  return arr.slice(0, Math.max(1, k));
+}
+
+function randn() {
+  const u = Math.max(Math.random(), 1e-12);
+  const v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+function jitterGeneratedCode(code) {
+  const out = {...code};
+  function mul(key, sigma, lo, hi) {
+    if (!Number.isFinite(Number(out[key]))) return;
+    out[key] = clamp(Number(out[key]) * Math.exp(randn() * sigma), lo, hi);
+  }
+  function add(key, sigma, lo, hi) {
+    if (!Number.isFinite(Number(out[key]))) return;
+    out[key] = clamp(Number(out[key]) + randn() * sigma, lo, hi);
+  }
+  for (const key of ['spectral_weight','rank_weight','zernike_weight','atom_weight','ridge_weight','levelset_weight','ripple_weight']) mul(key, 0.08, 0, 1.5);
+  const wkeys = ['spectral_weight','rank_weight','zernike_weight','atom_weight','ridge_weight','levelset_weight','ripple_weight'];
+  const wsum = wkeys.reduce((s,k) => s + Math.max(Number(out[k]) || 0, 0), 0);
+  if (wsum > 1e-9) for (const k of wkeys) out[k] = Math.max(Number(out[k]) || 0, 0) / wsum;
+  mul('spectral_centroid', 0.035, 0.005, 1.0);
+  mul('spectral_bandwidth', 0.055, 0.005, 0.24);
+  add('spectral_slope', 0.06, -3.5, 1.6);
+  mul('spectral_anisotropy', 0.035, 0.35, 3.0);
+  add('spectral_orientation_rad', 0.04, -1.57, 1.57);
+  add('max_gray', 2.0, Math.max(100, Number(out.min_gray || DEFAULT_MIN_GRAY) + 1), 255);
+  out.max_gray = Math.round(out.max_gray);
+  if (Number.isFinite(Number(out.atom_count))) out.atom_count = Math.round(clamp(Number(out.atom_count) * Math.exp(randn()*0.08), 0, 1400));
+  mul('atom_radius_um', 0.06, 8, 700);
+  add('atom_regular', 0.025, 0, 1);
+  add('atom_radius_jitter', 0.025, 0, 1.2);
+  add('atom_amp_jitter', 0.04, 0, 1.6);
+  add('atom_missing_prob', 0.025, 0, 0.75);
+  add('atom_density_mod_strength', 0.035, 0, 1);
+  add('ridge_width', 0.025, 0.01, 1.1);
+  mul('ridge_source_centroid', 0.04, 0.005, 0.35);
+  mul('levelset_softness', 0.06, 0.001, 0.12);
+  add('levelset_detail_weight', 0.04, 0, 1.2);
+  mul('ripple_period_px', 0.04, 2, 40);
+  add('ripple_orthogonal_mix', 0.05, 0, 2.0);
+  if (Number(out.final_blur_sigma_px) > 0) add('final_blur_sigma_px', 0.08, 0, 3.2);
+  if (Number(out.slope_limit_um_per_px) > 0) add('slope_limit_um_per_px', 0.04, 0, 5.0);
+  add('gamma', 0.025, 0.35, 1.8);
+  add('nonlinear_contrast', 0.05, 0.5, 5.5);
+  return out;
+}
+
+function chooseGeneratedCandidate(pc1, pc2) {
+  const top = nearestGeneratedCandidates(pc1, pc2, 72);
+  if (!top.length) return null;
+  const best = top[0].dist;
+  const sigma = Math.max(best * 1.8, 0.028);
+  const weights = top.map(x => Math.exp(-0.5 * (x.dist / sigma) ** 2));
+  const sum = weights.reduce((a,b) => a+b, 0);
+  let u = Math.random() * Math.max(sum, 1e-12);
+  for (let i=0; i<top.length; i++) {
+    u -= weights[i];
+    if (u <= 0) return top[i];
+  }
+  return top[0];
+}
+
+function generateFromPcaTarget(pc1, pc2) {
+  const status = document.getElementById('pcaStatus');
+  if (!datasetPCA || !generatedBank) {
+    status.textContent = 'generated candidate bank is still loading; retry after it is ready';
+    return;
+  }
+  const picked = chooseGeneratedCandidate(pc1, pc2);
+  if (!picked) return;
+  const cand = picked.candidate;
+  const code = jitterGeneratedCode(cand.code || {});
+  const seed = Math.round((Number(cand.seed) || 1) + Math.floor(Math.random() * 1000003));
+  selectedPcaPoint = null;
+  selectedGeneratedTarget = {pc1, pc2, domain: 'generated'};
+  state.source = 'generated';
+  state.sourceLabel = 'generated PCA target';
+  state.pcaPointId = null;
+  state.referenceKey = null;
+  const note = `PCA-target random generation: target=(${pc1.toFixed(2)}, ${pc2.toFixed(2)}), bank candidate #${cand.id} PC=(${cand.pc1.toFixed(2)}, ${cand.pc2.toFixed(2)}), normalized distance=${picked.dist.toFixed(3)}`;
+  applyCodePreset(code, seed, code.atom_combine || 'sum', note, false);
+  state.source = 'generated';
+  state.sourceLabel = `generated PCA target #${cand.id}`;
+  updateAll(false);
+  status.textContent = `${note} · generated from parameters, not dataset mask`;
+  drawDatasetPCA();
+}
+
 async function loadDatasetPcaPoint(pointOrId) {
   if (!datasetPCA) return;
   const point = typeof pointOrId === 'number' ? datasetPCA.points.find(p => p.id === pointOrId) : pointOrId;
   if (!point) return;
   const t0 = performance.now();
-  const img = await loadImageElement(point.url);
-  const canvas = document.createElement('canvas');
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(img, 0, 0, W, H);
-  const data = ctx.getImageData(0, 0, W, H).data;
-  const gray = new Uint8ClampedArray(N);
-  for (let i=0; i<N; i++) gray[i] = data[4*i];
+  const gray = await loadGrayImageResampled(point.url);
   params.minGray = point.min_gray; params.maxGray = point.max_gray;
   refreshControlValues();
   selectedPcaPoint = point;
+  selectedGeneratedTarget = null;
   setGrayState(gray, point.min_gray, point.max_gray, 'dataset_pca', `PCA ${point.label}`, {});
   state.pcaPointId = point.id;
   state.referenceKey = null;
@@ -1188,31 +1397,38 @@ async function initDatasetPCA() {
     const res = await fetch('pca_dataset/dataset_pca.json');
     datasetPCA = await res.json();
     const ev = datasetPCA.explained_variance_ratio || [];
-    status.textContent = `loaded ${datasetPCA.n} masks · feature PCA · PC1 ${(100*ev[0]).toFixed(1)}%, PC2 ${(100*ev[1]).toFixed(1)}%, silhouette ${Number(datasetPCA.silhouette_pc12 ?? 0).toFixed(2)} · click plot to load nearest pattern`;
+    status.textContent = `loaded ${datasetPCA.n} masks · feature PCA · PC1 ${(100*ev[0]).toFixed(1)}%, PC2 ${(100*ev[1]).toFixed(1)}%, silhouette ${Number(datasetPCA.silhouette_pc12 ?? 0).toFixed(2)} · loading generated candidate bank…`;
     drawDatasetPCA();
+    initGeneratedBank();
   } catch (err) {
     status.textContent = `PCA data load failed: ${err}`;
+  }
+}
+
+async function initGeneratedBank() {
+  const status = document.getElementById('pcaStatus');
+  try {
+    const res = await fetch('pca_dataset/generated_candidate_bank.json');
+    generatedBank = await res.json();
+    const ev = datasetPCA.explained_variance_ratio || [];
+    status.textContent = `loaded ${datasetPCA.n} real masks + ${generatedBank.n} generated parameter candidates · feature PCA · PC1 ${(100*ev[0]).toFixed(1)}%, PC2 ${(100*ev[1]).toFixed(1)}%, silhouette ${Number(datasetPCA.silhouette_pc12 ?? 0).toFixed(2)} · click=generate stochastic params, Alt-click=nearest dataset`;
+    drawDatasetPCA();
+  } catch (err) {
+    status.textContent = `generated candidate bank load failed: ${err}. Alt-click nearest dataset still works.`;
   }
 }
 
 async function loadReferenceMask(key) {
   const meta = REFERENCE_MASKS[key] || REFERENCE_MASKS.voronoi;
   const t0 = performance.now();
-  const img = await loadImageElement(meta.url);
-  const canvas = document.createElement('canvas');
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(img, 0, 0, W, H);
-  const data = ctx.getImageData(0, 0, W, H).data;
-  const gray = new Uint8ClampedArray(N);
-  for (let i=0; i<N; i++) gray[i] = data[4*i];
+  const gray = await loadGrayImageResampled(meta.url);
   params.minGray = meta.minGray;
   params.maxGray = meta.maxGray;
   refreshControlValues();
   setGrayState(gray, meta.minGray, meta.maxGray, 'reference', meta.label, {});
   state.referenceKey = key;
+  selectedPcaPoint = null;
+  selectedGeneratedTarget = null;
   const res = propagate(state.heightNorm, params.zMm);
   state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
   drawGray(document.getElementById('grayCanvas'), state.gray);
@@ -1385,6 +1601,7 @@ function applyCodePreset(code, seed, atomCombine, note, run=true) {
 }
 function applySelectedPreset(run=true) {
   state.source = 'generated'; state.sourceLabel = 'generated';
+  selectedPcaPoint = null; selectedGeneratedTarget = null;
   const key = document.getElementById('presetSelect').value;
   const preset = PRESETS[key] || PRESETS.default_mixed;
   applyCodePreset(preset.code, preset.seed, preset.atomCombine, `${preset.label}: ${preset.note}${preset.sourceName ? ' Source=' + preset.sourceName : ''}`, run);
@@ -1392,6 +1609,7 @@ function applySelectedPreset(run=true) {
 
 function randomizeParams() {
   state.source = 'generated'; state.sourceLabel = 'generated';
+  selectedPcaPoint = null; selectedGeneratedTarget = null;
   const seed = Math.floor(Math.random()*1e9);
   document.getElementById('seedInput').value = seed;
   const r = new RNG(seed ^ 0x9e3779b9);
@@ -1443,6 +1661,7 @@ function randomizeParams() {
 }
 function resetParams() {
   state.source = 'generated'; state.sourceLabel = 'generated';
+  selectedPcaPoint = null; selectedGeneratedTarget = null;
   params = {...defaults};
   document.getElementById('seedInput').value = 20260601;
   document.getElementById('atomCombine').value = 'sum';
@@ -1603,8 +1822,12 @@ document.getElementById('pcaCanvas').addEventListener('click', (ev) => {
   const x = (ev.clientX - rect.left) * canvas.width / rect.width;
   const y = (ev.clientY - rect.top) * canvas.height / rect.height;
   const pc = canvasToPca(x, y, canvas.width, canvas.height);
-  const point = nearestPcaPoint(pc.pc1, pc.pc2);
-  if (point) loadDatasetPcaPoint(point);
+  if (ev.altKey || ev.metaKey) {
+    const point = nearestPcaPoint(pc.pc1, pc.pc2);
+    if (point) loadDatasetPcaPoint(point);
+  } else {
+    generateFromPcaTarget(pc.pc1, pc.pc2);
+  }
 });
 document.getElementById('copyParams').addEventListener('click', async () => {
   const txt = JSON.stringify(paramsToCodeNames(), null, 2);
