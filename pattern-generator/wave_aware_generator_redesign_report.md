@@ -128,25 +128,29 @@ unit = (1-alpha) * morphology_unit + alpha * caustic_anchor
 
 ## 6. PCA coverage 결과
 
-Candidate bank를 wave-aware generator로 6000개 재생성했다.
+Candidate bank를 wave-aware generator + Voronoi low-PC2 tail anchor로 6001개 재생성했다.
 
 `/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/reports/domain_distribution_audit/final_figures_20260601/pca_dataset/generated_candidate_bank_summary.json`
 
 최종 coverage:
 
+![PCA coverage diagnostic](/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/reports/domain_distribution_audit/final_figures_20260601/fig_pca_coverage_diagnostic_latest.png)
+
 | metric | value |
 |---|---:|
-| generated candidates | 6000 |
-| nearest dataset PC distance mean | 0.0307 |
-| median | 0.0155 |
-| p90 | 0.0818 |
-| MLA mean / median / p90 | 0.0244 / 0.0150 / 0.0623 |
-| Perlin mean / median / p90 | 0.0082 / 0.0041 / 0.0201 |
-| Voronoi mean / median / p90 | 0.0596 / 0.0472 / 0.1434 |
-| generated PC1 range | -27.58 to 13.06 |
-| generated PC2 range | -4.87 to 6.22 |
+| generated candidates | 6001 |
+| nearest dataset PC distance mean | 0.0187 |
+| median | 0.0111 |
+| p90 | 0.0441 |
+| max | 0.0992 |
+| MLA mean / median / p90 / max | 0.0261 / 0.0133 / 0.0687 / 0.0992 |
+| Perlin mean / median / p90 / max | 0.0062 / 0.0042 / 0.0144 / 0.0252 |
+| Voronoi mean / median / p90 / max | 0.0238 / 0.0216 / 0.0446 / 0.0617 |
+| points with distance > 0.10 | 0 / 300 |
+| generated PC1 range | -27.39 to 12.91 |
+| generated PC2 range | -8.06 to 5.98 |
 
-즉, wave-aware curvature를 넣으면서도 MLA/Perlin/Voronoi PCA coverage는 유지했다. Voronoi tail은 여전히 가장 어렵기 때문에 high-frequency spectral/ripple profile을 별도 tail anchor로 유지했다.
+추가 수정에서 확인한 점: Voronoi low-PC2 tail은 단순 Nyquist noise가 아니라 `spectral_centroid≈0.50--0.64`, narrow bandwidth, positive spectral slope, 그리고 128×128 PCA grid에서 약 `0.45--0.95px` 정도의 blur가 있을 때 내려간다. 그래서 이 branch는 physical-focus branch와 분리된 OOD coverage anchor로 유지한다.
 
 ## 7. HTML 변경 사항
 

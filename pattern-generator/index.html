@@ -334,7 +334,7 @@
       이 HTML은 서버 없이 브라우저에서 generator와 wave propagation을 바로 계산한다. wave propagation은 학습 코드의
       <code>LFmodel.MO_forward_batch</code> convention(thin phase → 2× zero padding → ASM → center crop → amplitude max-normalize)에 맞춘 preview이다.
       낮은 preview resolution에서는 physical FOV를 고정하고 pixel pitch를 p_x=2.7µm·2200/W, p_y=2.7µm·1400/H로 재계산한다. z distance는 실제 거리라 scale하지 않는다. 기본값은 원본 2200×1400이며 브라우저에서는 매우 느리므로 필요시 550×350/1100×700로 낮춰 확인한다.
-      <br/>Report: <a href="wave_aware_generator_redesign_report.md" target="_blank">wave-aware generator redesign</a> · Figures: <a href="fig_wave_focus_reference_sweep.png" target="_blank">reference z sweep</a>, <a href="fig_wave_focus_curvature_summary.png" target="_blank">metrics</a>.
+      <br/>Report: <a href="wave_aware_generator_redesign_report.md" target="_blank">wave-aware generator redesign</a> · Figures: <a href="fig_wave_focus_reference_sweep.png" target="_blank">reference z sweep</a>, <a href="fig_wave_focus_curvature_summary.png" target="_blank">metrics</a>, <a href="fig_pca_coverage_diagnostic_latest.png" target="_blank">PCA coverage</a>.
     </div>
 
     <section class="canvasGrid">
@@ -1917,27 +1917,44 @@ function randomizeParams() {
   params.finalBlur = lerp(0, 2.8, r.random());
   params.slopeLimit = r.random() < 0.25 ? 0 : lerp(0.20, 1.2, r.random());
   if (profIdx >= 7) {
-    // PCA-tail anchor for hard Voronoi-like fine mesh.  This is intentionally
-    // texture-heavy and not the default physical-focus branch; PCA clicks use
-    // the same profile to keep OOD Voronoi coverage.
-    params.maxGray = Math.round(lerp(175, 215, r.random()));
-    params.spectralWeight = lerp(0.78, 0.98, r.random());
-    params.causticWeight = 0;
-    params.rippleWeight = lerp(0.00, 0.12, r.random());
-    params.rankWeight = params.zernikeWeight = params.atomWeight = params.ridgeWeight = params.levelsetWeight = 0;
+    // Voronoi OOD PCA-tail anchors.  Low-PC2 real Voronoi is produced by a
+    // narrow high-frequency spectral field with moderate blur, not by raw
+    // Nyquist noise.  Keep this branch separate from wave-caustic focus modes.
+    params.maxGray = Math.round(lerp(190, 214, r.random()));
+    params.rankWeight = params.zernikeWeight = params.atomWeight = params.causticWeight = params.ridgeWeight = params.levelsetWeight = 0;
+    params.slopeLimit = 0;
+    params.gamma = lerp(0.78, 1.20, r.random());
+    params.spectralAnisotropy = logLerp(0.70, 1.45, r.random());
+    if (profIdx === 7) {
+      params.spectralWeight = lerp(0.88, 1.00, r.random());
+      params.rippleWeight = lerp(0.00, 0.08, r.random());
+      params.spectralCentroid = logLerp(0.55, 0.98, r.random());
+      params.spectralBandwidth = lerp(0.012, 0.080, r.random());
+      params.spectralSlope = lerp(0.0, 1.8, r.random());
+      params.finalBlur = lerp(0.00, 0.25, r.random());
+      params.nonlinearContrast = lerp(1.0, 4.8, r.random());
+    } else if (profIdx === 8) {
+      params.spectralWeight = 1.0;
+      params.rippleWeight = 0.0;
+      params.spectralCentroid = logLerp(0.50, 0.64, r.random());
+      params.spectralBandwidth = logLerp(0.008, 0.090, r.random());
+      params.spectralSlope = lerp(0.45, 2.45, r.random());
+      params.finalBlur = lerp(0.45, 0.95, r.random());
+      params.nonlinearContrast = lerp(1.0, 3.3, r.random());
+    } else {
+      params.spectralWeight = lerp(0.55, 0.90, r.random());
+      params.rippleWeight = lerp(0.10, 0.45, r.random());
+      params.spectralCentroid = logLerp(0.42, 0.70, r.random());
+      params.spectralBandwidth = lerp(0.035, 0.18, r.random());
+      params.spectralSlope = lerp(0.4, 2.5, r.random());
+      params.finalBlur = lerp(0.35, 0.85, r.random());
+      params.nonlinearContrast = lerp(1.0, 3.2, r.random());
+      params.ripplePeriod = lerp(2.0, 3.4, r.random());
+      params.rippleMix = lerp(0.0, 1.4, r.random());
+    }
     const wsum = params.spectralWeight + params.rippleWeight;
     params.spectralWeight /= Math.max(wsum, 1e-9);
     params.rippleWeight /= Math.max(wsum, 1e-9);
-    params.spectralCentroid = logLerp(0.50, 0.98, r.random());
-    params.spectralBandwidth = lerp(0.015, 0.080, r.random());
-    params.spectralSlope = lerp(0.0, 1.4, r.random());
-    params.spectralAnisotropy = logLerp(0.80, 1.25, r.random());
-    params.finalBlur = lerp(0.0, 0.20, r.random());
-    params.slopeLimit = 0;
-    params.nonlinearContrast = lerp(1.0, 4.5, r.random());
-    params.gamma = lerp(0.80, 1.15, r.random());
-    params.ripplePeriod = lerp(2.0, 5.0, r.random());
-    params.rippleMix = lerp(0.0, 1.2, r.random());
   }
   refreshControlValues();
   updateAll(true);
