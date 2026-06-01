@@ -267,9 +267,23 @@
       <div class="row"><label>rank_weight</label><input data-key="rankWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>zernike_weight</label><input data-key="zernikeWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>atom_weight</label><input data-key="atomWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>caustic_weight</label><input data-key="causticWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>ridge_weight</label><input data-key="ridgeWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>levelset_weight</label><input data-key="levelsetWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>ripple_weight</label><input data-key="rippleWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Wave-aware curvature packets</legend>
+      <div class="row"><label>caustic_count</label><input data-key="causticCount" type="range" min="0" max="1400" step="1" /><span class="value"></span></div>
+      <div class="row"><label>radius_um</label><input data-key="causticRadiusUm" type="range" min="30" max="700" step="1" /><span class="value"></span></div>
+      <div class="row"><label>target_focus_mm</label><input data-key="causticFocusMm" type="range" min="0.5" max="10" step="0.1" /><span class="value"></span></div>
+      <div class="row"><label>focus_spread</label><input data-key="causticFocusSpread" type="range" min="0" max="1.5" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>regularity</label><input data-key="causticRegular" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>radius_jitter</label><input data-key="causticRadiusJitter" type="range" min="0" max="1.5" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>amp_jitter</label><input data-key="causticAmpJitter" type="range" min="0" max="1.5" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>power_boost</label><input data-key="causticPowerBoost" type="range" min="0.5" max="3.5" step="0.05" /><span class="value"></span></div>
+      <div class="row"><label>missing_prob</label><input data-key="causticMissingProb" type="range" min="0" max="0.75" step="0.01" /><span class="value"></span></div>
     </fieldset>
 
     <fieldset>
@@ -320,6 +334,7 @@
       이 HTML은 서버 없이 브라우저에서 generator와 wave propagation을 바로 계산한다. wave propagation은 학습 코드의
       <code>LFmodel.MO_forward_batch</code> convention(thin phase → 2× zero padding → ASM → center crop → amplitude max-normalize)에 맞춘 preview이다.
       낮은 preview resolution에서는 physical FOV를 고정하고 pixel pitch를 p_x=2.7µm·2200/W, p_y=2.7µm·1400/H로 재계산한다. z distance는 실제 거리라 scale하지 않는다. 기본값은 원본 2200×1400이며 브라우저에서는 매우 느리므로 필요시 550×350/1100×700로 낮춰 확인한다.
+      <br/>Report: <a href="wave_aware_generator_redesign_report.md" target="_blank">wave-aware generator redesign</a> · Figures: <a href="fig_wave_focus_reference_sweep.png" target="_blank">reference z sweep</a>, <a href="fig_wave_focus_curvature_summary.png" target="_blank">metrics</a>.
     </div>
 
     <section class="canvasGrid">
@@ -405,12 +420,14 @@ const Z_SWEEP = [0, 1, 2, 3, 5, 8, 10, 15, 20];
 const defaults = {
   minGray: DEFAULT_MIN_GRAY, maxGray: 235, zMm: 1.0,
   gamma: 1.0, nonlinearContrast: 1.15, finalBlur: 1.2, slopeLimit: 0.42,
-  spectralWeight: 0.24, rankWeight: 0.10, zernikeWeight: 0.08, atomWeight: 0.30, ridgeWeight: 0.24, levelsetWeight: 0.04, rippleWeight: 0.0,
+  spectralWeight: 0.18, rankWeight: 0.07, zernikeWeight: 0.05, atomWeight: 0.16, causticWeight: 0.34, ridgeWeight: 0.16, levelsetWeight: 0.04, rippleWeight: 0.0,
   spectralCentroid: 0.070, spectralBandwidth: 0.060, spectralSlope: -1.2, spectralAnisotropy: 1.0, spectralOrientation: 0.0,
   rankModes: 5, rankMaxMode: 9, rankDecay: 1.4,
   zernikeOrder: 4, defocusBias: 0.08, astigBias: 0.02, tiltStrength: 0.0,
   atomCount: 180, atomRadiusUm: 115, atomRegular: 0.45, atomRadiusJitter: 0.35, atomAmpJitter: 0.55,
   atomMissingProb: 0.22, atomDensityMod: 0.45,
+  causticCount: 220, causticRadiusUm: 180, causticFocusMm: 3.0, causticFocusSpread: 0.65, causticRegular: 0.38,
+  causticRadiusJitter: 0.35, causticAmpJitter: 0.28, causticPowerBoost: 1.60, causticMissingProb: 0.10,
   ridgeCentroid: 0.070, ridgeWidth: 0.36,
   levelsetSoftness: 0.025, levelsetDetail: 0.35,
   ripplePeriod: 12, rippleMix: 1.0
@@ -830,6 +847,75 @@ function atomField(rng) {
   }
   return out;
 }
+
+function causticPositions(rng, count) {
+  const regular = clamp(params.causticRegular, 0, 1);
+  if (regular <= 0.05) {
+    const pts = [];
+    for (let i=0; i<count; i++) pts.push([rng.uniform(0, W-1), rng.uniform(0, H-1)]);
+    return pts;
+  }
+  const pitch = Math.sqrt((W*H) / Math.max(count, 1));
+  const nx = Math.ceil(W/pitch) + 4, ny = Math.ceil(H/pitch) + 4;
+  const jitter = (1 - regular) * 0.65 * pitch;
+  const angle = params.spectralOrientation * 0.25;
+  const ca = Math.cos(angle), sa = Math.sin(angle);
+  const pts = [];
+  for (let iy=-Math.floor(ny/2); iy<=Math.floor(ny/2); iy++) {
+    for (let ix=-Math.floor(nx/2); ix<=Math.floor(nx/2); ix++) {
+      let px = ix*pitch + rng.normal()*jitter + regular*0.5*pitch*(Math.abs(iy)%2);
+      let py = iy*pitch + rng.normal()*jitter;
+      const xr = ca*px - sa*py + (W-1)/2;
+      const yr = sa*px + ca*py + (H-1)/2;
+      if (xr>=0 && xr<W && yr>=0 && yr<H) pts.push([xr, yr]);
+    }
+  }
+  for (let i=pts.length-1; i>0; i--) { const j = rng.int(0, i); [pts[i], pts[j]] = [pts[j], pts[i]]; }
+  return pts.slice(0, count);
+}
+
+function causticField(rng) {
+  // Smooth parabolic phase packets whose sag is computed from target focus.
+  // For h(r)=h0-r²/(2(n-1)f), the local ray Jacobian collapses near z=f.
+  const out = new Float32Array(N);
+  const count = Math.max(0, Math.round(params.causticCount));
+  if (count <= 0) return out;
+  const pxUm = PIXEL_M * 1e6;
+  const baseR = Math.max(params.causticRadiusUm / pxUm, 1.0);
+  let pts = causticPositions(rng, count);
+  const miss = clamp(params.causticMissingProb, 0, 0.95);
+  if (miss > 0) pts = pts.filter(() => rng.random() >= miss);
+  if (!pts.length) return out;
+  const rjit = clamp(params.causticRadiusJitter, 0, 1.5);
+  const ajit = clamp(params.causticAmpJitter, 0, 1.5);
+  const f0 = Math.max(params.causticFocusMm, 0.1);
+  const spread = Math.max(params.causticFocusSpread, 0);
+  const fMin = Math.max(0.25, f0 / (1 + spread));
+  const fMax = Math.min(20.0, f0 * (1 + spread));
+  const dn = Math.max(N_MAT - N_AIR, 1e-6);
+  for (const [cx, cy] of pts) {
+    const r = clamp(baseR * Math.exp(rng.normal()*rjit - 0.5*rjit*rjit), Math.max(0.35*baseR,1), 2.6*baseR);
+    const amp = clamp(Math.exp(rng.normal()*ajit - 0.5*ajit*ajit), 0.45, 1.85);
+    // Uniform optical power gives balanced sampling across propagation z.
+    const power = lerp(1/fMax, 1/fMin, rng.random());
+    const fMm = 1 / Math.max(power, 1e-9);
+    const radiusM = r * PIXEL_M;
+    const sagNorm = clamp((radiusM*radiusM) / (2 * dn * (fMm*1e-3)) / H_MAX_M * amp * Math.max(params.causticPowerBoost || 1.6, 0.05), 0.01, 1.25);
+    const pr = Math.max(3, Math.ceil(1.08*r));
+    const x0 = Math.max(0, Math.floor(cx)-pr), x1 = Math.min(W-1, Math.floor(cx)+pr);
+    const y0 = Math.max(0, Math.floor(cy)-pr), y1 = Math.min(H-1, Math.floor(cy)+pr);
+    for (let y=y0; y<=y1; y++) for (let x=x0; x<=x1; x++) {
+      const q2 = ((x-cx)**2 + (y-cy)**2) / Math.max(r*r, 1e-6);
+      if (q2 >= 1) continue;
+      let edge = 1;
+      if (q2 > 0.72) edge = ((1 - q2) / (1 - 0.72)) ** 2;
+      const v = sagNorm * (1 - q2) * edge;
+      const idx = y*W + x;
+      out[idx] = Math.max(out[idx], v);
+    }
+  }
+  return out;
+}
 function randomField(rng) { const a = new Float32Array(N); for (let i=0;i<N;i++) a[i] = rng.normal(); return a; }
 
 function ridgeField(rng) {
@@ -947,10 +1033,12 @@ function generateSample() {
     for (let i=0; i<N; i++) accum[i] += weight * v[i];
     total += Math.abs(weight);
   }
+  const causticPhysical = params.causticWeight > 0 ? causticField(rng) : null;
   add('spectral', params.spectralWeight, spectralField(rng));
   add('low rank', params.rankWeight, rankField(rng));
   add('Zernike', params.zernikeWeight, zernikeField(rng));
   add('atoms', params.atomWeight, atomField(rng));
+  if (causticPhysical) add('wave caustic', params.causticWeight, causticPhysical);
   add('ridge', params.ridgeWeight, ridgeField(rng));
   add('level-set', params.levelsetWeight, levelsetField(rng));
   add('ripple', params.rippleWeight, rippleField());
@@ -968,6 +1056,19 @@ function generateSample() {
   unit = applyTone(unit);
 
   const {minG, maxG} = grayBounds();
+  if (causticPhysical && params.causticWeight > 0) {
+    // Physical curvature anchor: causticField() is sag/H_MAX.  Because gray→height
+    // later multiplies by maxGray/255, compensate here so local focal power remains
+    // close to the requested target after quantization.  This avoids the earlier
+    // failure mode where PCA-diverse masks had no clear 1--5 mm focus.
+    const alpha = clamp(0.15 + 0.75 * params.causticWeight / Math.max(total, 1e-6), 0, 0.85);
+    const scale = 255 / Math.max(maxG, minG + 1);
+    for (let i=0; i<N; i++) {
+      const anchor = clamp(causticPhysical[i] * scale, 0, 1);
+      unit[i] = clamp((1 - alpha) * unit[i] + alpha * anchor, 0, 1);
+    }
+  }
+
   const gray = new Uint8ClampedArray(N);
   let gmin = 255, gmax = 0;
   for (let i=0; i<N; i++) {
@@ -1420,8 +1521,8 @@ function jitterGeneratedCode(code) {
     if (!Number.isFinite(Number(out[key]))) return;
     out[key] = clamp(Number(out[key]) + randn() * sigma, lo, hi);
   }
-  for (const key of ['spectral_weight','rank_weight','zernike_weight','atom_weight','ridge_weight','levelset_weight','ripple_weight']) mul(key, 0.08, 0, 1.5);
-  const wkeys = ['spectral_weight','rank_weight','zernike_weight','atom_weight','ridge_weight','levelset_weight','ripple_weight'];
+  for (const key of ['spectral_weight','rank_weight','zernike_weight','atom_weight','caustic_weight','ridge_weight','levelset_weight','ripple_weight']) mul(key, 0.08, 0, 1.5);
+  const wkeys = ['spectral_weight','rank_weight','zernike_weight','atom_weight','caustic_weight','ridge_weight','levelset_weight','ripple_weight'];
   const wsum = wkeys.reduce((s,k) => s + Math.max(Number(out[k]) || 0, 0), 0);
   if (wsum > 1e-9) for (const k of wkeys) out[k] = Math.max(Number(out[k]) || 0, 0) / wsum;
   mul('spectral_centroid', 0.035, 0.005, 1.0);
@@ -1438,6 +1539,14 @@ function jitterGeneratedCode(code) {
   add('atom_amp_jitter', 0.04, 0, 1.6);
   add('atom_missing_prob', 0.025, 0, 0.75);
   add('atom_density_mod_strength', 0.035, 0, 1);
+  if (Number.isFinite(Number(out.caustic_count))) out.caustic_count = Math.round(clamp(Number(out.caustic_count) * Math.exp(randn()*0.08), 0, 1600));
+  mul('caustic_radius_um', 0.06, 20, 800);
+  mul('caustic_focus_mm', 0.06, 0.3, 15);
+  add('caustic_focus_spread', 0.04, 0, 1.6);
+  add('caustic_regular', 0.03, 0, 1);
+  add('caustic_radius_jitter', 0.03, 0, 1.5);
+  add('caustic_amp_jitter', 0.03, 0, 1.5);
+  add('caustic_missing_prob', 0.025, 0, 0.75);
   add('ridge_width', 0.025, 0.01, 1.1);
   mul('ridge_source_centroid', 0.04, 0.005, 0.35);
   mul('levelset_softness', 0.06, 0.001, 0.12);
@@ -1609,7 +1718,7 @@ function updateAll(runSweep=false) {
 function renderComponents() {
   const grid = document.getElementById('componentGrid');
   grid.innerHTML = '';
-  const names = ['spectral','low rank','Zernike','atoms','ridge','level-set','ripple'];
+  const names = ['spectral','low rank','Zernike','atoms','wave caustic','ridge','level-set','ripple'];
   for (const name of names) {
     const div = document.createElement('div'); div.className = 'mini';
     const h = document.createElement('h3'); h.textContent = name;
@@ -1655,6 +1764,9 @@ function paramsToCodeNames() {
     atom_weight: params.atomWeight, atom_count: Math.round(params.atomCount), atom_radius_um: params.atomRadiusUm, atom_regular: params.atomRegular,
     atom_radius_jitter: params.atomRadiusJitter, atom_missing_prob: params.atomMissingProb, atom_amp_jitter: params.atomAmpJitter,
     atom_density_mod_strength: params.atomDensityMod, atom_combine: document.getElementById('atomCombine').value,
+    caustic_weight: params.causticWeight, caustic_count: Math.round(params.causticCount), caustic_radius_um: params.causticRadiusUm,
+    caustic_focus_mm: params.causticFocusMm, caustic_focus_spread: params.causticFocusSpread, caustic_power_boost: params.causticPowerBoost, caustic_regular: params.causticRegular,
+    caustic_radius_jitter: params.causticRadiusJitter, caustic_amp_jitter: params.causticAmpJitter, caustic_missing_prob: params.causticMissingProb,
     ridge_weight: params.ridgeWeight, ridge_source_centroid: params.ridgeCentroid, ridge_width: params.ridgeWidth,
     levelset_weight: params.levelsetWeight, levelset_softness: params.levelsetSoftness, levelset_detail_weight: params.levelsetDetail,
     ripple_weight: params.rippleWeight, ripple_period_px: params.ripplePeriod, ripple_orthogonal_mix: params.rippleMix,
@@ -1714,6 +1826,7 @@ function applyCodePreset(code, seed, atomCombine, note, run=true) {
     rank_weight: 'rankWeight', rank_modes: 'rankModes', rank_max_mode: 'rankMaxMode', rank_decay: 'rankDecay',
     zernike_weight: 'zernikeWeight', zernike_max_order: 'zernikeOrder', defocus_bias: 'defocusBias', astigmatism_bias: 'astigBias', tilt_strength: 'tiltStrength',
     atom_weight: 'atomWeight', atom_count: 'atomCount', atom_radius_um: 'atomRadiusUm', atom_regular: 'atomRegular', atom_radius_jitter: 'atomRadiusJitter', atom_amp_jitter: 'atomAmpJitter', atom_missing_prob: 'atomMissingProb', atom_density_mod_strength: 'atomDensityMod',
+    caustic_weight: 'causticWeight', caustic_count: 'causticCount', caustic_radius_um: 'causticRadiusUm', caustic_focus_mm: 'causticFocusMm', caustic_focus_spread: 'causticFocusSpread', caustic_power_boost: 'causticPowerBoost', caustic_regular: 'causticRegular', caustic_radius_jitter: 'causticRadiusJitter', caustic_amp_jitter: 'causticAmpJitter', caustic_missing_prob: 'causticMissingProb',
     ridge_weight: 'ridgeWeight', ridge_source_centroid: 'ridgeCentroid', ridge_width: 'ridgeWidth',
     levelset_weight: 'levelsetWeight', levelset_softness: 'levelsetSoftness', levelset_detail_weight: 'levelsetDetail',
     ripple_weight: 'rippleWeight', ripple_period_px: 'ripplePeriod', ripple_orthogonal_mix: 'rippleMix',
@@ -1748,16 +1861,19 @@ function randomizeParams() {
   params.maxGray = Math.round(lerp(200, 255, r.random()));
   params.zMm = 1;
   const profiles = [
-    [2.2,0.9,0.8,1.4,1.4,0.4,0.2], [4.2,0.4,0.4,0.2,1.8,0.8,0.1],
-    [0.3,0.2,0.2,5.5,0.3,0.0,0.0], [0.4,0.2,0.2,0.4,0.4,4.0,0.1],
-    [0.1,0.1,0.1,0.1,0.1,0.0,5.0]
+    [1.8,0.6,0.5,0.9,3.4,1.1,0.3,0.1], [3.8,0.3,0.3,0.1,2.2,1.5,0.6,0.1],
+    [0.2,0.1,0.1,2.4,4.5,0.4,0.0,0.0], [0.3,0.2,0.2,0.2,2.0,0.6,3.2,0.1],
+    [0.1,0.1,0.1,0.1,2.0,0.1,0.0,3.6], [0.2,0.1,0.1,0.0,5.5,0.0,0.0,0.0],
+    [0.15,0.1,0.12,4.0,4.0,0.15,0.0,0.0], [8.0,0.05,0.05,0.0,0.4,0.0,0.0,0.4],
+    [9.0,0.05,0.05,0.0,0.0,0.0,0.0,0.6], [7.5,0.05,0.05,0.0,0.0,0.3,0.0,0.7]
   ];
-  const alpha = profiles[r.int(0, profiles.length-1)];
+  const profIdx = r.int(0, profiles.length-1);
+  const alpha = profiles[profIdx];
   const gammaSamples = alpha.map(a => -Math.log(Math.max(r.random(),1e-12)) / a);
   const inv = gammaSamples.map((v,i) => alpha[i] / Math.max(v,1e-6));
   const sum = inv.reduce((a,b)=>a+b,0);
-  [params.spectralWeight, params.rankWeight, params.zernikeWeight, params.atomWeight, params.ridgeWeight, params.levelsetWeight, params.rippleWeight] = inv.map(v => v/sum);
-  params.spectralCentroid = logLerp(0.012, 0.28, r.random());
+  [params.spectralWeight, params.rankWeight, params.zernikeWeight, params.atomWeight, params.causticWeight, params.ridgeWeight, params.levelsetWeight, params.rippleWeight] = inv.map(v => v/sum);
+  params.spectralCentroid = r.random() < 0.18 ? logLerp(0.35, 0.95, r.random()) : logLerp(0.012, 0.28, r.random());
   params.spectralBandwidth = lerp(0.015, 0.16, r.random());
   params.spectralSlope = lerp(-2.8, 0.35, r.random());
   params.spectralAnisotropy = logLerp(0.45, 2.8, r.random());
@@ -1778,6 +1894,18 @@ function randomizeParams() {
   params.atomMissingProb = lerp(0, 0.55, r.random());
   params.atomDensityMod = lerp(0, 0.95, r.random());
   document.getElementById('atomCombine').value = regular > 0.72 && r.random() < 0.65 ? 'nearest_parabola' : (r.random() < 0.25 ? 'max' : 'sum');
+  params.causticFocusMm = logLerp(1.0, 6.0, r.random());
+  params.causticFocusSpread = lerp(0.15, 1.10, r.random());
+  params.causticRegular = r.random();
+  const causticFMin = Math.max(0.25, params.causticFocusMm / (1 + params.causticFocusSpread));
+  const heightBudgetM = H_MAX_M * (params.maxGray / 255);
+  const feasibleRUm = Math.sqrt(Math.max(2 * (N_MAT-N_AIR) * (causticFMin*1e-3) * heightBudgetM, 1e-18)) * 1e6;
+  params.causticRadiusUm = logLerp(Math.max(40, 0.45*feasibleRUm), Math.min(420, 1.08*feasibleRUm), r.random());
+  params.causticCount = Math.round(logLerp(35, params.causticRegular > 0.6 ? 900 : 420, r.random()) * (0.55 + 0.75*params.causticRegular));
+  params.causticRadiusJitter = lerp(0.04, 0.72, r.random());
+  params.causticAmpJitter = lerp(0.05, 0.80, r.random());
+  params.causticPowerBoost = lerp(1.15, 2.40, r.random());
+  params.causticMissingProb = lerp(0.00, 0.35, r.random());
   params.ridgeCentroid = logLerp(0.018, 0.17, r.random());
   params.ridgeWidth = lerp(0.05, 0.85, r.random());
   params.levelsetSoftness = logLerp(0.004, 0.10, r.random());
@@ -1788,6 +1916,29 @@ function randomizeParams() {
   params.nonlinearContrast = lerp(0.75, 1.75, r.random());
   params.finalBlur = lerp(0, 2.8, r.random());
   params.slopeLimit = r.random() < 0.25 ? 0 : lerp(0.20, 1.2, r.random());
+  if (profIdx >= 7) {
+    // PCA-tail anchor for hard Voronoi-like fine mesh.  This is intentionally
+    // texture-heavy and not the default physical-focus branch; PCA clicks use
+    // the same profile to keep OOD Voronoi coverage.
+    params.maxGray = Math.round(lerp(175, 215, r.random()));
+    params.spectralWeight = lerp(0.78, 0.98, r.random());
+    params.causticWeight = 0;
+    params.rippleWeight = lerp(0.00, 0.12, r.random());
+    params.rankWeight = params.zernikeWeight = params.atomWeight = params.ridgeWeight = params.levelsetWeight = 0;
+    const wsum = params.spectralWeight + params.rippleWeight;
+    params.spectralWeight /= Math.max(wsum, 1e-9);
+    params.rippleWeight /= Math.max(wsum, 1e-9);
+    params.spectralCentroid = logLerp(0.50, 0.98, r.random());
+    params.spectralBandwidth = lerp(0.015, 0.080, r.random());
+    params.spectralSlope = lerp(0.0, 1.4, r.random());
+    params.spectralAnisotropy = logLerp(0.80, 1.25, r.random());
+    params.finalBlur = lerp(0.0, 0.20, r.random());
+    params.slopeLimit = 0;
+    params.nonlinearContrast = lerp(1.0, 4.5, r.random());
+    params.gamma = lerp(0.80, 1.15, r.random());
+    params.ripplePeriod = lerp(2.0, 5.0, r.random());
+    params.rippleMix = lerp(0.0, 1.2, r.random());
+  }
   refreshControlValues();
   updateAll(true);
 }
