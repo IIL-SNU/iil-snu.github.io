@@ -179,7 +179,7 @@
 <header>
   <h1>Parameterized Smooth-Field Generator + Angular-Spectrum Wave Propagation</h1>
   <div class="subtitle">
-    Offline standalone HTML. 8-bit gray floor/min and max gray are adjustable, h<sub>max</sub>=15µm. Browser preview is downsampled for real-time interaction.
+    Offline standalone HTML. 8-bit gray floor/min and max gray are adjustable, h<sub>max</sub>=15µm. Browser preview uses 512×256 to keep 100–300µm lenslet features resolvable.
   </div>
 </header>
 
@@ -296,16 +296,17 @@
     <div class="note">
       이 HTML은 서버 없이 브라우저에서 generator와 wave propagation을 바로 계산한다. wave propagation은 학습 코드의
       <code>LFmodel.MO_forward_batch</code> convention(thin phase → 2× zero padding → ASM → center crop → amplitude max-normalize)에 맞춘 preview이다.
+      1–5mm focus를 만드는 100–300µm feature가 256×128 preview에서는 under-resolved되어 best z가 길게 보일 수 있어 512×256으로 올렸다.
     </div>
 
     <section class="canvasGrid">
       <div class="card">
         <h2>8-bit graymap <small id="grayInfo">floor=90</small></h2>
-        <canvas id="grayCanvas" width="256" height="128"></canvas>
+        <canvas id="grayCanvas" width="512" height="256"></canvas>
       </div>
       <div class="card">
         <h2>Wave propagation <small id="waveInfo">z=1mm</small></h2>
-        <canvas id="waveCanvas" width="256" height="128"></canvas>
+        <canvas id="waveCanvas" width="512" height="256"></canvas>
       </div>
     </section>
 
@@ -338,7 +339,7 @@
 <script>
 'use strict';
 
-const W = 256, H = 128, N = W * H;
+const W = 512, H = 256, N = W * H;
 const DEFAULT_MIN_GRAY = 90;
 const H_MAX_M = 15e-6;
 const WAVELENGTH_M = 550e-9;
