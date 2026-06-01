@@ -1,0 +1,1265 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Learned-fab Interactive Smooth-Field Generator + Wave Propagation</title>
+  <style>
+    :root {
+      --bg: #0f1217;
+      --panel: #171b23;
+      --panel2: #1f2631;
+      --text: #e8edf5;
+      --muted: #9aa6b8;
+      --line: #303846;
+      --accent: #69b3ff;
+      --accent2: #ffc857;
+      --good: #75d48a;
+      --bad: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.35;
+    }
+    header {
+      padding: 18px 22px 12px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #151a22, #10141a);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    h1 { margin: 0 0 4px; font-size: 20px; letter-spacing: 0.2px; }
+    .subtitle { color: var(--muted); font-size: 13px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 390px minmax(820px, 1fr);
+      gap: 14px;
+      padding: 14px;
+    }
+    .controls, .stage {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      min-width: 0;
+    }
+    .controls {
+      padding: 12px;
+      max-height: calc(100vh - 92px);
+      overflow: auto;
+      position: sticky;
+      top: 78px;
+      align-self: start;
+    }
+    .stage { padding: 14px; }
+    fieldset {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      margin: 0 0 10px;
+      padding: 10px 10px 8px;
+      background: rgba(255,255,255,0.015);
+    }
+    legend { color: var(--accent2); font-weight: 700; padding: 0 6px; font-size: 13px; }
+    .row {
+      display: grid;
+      grid-template-columns: 136px 1fr 55px;
+      gap: 8px;
+      align-items: center;
+      margin: 6px 0;
+      font-size: 12px;
+    }
+    .row label { color: #d6dce8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    input[type="number"], select {
+      width: 100%;
+      background: #0d1117;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 5px 7px;
+    }
+    .value { color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+    .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 10px; }
+    button {
+      border: 1px solid #3b485a;
+      background: #202838;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-weight: 650;
+      font-size: 12px;
+    }
+    button:hover { border-color: var(--accent); background: #253147; }
+    button.primary { background: #174e82; border-color: #2d7fbd; }
+    button.warn { background: #4b2b0b; border-color: #8f5b17; }
+    .checkrow { display:flex; align-items:center; gap:8px; color: var(--muted); font-size:12px; margin:8px 0; }
+    .canvasGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .card {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      min-width: 0;
+    }
+    .card h2 { font-size: 14px; margin: 0 0 8px; display:flex; justify-content:space-between; gap: 10px; align-items: baseline; }
+    .card h2 small { color: var(--muted); font-weight: 500; font-size: 11px; }
+    canvas {
+      width: 100%;
+      height: auto;
+      image-rendering: pixelated;
+      display: block;
+      border-radius: 6px;
+      background: #000;
+      border: 1px solid #0b0d12;
+    }
+    .componentGrid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .componentGrid .mini h3 {
+      font-size: 10px;
+      font-weight: 650;
+      color: var(--muted);
+      margin: 0 0 4px;
+      text-align: center;
+      min-height: 26px;
+    }
+    .sweepGrid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .sweepGrid h3 { margin: 0 0 4px; font-size: 11px; text-align: center; color: var(--muted); }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .metric {
+      background: #111722;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 12px;
+    }
+    .metric b { display:block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .metric span { font-variant-numeric: tabular-nums; }
+    .note {
+      color: var(--muted);
+      font-size: 12px;
+      border-left: 3px solid var(--accent);
+      padding: 7px 9px;
+      margin: 10px 0;
+      background: rgba(105,179,255,0.06);
+    }
+    code { color: #bde0ff; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    @media (max-width: 1180px) {
+      .layout { grid-template-columns: 1fr; }
+      .controls { position: static; max-height: none; }
+      .canvasGrid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Parameterized Smooth-Field Generator + Angular-Spectrum Wave Propagation</h1>
+  <div class="subtitle">
+    Offline standalone HTML. 8-bit gray floor=90, max gray variable, h<sub>max</sub>=15µm. Browser preview is downsampled for real-time interaction.
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="controls">
+    <div class="buttons">
+      <button class="primary" id="generateBtn">Generate + Propagate</button>
+      <button id="randomBtn">Fully random</button>
+      <button id="sweepBtn">Run z sweep</button>
+      <button class="warn" id="resetBtn">Reset</button>
+    </div>
+    <div class="checkrow">
+      <input type="checkbox" id="autoUpdate" checked />
+      <label for="autoUpdate">Auto update on slider change</label>
+    </div>
+
+    <fieldset>
+      <legend>Closest presets</legend>
+      <div class="row"><label>preset</label><select id="presetSelect">
+        <option value="mla_metric">MLA closest — objective metric</option>
+        <option value="voronoi_visual">Voronoi closest — visual ridge/levelset</option>
+        <option value="voronoi_metric">Voronoi closest — objective/wave metric</option>
+        <option value="default_mixed">Default mixed</option>
+      </select><span class="value">target</span></div>
+      <div class="buttons" style="margin-bottom:0;">
+        <button class="primary" id="applyPresetBtn">Apply preset</button>
+      </div>
+      <div class="note" id="presetNote" style="font-size:11px;margin-bottom:0;">
+        MLA/Voronoi preset은 objective table에서 real family centroid에 가까운 generated parameter를 골라 넣은 값이다.
+      </div>
+    </fieldset>
+
+
+
+    <fieldset>
+      <legend>Batch download</legend>
+      <div class="row"><label>random seeds n</label><input id="batchN" type="number" value="16" min="1" max="200" step="1" /><span class="value">zip</span></div>
+      <div class="checkrow"><input type="checkbox" id="zipIncludeWave" checked /><label for="zipIncludeWave">Include wave PNG at current z</label></div>
+      <div class="buttons" style="margin-bottom:0;">
+        <button id="downloadZipBtn">Download ZIP</button>
+      </div>
+      <div class="note" style="font-size:11px;margin-bottom:0;">
+        현재 선택된 preset/parameter를 유지하고 seed만 바꿔 n개 gray PNG와 params JSON을 저장한다.
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Seed / fabrication / propagation</legend>
+      <div class="row"><label>seed</label><input id="seedInput" type="number" value="20260601" step="1" /><span class="value">rng</span></div>
+      <div class="row"><label>max_gray</label><input data-key="maxGray" type="range" min="200" max="255" step="1" /><span class="value"></span></div>
+      <div class="row"><label>z / focal proxy (mm)</label><input data-key="zMm" type="range" min="0" max="10" step="0.1" /><span class="value"></span></div>
+      <div class="row"><label>gamma</label><input data-key="gamma" type="range" min="0.15" max="1.8" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>nonlinear contrast</label><input data-key="nonlinearContrast" type="range" min="0.5" max="2.5" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>final blur σ(px)</label><input data-key="finalBlur" type="range" min="0" max="4" step="0.05" /><span class="value"></span></div>
+      <div class="row"><label>slope limit µm/px</label><input data-key="slopeLimit" type="range" min="0" max="5" step="0.02" /><span class="value"></span></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Component weights</legend>
+      <div class="row"><label>spectral_weight</label><input data-key="spectralWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>rank_weight</label><input data-key="rankWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>zernike_weight</label><input data-key="zernikeWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>atom_weight</label><input data-key="atomWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>ridge_weight</label><input data-key="ridgeWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>levelset_weight</label><input data-key="levelsetWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>ripple_weight</label><input data-key="rippleWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Spectral random field</legend>
+      <div class="row"><label>centroid</label><input data-key="spectralCentroid" type="range" min="0.005" max="0.35" step="0.001" /><span class="value"></span></div>
+      <div class="row"><label>bandwidth</label><input data-key="spectralBandwidth" type="range" min="0.005" max="0.22" step="0.001" /><span class="value"></span></div>
+      <div class="row"><label>slope</label><input data-key="spectralSlope" type="range" min="-3.5" max="0.7" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>anisotropy</label><input data-key="spectralAnisotropy" type="range" min="0.35" max="3.0" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>orientation</label><input data-key="spectralOrientation" type="range" min="-1.57" max="1.57" step="0.01" /><span class="value"></span></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Low-rank + Zernike</legend>
+      <div class="row"><label>rank_modes</label><input data-key="rankModes" type="range" min="1" max="12" step="1" /><span class="value"></span></div>
+      <div class="row"><label>rank_max_mode</label><input data-key="rankMaxMode" type="range" min="2" max="18" step="1" /><span class="value"></span></div>
+      <div class="row"><label>rank_decay</label><input data-key="rankDecay" type="range" min="0.4" max="3.0" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>zernike_order</label><input data-key="zernikeOrder" type="range" min="1" max="8" step="1" /><span class="value"></span></div>
+      <div class="row"><label>defocus_bias</label><input data-key="defocusBias" type="range" min="-0.35" max="0.35" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>astig_bias</label><input data-key="astigBias" type="range" min="-0.25" max="0.25" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>tilt_strength</label><input data-key="tiltStrength" type="range" min="-0.15" max="0.15" step="0.005" /><span class="value"></span></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Smooth atoms / lenslet caps</legend>
+      <div class="row"><label>atom_count</label><input data-key="atomCount" type="range" min="0" max="1200" step="1" /><span class="value"></span></div>
+      <div class="row"><label>atom_radius_um</label><input data-key="atomRadiusUm" type="range" min="20" max="700" step="1" /><span class="value"></span></div>
+      <div class="row"><label>atom_regular</label><input data-key="atomRegular" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>radius_jitter</label><input data-key="atomRadiusJitter" type="range" min="0" max="1.5" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>amp_jitter</label><input data-key="atomAmpJitter" type="range" min="0" max="1.6" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>missing_prob</label><input data-key="atomMissingProb" type="range" min="0" max="0.75" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>density_mod</label><input data-key="atomDensityMod" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>nearest parabola</label><select id="atomCombine"><option value="sum">sum</option><option value="max">max</option><option value="nearest_parabola">nearest_parabola</option></select><span class="value">mode</span></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Ridge / level-set / ripple</legend>
+      <div class="row"><label>ridge_src_centroid</label><input data-key="ridgeCentroid" type="range" min="0.01" max="0.25" step="0.001" /><span class="value"></span></div>
+      <div class="row"><label>ridge_width</label><input data-key="ridgeWidth" type="range" min="0.02" max="1.2" step="0.005" /><span class="value"></span></div>
+      <div class="row"><label>levelset_softness</label><input data-key="levelsetSoftness" type="range" min="0.003" max="0.15" step="0.001" /><span class="value"></span></div>
+      <div class="row"><label>levelset_detail</label><input data-key="levelsetDetail" type="range" min="0" max="1.2" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>ripple_period_px</label><input data-key="ripplePeriod" type="range" min="4" max="42" step="0.1" /><span class="value"></span></div>
+      <div class="row"><label>ripple_ortho_mix</label><input data-key="rippleMix" type="range" min="0" max="2" step="0.01" /><span class="value"></span></div>
+    </fieldset>
+  </aside>
+
+  <main class="stage">
+    <div class="note">
+      이 HTML은 서버 없이 브라우저에서 generator와 wave propagation을 바로 계산한다. 실제 학습용 authoritative 구현은
+      <code>parameterized_field_generator.py</code> / <code>WavePropagator</code>이고, 여기서는 실시간 확인을 위해 256×128 preview로 축소했다.
+    </div>
+
+    <section class="canvasGrid">
+      <div class="card">
+        <h2>8-bit graymap <small id="grayInfo">floor=90</small></h2>
+        <canvas id="grayCanvas" width="256" height="128"></canvas>
+      </div>
+      <div class="card">
+        <h2>Wave propagation <small id="waveInfo">z=1mm</small></h2>
+        <canvas id="waveCanvas" width="256" height="128"></canvas>
+      </div>
+    </section>
+
+    <section class="metrics">
+      <div class="metric"><b>gray range</b><span id="mGray">-</span></div>
+      <div class="metric"><b>height max</b><span id="mHeight">-</span></div>
+      <div class="metric"><b>wave p999/mean</b><span id="mPeak">-</span></div>
+      <div class="metric"><b>bright frac</b><span id="mBright">-</span></div>
+    </section>
+
+    <div class="card" style="margin-top:12px;">
+      <h2>Basis components <small>standardized before weighted sum</small></h2>
+      <div class="componentGrid" id="componentGrid"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <h2>Propagation z sweep <small>0, 1, 2, 3, 5, 8, 10 mm</small></h2>
+      <div class="sweepGrid" id="sweepGrid"></div>
+    </div>
+
+    <div class="buttons" style="margin-top:12px;">
+      <button id="downloadGray">Download gray PNG</button>
+      <button id="downloadWave">Download current wave PNG</button>
+      <button id="copyParams">Copy params JSON</button>
+    </div>
+    <pre id="paramDump" class="mono" style="white-space:pre-wrap;color:#b9c4d4;background:#0c1017;border:1px solid var(--line);border-radius:8px;padding:10px;max-height:220px;overflow:auto;"></pre>
+  </main>
+</div>
+
+<script>
+'use strict';
+
+const W = 256, H = 128, N = W * H;
+const MIN_GRAY = 90;
+const H_MAX_M = 15e-6;
+const WAVELENGTH_M = 550e-9;
+const N_MAT = 1.52, N_AIR = 1.0;
+// Preview FOV uses the real active width 2200 px * 2.7 um, downsampled to 256 px.
+const PIXEL_M = (2200 * 2.7e-6) / W;
+const Z_SWEEP = [0, 1, 2, 3, 5, 8, 10];
+
+const defaults = {
+  maxGray: 235, zMm: 1.0,
+  gamma: 1.0, nonlinearContrast: 1.15, finalBlur: 1.2, slopeLimit: 0.42,
+  spectralWeight: 0.24, rankWeight: 0.10, zernikeWeight: 0.08, atomWeight: 0.30, ridgeWeight: 0.24, levelsetWeight: 0.04, rippleWeight: 0.0,
+  spectralCentroid: 0.070, spectralBandwidth: 0.060, spectralSlope: -1.2, spectralAnisotropy: 1.0, spectralOrientation: 0.0,
+  rankModes: 5, rankMaxMode: 9, rankDecay: 1.4,
+  zernikeOrder: 4, defocusBias: 0.08, astigBias: 0.02, tiltStrength: 0.0,
+  atomCount: 180, atomRadiusUm: 115, atomRegular: 0.45, atomRadiusJitter: 0.35, atomAmpJitter: 0.55,
+  atomMissingProb: 0.22, atomDensityMod: 0.45,
+  ridgeCentroid: 0.070, ridgeWidth: 0.36,
+  levelsetSoftness: 0.025, levelsetDetail: 0.35,
+  ripplePeriod: 12, rippleMix: 1.0
+};
+
+const PRESETS = {
+  default_mixed: {
+    label: 'Default mixed',
+    seed: 20260601,
+    atomCombine: 'sum',
+    note: 'Balanced mixed field for general exploration.',
+    code: {
+      max_gray: 235,
+      spectral_weight: 0.24, rank_weight: 0.10, zernike_weight: 0.08, atom_weight: 0.30, ridge_weight: 0.24, levelset_weight: 0.04, ripple_weight: 0.0,
+      spectral_centroid: 0.070, spectral_bandwidth: 0.060, spectral_slope: -1.2, spectral_anisotropy: 1.0, spectral_orientation_rad: 0.0,
+      rank_modes: 5, rank_max_mode: 9, rank_decay: 1.4,
+      zernike_max_order: 4, defocus_bias: 0.08, astigmatism_bias: 0.02, tilt_strength: 0.0,
+      atom_count: 180, atom_radius_um: 115, atom_regular: 0.45, atom_radius_jitter: 0.35, atom_amp_jitter: 0.55, atom_missing_prob: 0.22, atom_density_mod_strength: 0.45,
+      ridge_source_centroid: 0.070, ridge_width: 0.36,
+      levelset_softness: 0.025, levelset_detail_weight: 0.35,
+      ripple_period_px: 12, ripple_orthogonal_mix: 1.0,
+      gamma: 1.0, nonlinear_contrast: 1.15, final_blur_sigma_px: 1.2, slope_limit_um_per_px: 0.42
+    }
+  },
+  mla_metric: {
+    label: 'MLA closest — objective metric',
+    seed: 21034975,
+    atomCombine: 'nearest_parabola',
+    sourceName: 'probe_physical_PC1_PC3_000_v2',
+    note: 'Closest generated row to real MLA centroid in target objective/PCA feature space. Dominant high-regularity nearest-parabola atoms.',
+    code: {
+      max_gray: 219,
+      spectral_weight: 0.0338694531160648, spectral_centroid: 0.08015496847214829, spectral_bandwidth: 0.05997931258134932, spectral_slope: 0.024506737790917832, spectral_anisotropy: 0.825005746024844, spectral_orientation_rad: 1.1329675440946505,
+      rank_weight: 0.011076821460468837, rank_modes: 2, rank_decay: 1.2845229412796781, rank_max_mode: 11,
+      zernike_weight: 0.05048860272697477, zernike_max_order: 6, defocus_bias: 0.09108112522365008, astigmatism_bias: -0.015125567233107623, tilt_strength: 0.01992436275675527,
+      atom_weight: 0.9045651226964916, atom_count: 517, atom_radius_um: 246.0068545690808, atom_regular: 0.9889879413886976, atom_radius_jitter: 0.0029134559292494314, atom_missing_prob: 0.06702739986019575, atom_amp_jitter: 0.12534530489100693, atom_density_mod_strength: 0.004748058805537276,
+      atom_density_corr_um: 1478.578395131336, atom_density_threshold: 0.5, atom_density_softness: 0.12, atom_background_fraction: 0.7384898040960175, atom_combine: 'nearest_parabola', atom_parabolicity: 0.9428572124469239,
+      ridge_weight: 0.0, ridge_source_centroid: 0.06817210885058088, ridge_source_bandwidth: 0.02456924859279042, ridge_width: 0.3564930898292497, ridge_threshold: -0.15934837507525546,
+      levelset_weight: 0.0, levelset_base_centroid: 0.017683632410851514, levelset_detail_weight: 0.2815834072293339, levelset_detail_centroid: 0.13491436114415586, levelset_softness: 0.028838598121891792,
+      ripple_weight: 0.0, ripple_period_px: 17.942030228325727, ripple_orthogonal_mix: 0.76667524157122, ripple_harmonic_mix: 0.02482310058805805,
+      gamma: 0.856752249320131, nonlinear_contrast: 1.2172063426525657, final_blur_sigma_px: 0.04886757882731687, slope_limit_um_per_px: 2.4501504004857173
+    }
+  },
+  voronoi_visual: {
+    label: 'Voronoi closest — visual ridge/levelset',
+    seed: 20330110,
+    atomCombine: 'sum',
+    sourceName: 'round4_probe_v3_probe_graph_spectral_logcomponents_001_v1',
+    note: 'Visually Voronoi-like ridge-dominant generated row selected after filtering for ridge/level-set dominance and low ripple.',
+    code: {
+      max_gray: 208,
+      spectral_weight: 0.054968753442426306, spectral_centroid: 0.1129407582840228, spectral_bandwidth: 0.07137532264369542, spectral_slope: -1.3281554296693694, spectral_anisotropy: 1.675006798241295, spectral_orientation_rad: -0.6944673674991642,
+      rank_weight: 0.06296685370122818, rank_modes: 2, rank_decay: 1.0349303929073617, rank_max_mode: 4,
+      zernike_weight: 0.062005756913286865, zernike_max_order: 4, defocus_bias: 0.2606084238237716, astigmatism_bias: 0.09301337294550943, tilt_strength: -0.04023217804481222,
+      atom_weight: 0.010860543405763833, atom_count: 27, atom_radius_um: 93.7875871261305, atom_regular: 0.15209449626055618, atom_radius_jitter: 0.20502918767590417, atom_missing_prob: 0.26500998653346836, atom_amp_jitter: 0.42021549343584574, atom_density_mod_strength: 0.837838971325523,
+      atom_density_corr_um: 579.4546158748614, atom_density_threshold: 0.7196628759602313, atom_density_softness: 0.23341343856240254, atom_background_fraction: 0.03422431986699699, atom_combine: 'sum', atom_parabolicity: 0.949219981914925,
+      ridge_weight: 0.8091980925372948, ridge_source_centroid: 0.10560042663616159, ridge_source_bandwidth: 0.044661110081610514, ridge_width: 0.6321531940074167, ridge_threshold: -0.11395343401480876,
+      levelset_weight: 0.0, levelset_softness: 0.075, levelset_detail_weight: 0.35,
+      ripple_weight: 0.0, ripple_period_px: 12.0, ripple_orthogonal_mix: 1.0,
+      gamma: 0.848570629409695, nonlinear_contrast: 1.7593789082950086, final_blur_sigma_px: 0.10910903136847429, slope_limit_um_per_px: 3.101006037520137
+    }
+  },
+  voronoi_metric: {
+    label: 'Voronoi closest — objective/wave metric',
+    seed: 610678,
+    atomCombine: 'sum',
+    sourceName: 'shape_pc34_v2_0678',
+    note: 'Closest generated row to real Voronoi centroid in objective/wave space. It is ripple-heavy because wave/PCA metrics match better than visual ridge topology.',
+    code: {
+      max_gray: 210,
+      spectral_weight: 0.0, spectral_centroid: 0.1, spectral_bandwidth: 0.08, spectral_slope: -0.3,
+      rank_weight: 0.0, rank_modes: 2, rank_decay: 1.2, rank_max_mode: 8,
+      zernike_weight: 0.0, zernike_max_order: 3, defocus_bias: 0.0, astigmatism_bias: 0.0, tilt_strength: 0.0,
+      atom_weight: 0.0, atom_count: 0, atom_radius_um: 80.0, atom_regular: 0.0, atom_combine: 'sum', atom_parabolicity: 0.8,
+      ridge_weight: 0.2005492046363211, ridge_source_centroid: 0.1324908577243679, ridge_source_bandwidth: 0.06157139502075349, ridge_width: 0.5940181274262394, ridge_threshold: 0.04047102263699144,
+      levelset_weight: 0.0, levelset_base_centroid: 0.016275345817256676, levelset_detail_weight: 1.3281217122106446, levelset_detail_centroid: 0.11061401448795716, levelset_softness: 0.01926047071323079,
+      ripple_weight: 0.7994507953636789, ripple_period_px: 12.733847444297384, ripple_orthogonal_mix: 0.18849290404534136, ripple_harmonic_mix: 0.0823942522076248,
+      gamma: 1.2609773576100918, nonlinear_contrast: 0.7071070140228528, final_blur_sigma_px: 0.29088183388852856, slope_limit_um_per_px: 0.41457831126363304
+    }
+  }
+};
+
+let params = {...defaults};
+let state = {gray: null, heightNorm: null, wave: null, components: {}, metrics: {}};
+let timer = null;
+
+class RNG {
+  constructor(seed) { this.s = (Number(seed) >>> 0) || 1; }
+  u32() {
+    // xorshift32
+    let x = this.s;
+    x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
+    this.s = x >>> 0;
+    return this.s;
+  }
+  random() { return (this.u32() + 0.5) / 4294967296; }
+  uniform(a, b) { return a + (b - a) * this.random(); }
+  int(a, bInclusive) { return Math.floor(this.uniform(a, bInclusive + 1)); }
+  normal() {
+    const u = Math.max(this.random(), 1e-12);
+    const v = this.random();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+}
+
+function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+function lerp(a, b, t) { return a + (b - a) * t; }
+function logLerp(a, b, t) { return Math.exp(Math.log(a) + (Math.log(b) - Math.log(a)) * t); }
+function sigmoid(x) {
+  if (x > 50) return 1;
+  if (x < -50) return 0;
+  return 1 / (1 + Math.exp(-x));
+}
+
+function meanStd(arr) {
+  let s = 0, s2 = 0, n = arr.length;
+  for (let i = 0; i < n; i++) { const v = arr[i]; s += v; s2 += v*v; }
+  const m = s / n;
+  const varr = Math.max(s2 / n - m*m, 0);
+  return [m, Math.sqrt(varr)];
+}
+function standardize(arr) {
+  const out = new Float32Array(arr.length);
+  const [m, sd0] = meanStd(arr);
+  const sd = Math.max(sd0, 1e-6);
+  for (let i = 0; i < arr.length; i++) out[i] = (arr[i] - m) / sd;
+  return out;
+}
+function normalize01(arr, robust=false, qLow=0.01, qHigh=0.99) {
+  let lo, hi;
+  if (robust) {
+    const tmp = Array.from(arr).sort((a,b) => a-b);
+    lo = tmp[Math.floor(clamp(qLow,0,1) * (tmp.length-1))];
+    hi = tmp[Math.floor(clamp(qHigh,0,1) * (tmp.length-1))];
+  } else {
+    lo = Infinity; hi = -Infinity;
+    for (const v of arr) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  }
+  const out = new Float32Array(arr.length);
+  const den = Math.max(hi - lo, 1e-12);
+  for (let i = 0; i < arr.length; i++) out[i] = clamp((arr[i] - lo) / den, 0, 1);
+  return out;
+}
+function quantile(arr, q) {
+  const tmp = Array.from(arr).sort((a,b) => a-b);
+  return tmp[Math.floor(clamp(q,0,1) * (tmp.length-1))];
+}
+
+function fft1d(re, im, inverse=false) {
+  const n = re.length;
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      let tr = re[i]; re[i] = re[j]; re[j] = tr;
+      let ti = im[i]; im[i] = im[j]; im[j] = ti;
+    }
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const ang = 2 * Math.PI / len * (inverse ? 1 : -1);
+    const wlenR = Math.cos(ang), wlenI = Math.sin(ang);
+    for (let i = 0; i < n; i += len) {
+      let wr = 1, wi = 0;
+      for (let j = 0; j < len/2; j++) {
+        const uR = re[i+j], uI = im[i+j];
+        const vR = re[i+j+len/2] * wr - im[i+j+len/2] * wi;
+        const vI = re[i+j+len/2] * wi + im[i+j+len/2] * wr;
+        re[i+j] = uR + vR; im[i+j] = uI + vI;
+        re[i+j+len/2] = uR - vR; im[i+j+len/2] = uI - vI;
+        const nwr = wr * wlenR - wi * wlenI;
+        wi = wr * wlenI + wi * wlenR; wr = nwr;
+      }
+    }
+  }
+  if (inverse) {
+    for (let i = 0; i < n; i++) { re[i] /= n; im[i] /= n; }
+  }
+}
+function fft2d(re, im, inverse=false) {
+  const rowR = new Float64Array(W), rowI = new Float64Array(W);
+  for (let y = 0; y < H; y++) {
+    const off = y * W;
+    for (let x = 0; x < W; x++) { rowR[x] = re[off+x]; rowI[x] = im[off+x]; }
+    fft1d(rowR, rowI, inverse);
+    for (let x = 0; x < W; x++) { re[off+x] = rowR[x]; im[off+x] = rowI[x]; }
+  }
+  const colR = new Float64Array(H), colI = new Float64Array(H);
+  for (let x = 0; x < W; x++) {
+    for (let y = 0; y < H; y++) { const idx = y*W+x; colR[y] = re[idx]; colI[y] = im[idx]; }
+    fft1d(colR, colI, inverse);
+    for (let y = 0; y < H; y++) { const idx = y*W+x; re[idx] = colR[y]; im[idx] = colI[y]; }
+  }
+}
+
+function spectralField(rng, c=params.spectralCentroid, bw=params.spectralBandwidth, slope=params.spectralSlope) {
+  const re = new Float64Array(N), im = new Float64Array(N);
+  for (let i = 0; i < N; i++) re[i] = rng.normal();
+  fft2d(re, im, false);
+  const angle = params.spectralOrientation;
+  const anis = Math.max(params.spectralAnisotropy, 1e-3);
+  const ca = Math.cos(angle), sa = Math.sin(angle);
+  for (let y = 0; y < H; y++) {
+    const fy = (y <= H/2 ? y : y-H) / H;
+    for (let x = 0; x < W; x++) {
+      const fx = (x <= W/2 ? x : x-W) / W;
+      const kxr = ca * fx + sa * fy;
+      const kyr = -sa * fx + ca * fy;
+      let kr = Math.sqrt((kxr/anis)**2 + (kyr*anis)**2) / 0.70710678;
+      const low = 0.003, high = Math.max(0.16, params.spectralCentroid + 0.05, 0.34);
+      let env = Math.exp(-0.5 * ((kr - c) / Math.max(bw, 1e-4))**2) * Math.pow(kr + 2e-4, 0.5 * slope);
+      env *= sigmoid((kr - low) / Math.max(low*0.35, 1e-4));
+      env *= sigmoid((high - kr) / Math.max(high*0.10, 1e-4));
+      if (x === 0 && y === 0) env = 0;
+      const idx = y*W+x;
+      re[idx] *= env; im[idx] *= env;
+    }
+  }
+  fft2d(re, im, true);
+  return Float32Array.from(re);
+}
+
+function rankField(rng) {
+  const out = new Float32Array(N);
+  const modes = Math.max(1, Math.round(params.rankModes));
+  const maxMode = Math.max(1, Math.round(params.rankMaxMode));
+  for (let i = 0; i < modes; i++) {
+    const mx = rng.int(1, maxMode), my = rng.int(1, maxMode);
+    const phx = rng.uniform(0, 2*Math.PI), phy = rng.uniform(0, 2*Math.PI);
+    const amp = Math.pow(i + 1, -params.rankDecay);
+    for (let y = 0; y < H; y++) {
+      const yy = -1 + 2*y/(H-1);
+      const uy = Math.sin(Math.PI * my * yy + phy) + 0.35 * Math.cos(Math.PI * (my+1) * yy - phy);
+      for (let x = 0; x < W; x++) {
+        const xx = -1 + 2*x/(W-1);
+        const ux = Math.sin(Math.PI * mx * xx + phx) + 0.35 * Math.cos(Math.PI * (mx+1) * xx - phx);
+        out[y*W+x] += amp * ux * uy;
+      }
+    }
+  }
+  return out;
+}
+
+function zernikeRadial(n, m, rho) {
+  m = Math.abs(m);
+  if ((n - m) % 2) return 0;
+  let sum = 0;
+  for (let k = 0; k <= (n-m)/2; k++) {
+    sum += ((k % 2) ? -1 : 1) * factorial(n-k) / (factorial(k) * factorial((n+m)/2-k) * factorial((n-m)/2-k)) * Math.pow(rho, n - 2*k);
+  }
+  return sum;
+}
+const factMemo = [1];
+function factorial(n) { if (factMemo[n] != null) return factMemo[n]; let v = factMemo[factMemo.length-1]; for (let i=factMemo.length; i<=n; i++) { v*=i; factMemo[i]=v; } return factMemo[n]; }
+function zernikeField(rng) {
+  const out = new Float32Array(N);
+  const order = Math.max(1, Math.round(params.zernikeOrder));
+  const coeffs = [];
+  for (let n = 1; n <= order; n++) {
+    for (let m = 0; m <= n; m++) {
+      if ((n-m)%2) continue;
+      coeffs.push([n, m, rng.normal() * Math.pow(n+1, -1.35), rng.uniform(0, 2*Math.PI)]);
+    }
+  }
+  const scale = Math.max(W, H) / 2;
+  for (let y = 0; y < H; y++) {
+    const yy = (y - (H-1)/2) / scale;
+    for (let x = 0; x < W; x++) {
+      const xx = (x - (W-1)/2) / scale;
+      const rho = Math.sqrt(xx*xx + yy*yy);
+      const theta = Math.atan2(yy, xx);
+      let v = params.tiltStrength * (xx + 0.75*yy);
+      v += params.defocusBias * (2*rho*rho - 1);
+      v += params.astigBias * (rho*rho * Math.cos(2*theta));
+      for (const [n,m,c,ph] of coeffs) {
+        const r = zernikeRadial(n, m, rho);
+        v += m === 0 ? c*r : c*r*Math.cos(m*theta + ph);
+      }
+      out[y*W+x] = v;
+    }
+  }
+  return out;
+}
+
+function atomPositions(rng, count) {
+  const regular = clamp(params.atomRegular, 0, 1);
+  if (regular <= 0.05) {
+    const pts = [];
+    for (let i=0; i<count; i++) pts.push([rng.uniform(0, W-1), rng.uniform(0, H-1)]);
+    return pts;
+  }
+  const pitch = Math.sqrt((W*H) / Math.max(count, 1));
+  const nx = Math.ceil(W/pitch) + 4, ny = Math.ceil(H/pitch) + 4;
+  const jitter = (1 - regular) * 0.55 * pitch;
+  const angle = 0.25;
+  const ca = Math.cos(angle), sa = Math.sin(angle);
+  const pts = [];
+  for (let iy=-Math.floor(ny/2); iy<=Math.floor(ny/2); iy++) {
+    for (let ix=-Math.floor(nx/2); ix<=Math.floor(nx/2); ix++) {
+      let px = ix*pitch + rng.normal()*jitter + regular*0.5*pitch*(Math.abs(iy)%2);
+      let py = iy*pitch + rng.normal()*jitter;
+      const xr = ca*px - sa*py + (W-1)/2;
+      const yr = sa*px + ca*py + (H-1)/2;
+      if (xr>=0 && xr<W && yr>=0 && yr<H) pts.push([xr, yr]);
+    }
+  }
+  // shuffle and trim
+  for (let i=pts.length-1; i>0; i--) { const j = rng.int(0, i); [pts[i], pts[j]] = [pts[j], pts[i]]; }
+  return pts.slice(0, count);
+}
+function atomField(rng) {
+  const out = new Float32Array(N);
+  const count = Math.max(0, Math.round(params.atomCount));
+  if (count <= 0) return out;
+  const pxUm = PIXEL_M * 1e6;
+  const baseR = Math.max(params.atomRadiusUm / pxUm, 1.0);
+  let pts = atomPositions(rng, count);
+  const accept = [];
+  if (params.atomDensityMod > 1e-6 || params.atomMissingProb > 1e-6) {
+    const density = gaussianBlur(normalize01(randomField(rng)), Math.max(2, 900 / pxUm));
+    for (const p of pts) {
+      const x = clamp(Math.round(p[0]), 0, W-1), y = clamp(Math.round(p[1]), 0, H-1);
+      const local = sigmoid((density[y*W+x] - 0.50) / 0.12);
+      const prob = (1 - params.atomMissingProb) * (0.12 + 0.88 * ((1 - params.atomDensityMod) + params.atomDensityMod * local));
+      if (rng.random() < prob) accept.push(p);
+    }
+    pts = accept.length ? accept : pts.slice(0, Math.max(1, Math.floor(0.03 * pts.length)));
+  }
+  function radius() {
+    const j = clamp(params.atomRadiusJitter, 0, 2);
+    return clamp(baseR * Math.exp(rng.normal()*j - 0.5*j*j), Math.max(0.35*baseR, 1), 2.8*baseR);
+  }
+  function amp() {
+    const j = clamp(params.atomAmpJitter, 0, 2.5);
+    return clamp(Math.exp(rng.normal()*j - 0.5*j*j), 0.05, 3.5);
+  }
+  const combine = document.getElementById('atomCombine').value;
+  if (combine === 'nearest_parabola' && pts.length > 0) {
+    const radii = pts.map(() => radius());
+    const amps = pts.map(() => amp());
+    for (let y=0; y<H; y++) {
+      for (let x=0; x<W; x++) {
+        let best = Infinity, bi = 0;
+        for (let i=0; i<pts.length; i++) {
+          const dx = x - pts[i][0], dy = y - pts[i][1];
+          const d2 = dx*dx + dy*dy;
+          if (d2 < best) { best = d2; bi = i; }
+        }
+        const r2 = best / Math.max(radii[bi]*radii[bi], 1e-6);
+        out[y*W+x] = Math.pow(clamp(1 - r2, 0, 1), 2) * amps[bi];
+      }
+    }
+    return out;
+  }
+  for (const [cx, cy] of pts) {
+    const r = radius();
+    const a = amp();
+    const pr = Math.max(3, Math.ceil(3*r));
+    const x0 = Math.max(0, Math.floor(cx)-pr), x1 = Math.min(W-1, Math.floor(cx)+pr);
+    const y0 = Math.max(0, Math.floor(cy)-pr), y1 = Math.min(H-1, Math.floor(cy)+pr);
+    for (let y=y0; y<=y1; y++) for (let x=x0; x<=x1; x++) {
+      const rr = ((x-cx)**2 + (y-cy)**2) / Math.max(r*r, 1e-6);
+      const gauss = Math.exp(-0.5 * rr);
+      const cap = rr < 1 ? (1 - rr)**2 : 0;
+      const atom = a * (0.78 * cap + 0.22 * gauss);
+      const idx = y*W+x;
+      if (combine === 'max') out[idx] = Math.max(out[idx], atom);
+      else out[idx] += atom;
+    }
+  }
+  return out;
+}
+function randomField(rng) { const a = new Float32Array(N); for (let i=0;i<N;i++) a[i] = rng.normal(); return a; }
+
+function ridgeField(rng) {
+  const latent = standardize(spectralField(rng, params.ridgeCentroid, Math.max(params.spectralBandwidth*0.7, 0.015), Math.min(params.spectralSlope, -0.4)));
+  const out = new Float32Array(N);
+  const width = Math.max(params.ridgeWidth, 1e-3);
+  for (let i=0; i<N; i++) out[i] = Math.exp(-0.5 * (latent[i] / width)**2);
+  return out;
+}
+function levelsetField(rng) {
+  const base = standardize(spectralField(rng, 0.030, 0.035, Math.min(params.spectralSlope, -0.8)));
+  const detail = standardize(spectralField(rng, Math.max(params.spectralCentroid*1.7, 0.08), Math.max(params.spectralBandwidth, 0.05), Math.max(params.spectralSlope, -0.35)));
+  const out = new Float32Array(N);
+  const soft = Math.max(params.levelsetSoftness, 1e-3);
+  for (let i=0; i<N; i++) {
+    const m = sigmoid(base[i] / soft);
+    const edge = 4*m*(1-m);
+    out[i] = clamp(m + 0.45*params.levelsetDetail*edge*detail[i] + 0.12*params.levelsetDetail*detail[i], 0, 1);
+  }
+  return out;
+}
+function rippleField() {
+  const out = new Float32Array(N);
+  const period = Math.max(params.ripplePeriod, 2);
+  const theta = params.spectralOrientation;
+  const ca = Math.cos(theta), sa = Math.sin(theta);
+  for (let y=0; y<H; y++) for (let x=0; x<W; x++) {
+    const c1 = ca*x + sa*y;
+    const c2 = -sa*x + ca*y;
+    out[y*W+x] = Math.sin(2*Math.PI*c1/period) + params.rippleMix*Math.sin(2*Math.PI*c2/period + 0.7);
+  }
+  return out;
+}
+
+function gaussianBlur(arr, sigma) {
+  if (sigma <= 1e-6) return Float32Array.from(arr);
+  const radius = Math.max(1, Math.ceil(3*sigma));
+  const kernel = [];
+  let sum = 0;
+  for (let i=-radius; i<=radius; i++) { const v = Math.exp(-0.5*(i/sigma)**2); kernel.push(v); sum += v; }
+  for (let i=0; i<kernel.length; i++) kernel[i] /= sum;
+  const tmp = new Float32Array(N), out = new Float32Array(N);
+  for (let y=0; y<H; y++) for (let x=0; x<W; x++) {
+    let v = 0;
+    for (let k=-radius; k<=radius; k++) v += arr[y*W + clamp(x+k, 0, W-1)] * kernel[k+radius];
+    tmp[y*W+x] = v;
+  }
+  for (let y=0; y<H; y++) for (let x=0; x<W; x++) {
+    let v = 0;
+    for (let k=-radius; k<=radius; k++) v += tmp[clamp(y+k, 0, H-1)*W + x] * kernel[k+radius];
+    out[y*W+x] = v;
+  }
+  return out;
+}
+function curvatureProjection(arr) {
+  let y = normalize01(arr);
+  if (params.finalBlur > 0) y = normalize01(gaussianBlur(y, params.finalBlur));
+  if (params.slopeLimit > 0) {
+    const limitNorm = params.slopeLimit / (H_MAX_M * 1e6);
+    for (let iter=0; iter<8; iter++) {
+      const grads = new Float32Array(N);
+      for (let yy=0; yy<H; yy++) for (let xx=0; xx<W; xx++) {
+        const l = y[yy*W + Math.max(0,xx-1)], r = y[yy*W + Math.min(W-1,xx+1)];
+        const u = y[Math.max(0,yy-1)*W + xx], d = y[Math.min(H-1,yy+1)*W + xx];
+        grads[yy*W+xx] = Math.hypot((r-l)*0.5, (d-u)*0.5);
+      }
+      if (quantile(grads, 0.995) <= limitNorm) break;
+      y = normalize01(gaussianBlur(y, 0.8));
+    }
+  }
+  return y;
+}
+function applyTone(arr) {
+  let y = normalize01(arr);
+  if (params.finalBlur > 0) y = normalize01(gaussianBlur(y, params.finalBlur));
+  const out = new Float32Array(N);
+  for (let i=0; i<N; i++) out[i] = Math.pow(clamp(y[i],0,1), Math.max(params.gamma, 1e-6));
+  return out;
+}
+
+function generateSample() {
+  const seed = Number(document.getElementById('seedInput').value) || 1;
+  const rng = new RNG(seed);
+  const comps = {};
+  const accum = new Float32Array(N);
+  let total = 0;
+  function add(name, weight, field) {
+    if (weight <= 0) return;
+    const v = standardize(field);
+    comps[name] = normalize01(v);
+    for (let i=0; i<N; i++) accum[i] += weight * v[i];
+    total += Math.abs(weight);
+  }
+  add('spectral', params.spectralWeight, spectralField(rng));
+  add('low rank', params.rankWeight, rankField(rng));
+  add('Zernike', params.zernikeWeight, zernikeField(rng));
+  add('atoms', params.atomWeight, atomField(rng));
+  add('ridge', params.ridgeWeight, ridgeField(rng));
+  add('level-set', params.levelsetWeight, levelsetField(rng));
+  add('ripple', params.rippleWeight, rippleField());
+
+  let raw = new Float32Array(N);
+  if (total > 1e-8) for (let i=0; i<N; i++) raw[i] = accum[i] / total;
+  raw = standardize(raw);
+  const contrast = Math.max(params.nonlinearContrast, 1e-4);
+  if (Math.abs(contrast - 1) > 1e-4) {
+    const den = Math.tanh(contrast);
+    for (let i=0; i<N; i++) raw[i] = Math.tanh(raw[i]*contrast) / den;
+  }
+  let unit = normalize01(raw, true, 0.01, 0.99);
+  unit = curvatureProjection(unit);
+  unit = applyTone(unit);
+
+  const gray = new Uint8ClampedArray(N);
+  let gmin = 255, gmax = 0;
+  for (let i=0; i<N; i++) {
+    const g = Math.round(MIN_GRAY + clamp(unit[i],0,1) * (params.maxGray - MIN_GRAY));
+    gray[i] = clamp(g, MIN_GRAY, params.maxGray);
+    gmin = Math.min(gmin, gray[i]); gmax = Math.max(gmax, gray[i]);
+  }
+  const hnorm = new Float32Array(N);
+  for (let i=0; i<N; i++) hnorm[i] = clamp((gray[i] - MIN_GRAY) / Math.max(params.maxGray - MIN_GRAY, 1), 0, 1) * (params.maxGray / 255);
+  state.gray = gray; state.heightNorm = hnorm; state.components = comps;
+  state.metrics.grayMin = gmin; state.metrics.grayMax = gmax; state.metrics.heightMaxUm = (params.maxGray / 255) * 15;
+}
+
+function propagate(heightNorm, zMm) {
+  const re = new Float64Array(N), im = new Float64Array(N);
+  const k = 2 * Math.PI / WAVELENGTH_M;
+  for (let i=0; i<N; i++) {
+    const phase = k * (N_MAT - N_AIR) * clamp(heightNorm[i],0,1) * H_MAX_M;
+    re[i] = Math.cos(phase); im[i] = Math.sin(phase);
+  }
+  fft2d(re, im, false);
+  const z = zMm * 1e-3;
+  for (let y=0; y<H; y++) {
+    const fy = (y <= H/2 ? y : y-H) / (H * PIXEL_M);
+    for (let x=0; x<W; x++) {
+      const fx = (x <= W/2 ? x : x-W) / (W * PIXEL_M);
+      const term = k*k - (2*Math.PI*fx)**2 - (2*Math.PI*fy)**2;
+      const idx = y*W+x;
+      if (term <= 0) { re[idx] = 0; im[idx] = 0; continue; }
+      const ph = Math.sqrt(term) * z;
+      const cr = Math.cos(ph), ci = Math.sin(ph);
+      const ar = re[idx], ai = im[idx];
+      re[idx] = ar*cr - ai*ci; im[idx] = ar*ci + ai*cr;
+    }
+  }
+  fft2d(re, im, true);
+  const inten = new Float32Array(N);
+  let sum = 0, sum2 = 0;
+  for (let i=0; i<N; i++) { const v = re[i]*re[i] + im[i]*im[i]; inten[i] = v; sum += v; sum2 += v*v; }
+  const mean = sum / N;
+  const std = Math.sqrt(Math.max(sum2/N - mean*mean, 0));
+  const p999 = quantile(inten, 0.999);
+  let bright = 0;
+  for (let i=0; i<N; i++) if (inten[i] > mean + 2*std) bright++;
+  const view = normalize01(Float32Array.from(inten, v => Math.log1p(v)), true, 0.005, 0.995);
+  return {view, peakToMean: p999 / Math.max(mean, 1e-12), brightFrac: bright / N, mean, std};
+}
+
+function drawGray(canvas, gray) {
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(W, H);
+  for (let i=0; i<N; i++) {
+    const g = gray[i]; const j = 4*i;
+    img.data[j] = g; img.data[j+1] = g; img.data[j+2] = g; img.data[j+3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+function magmaColor(t) {
+  // compact approximate magma-like gradient
+  const stops = [
+    [0.00, 0, 0, 4], [0.18, 38, 12, 75], [0.36, 101, 21, 110],
+    [0.55, 171, 48, 92], [0.75, 228, 102, 50], [1.00, 252, 253, 191]
+  ];
+  t = clamp(t,0,1);
+  for (let i=0; i<stops.length-1; i++) {
+    const a = stops[i], b = stops[i+1];
+    if (t >= a[0] && t <= b[0]) {
+      const u = (t - a[0]) / (b[0] - a[0]);
+      return [lerp(a[1],b[1],u), lerp(a[2],b[2],u), lerp(a[3],b[3],u)];
+    }
+  }
+  return [252,253,191];
+}
+function drawHeat(canvas, arr) {
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(W, H);
+  for (let i=0; i<N; i++) {
+    const [r,g,b] = magmaColor(arr[i]); const j = 4*i;
+    img.data[j] = r; img.data[j+1] = g; img.data[j+2] = b; img.data[j+3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+function drawUnit(canvas, arr) {
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(W, H);
+  const v = normalize01(arr);
+  for (let i=0; i<N; i++) { const g = Math.round(v[i]*255), j=4*i; img.data[j]=g; img.data[j+1]=g; img.data[j+2]=g; img.data[j+3]=255; }
+  ctx.putImageData(img, 0, 0);
+}
+
+function updateAll(runSweep=false) {
+  const t0 = performance.now();
+  generateSample();
+  const res = propagate(state.heightNorm, params.zMm);
+  state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
+  drawGray(document.getElementById('grayCanvas'), state.gray);
+  drawHeat(document.getElementById('waveCanvas'), state.wave);
+  renderComponents();
+  updateMetrics(performance.now() - t0);
+  if (runSweep) renderSweep();
+  dumpParams();
+}
+function renderComponents() {
+  const grid = document.getElementById('componentGrid');
+  grid.innerHTML = '';
+  const names = ['spectral','low rank','Zernike','atoms','ridge','level-set','ripple'];
+  for (const name of names) {
+    const div = document.createElement('div'); div.className = 'mini';
+    const h = document.createElement('h3'); h.textContent = name;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    div.appendChild(h); div.appendChild(c); grid.appendChild(div);
+    drawUnit(c, state.components[name] || new Float32Array(N));
+  }
+}
+function renderSweep() {
+  const grid = document.getElementById('sweepGrid'); grid.innerHTML = '';
+  for (const z of Z_SWEEP) {
+    const div = document.createElement('div');
+    const h = document.createElement('h3'); h.textContent = `z=${z} mm`;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    div.appendChild(h); div.appendChild(c); grid.appendChild(div);
+    const res = propagate(state.heightNorm, z);
+    h.textContent = `z=${z} mm · ${res.peakToMean.toFixed(1)}`;
+    drawHeat(c, res.view);
+  }
+}
+function updateMetrics(ms) {
+  document.getElementById('grayInfo').textContent = `floor=90, max=${params.maxGray}, ${ms.toFixed(0)} ms`;
+  document.getElementById('waveInfo').textContent = `z=${params.zMm.toFixed(1)} mm`;
+  document.getElementById('mGray').textContent = `${state.metrics.grayMin} … ${state.metrics.grayMax}`;
+  document.getElementById('mHeight').textContent = `${state.metrics.heightMaxUm.toFixed(2)} µm`;
+  document.getElementById('mPeak').textContent = `${state.metrics.peak.toFixed(2)}`;
+  document.getElementById('mBright').textContent = `${(100*state.metrics.bright).toFixed(2)} %`;
+}
+function dumpParams() {
+  const obj = paramsToCodeNames();
+  document.getElementById('paramDump').textContent = JSON.stringify(obj, null, 2);
+}
+function paramsToCodeNames() {
+  return {
+    max_gray: Math.round(params.maxGray),
+    spectral_weight: params.spectralWeight, spectral_centroid: params.spectralCentroid, spectral_bandwidth: params.spectralBandwidth,
+    spectral_slope: params.spectralSlope, spectral_anisotropy: params.spectralAnisotropy, spectral_orientation_rad: params.spectralOrientation,
+    rank_weight: params.rankWeight, rank_modes: Math.round(params.rankModes), rank_max_mode: Math.round(params.rankMaxMode), rank_decay: params.rankDecay,
+    zernike_weight: params.zernikeWeight, zernike_max_order: Math.round(params.zernikeOrder), defocus_bias: params.defocusBias, astigmatism_bias: params.astigBias, tilt_strength: params.tiltStrength,
+    atom_weight: params.atomWeight, atom_count: Math.round(params.atomCount), atom_radius_um: params.atomRadiusUm, atom_regular: params.atomRegular,
+    atom_radius_jitter: params.atomRadiusJitter, atom_missing_prob: params.atomMissingProb, atom_amp_jitter: params.atomAmpJitter,
+    atom_density_mod_strength: params.atomDensityMod, atom_combine: document.getElementById('atomCombine').value,
+    ridge_weight: params.ridgeWeight, ridge_source_centroid: params.ridgeCentroid, ridge_width: params.ridgeWidth,
+    levelset_weight: params.levelsetWeight, levelset_softness: params.levelsetSoftness, levelset_detail_weight: params.levelsetDetail,
+    ripple_weight: params.rippleWeight, ripple_period_px: params.ripplePeriod, ripple_orthogonal_mix: params.rippleMix,
+    nonlinear_contrast: params.nonlinearContrast, final_blur_sigma_px: params.finalBlur, slope_limit_um_per_px: params.slopeLimit,
+    quantization_bits: 8, gamma: params.gamma, height_min: 0.0, height_max: 1.0
+  };
+}
+
+function scheduleUpdate() {
+  if (!document.getElementById('autoUpdate').checked) return;
+  clearTimeout(timer);
+  timer = setTimeout(() => updateAll(false), 160);
+}
+function syncControls() {
+  for (const el of document.querySelectorAll('input[type="range"][data-key]')) {
+    const key = el.dataset.key;
+    el.value = params[key];
+    el.parentElement.querySelector('.value').textContent = formatValue(params[key]);
+    el.addEventListener('input', () => {
+      params[key] = Number(el.value);
+      el.parentElement.querySelector('.value').textContent = formatValue(params[key]);
+      scheduleUpdate();
+    });
+  }
+  document.getElementById('atomCombine').addEventListener('change', scheduleUpdate);
+}
+function refreshControlValues() {
+  for (const el of document.querySelectorAll('input[type="range"][data-key]')) {
+    const key = el.dataset.key;
+    el.value = params[key];
+    el.parentElement.querySelector('.value').textContent = formatValue(params[key]);
+  }
+}
+function formatValue(v) {
+  if (Math.abs(v) >= 100 || Number.isInteger(v)) return String(Math.round(v));
+  if (Math.abs(v) >= 10) return v.toFixed(1);
+  return v.toFixed(3).replace(/0+$/,'').replace(/\.$/,'');
+}
+
+function applyCodePreset(code, seed, atomCombine, note) {
+  const map = {
+    max_gray: 'maxGray',
+    spectral_weight: 'spectralWeight', spectral_centroid: 'spectralCentroid', spectral_bandwidth: 'spectralBandwidth', spectral_slope: 'spectralSlope', spectral_anisotropy: 'spectralAnisotropy', spectral_orientation_rad: 'spectralOrientation',
+    rank_weight: 'rankWeight', rank_modes: 'rankModes', rank_max_mode: 'rankMaxMode', rank_decay: 'rankDecay',
+    zernike_weight: 'zernikeWeight', zernike_max_order: 'zernikeOrder', defocus_bias: 'defocusBias', astigmatism_bias: 'astigBias', tilt_strength: 'tiltStrength',
+    atom_weight: 'atomWeight', atom_count: 'atomCount', atom_radius_um: 'atomRadiusUm', atom_regular: 'atomRegular', atom_radius_jitter: 'atomRadiusJitter', atom_amp_jitter: 'atomAmpJitter', atom_missing_prob: 'atomMissingProb', atom_density_mod_strength: 'atomDensityMod',
+    ridge_weight: 'ridgeWeight', ridge_source_centroid: 'ridgeCentroid', ridge_width: 'ridgeWidth',
+    levelset_weight: 'levelsetWeight', levelset_softness: 'levelsetSoftness', levelset_detail_weight: 'levelsetDetail',
+    ripple_weight: 'rippleWeight', ripple_period_px: 'ripplePeriod', ripple_orthogonal_mix: 'rippleMix',
+    gamma: 'gamma', nonlinear_contrast: 'nonlinearContrast', final_blur_sigma_px: 'finalBlur', slope_limit_um_per_px: 'slopeLimit'
+  };
+  params = {...defaults};
+  for (const [src, dst] of Object.entries(map)) {
+    if (Object.prototype.hasOwnProperty.call(code, src) && Number.isFinite(Number(code[src]))) params[dst] = Number(code[src]);
+  }
+  params.zMm = Number(params.zMm || 1.0);
+  document.getElementById('seedInput').value = seed;
+  document.getElementById('atomCombine').value = atomCombine || String(code.atom_combine || 'sum');
+  document.getElementById('presetNote').textContent = note || '';
+  refreshControlValues();
+  updateAll(true);
+}
+function applySelectedPreset() {
+  const key = document.getElementById('presetSelect').value;
+  const preset = PRESETS[key] || PRESETS.default_mixed;
+  applyCodePreset(preset.code, preset.seed, preset.atomCombine, `${preset.label}: ${preset.note}${preset.sourceName ? ' Source=' + preset.sourceName : ''}`);
+}
+
+function randomizeParams() {
+  const seed = Math.floor(Math.random()*1e9);
+  document.getElementById('seedInput').value = seed;
+  const r = new RNG(seed ^ 0x9e3779b9);
+  params.maxGray = Math.round(lerp(200, 255, r.random()));
+  params.zMm = 1;
+  const profiles = [
+    [2.2,0.9,0.8,1.4,1.4,0.4,0.2], [4.2,0.4,0.4,0.2,1.8,0.8,0.1],
+    [0.3,0.2,0.2,5.5,0.3,0.0,0.0], [0.4,0.2,0.2,0.4,0.4,4.0,0.1],
+    [0.1,0.1,0.1,0.1,0.1,0.0,5.0]
+  ];
+  const alpha = profiles[r.int(0, profiles.length-1)];
+  const gammaSamples = alpha.map(a => -Math.log(Math.max(r.random(),1e-12)) / a);
+  const inv = gammaSamples.map((v,i) => alpha[i] / Math.max(v,1e-6));
+  const sum = inv.reduce((a,b)=>a+b,0);
+  [params.spectralWeight, params.rankWeight, params.zernikeWeight, params.atomWeight, params.ridgeWeight, params.levelsetWeight, params.rippleWeight] = inv.map(v => v/sum);
+  params.spectralCentroid = logLerp(0.012, 0.28, r.random());
+  params.spectralBandwidth = lerp(0.015, 0.16, r.random());
+  params.spectralSlope = lerp(-2.8, 0.35, r.random());
+  params.spectralAnisotropy = logLerp(0.45, 2.8, r.random());
+  params.spectralOrientation = lerp(-1.57, 1.57, r.random());
+  params.rankModes = Math.round(lerp(2, 11, r.random()));
+  params.rankMaxMode = Math.round(lerp(4, 16, r.random()));
+  params.rankDecay = lerp(0.7, 2.6, r.random());
+  params.zernikeOrder = Math.round(lerp(2, 7, r.random()));
+  params.defocusBias = lerp(-0.20, 0.28, r.random());
+  params.astigBias = lerp(-0.12, 0.12, r.random());
+  params.tiltStrength = lerp(-0.06, 0.06, r.random());
+  const regular = r.random();
+  params.atomRegular = regular;
+  params.atomRadiusUm = logLerp(30, regular > 0.65 ? 520 : 180, r.random());
+  params.atomCount = Math.round(logLerp(20, regular > 0.65 ? 900 : 450, r.random()) * (0.45 + 0.75*regular));
+  params.atomRadiusJitter = lerp(0.03, 0.65, r.random());
+  params.atomAmpJitter = lerp(0.05, 1.2, r.random());
+  params.atomMissingProb = lerp(0, 0.55, r.random());
+  params.atomDensityMod = lerp(0, 0.95, r.random());
+  document.getElementById('atomCombine').value = regular > 0.72 && r.random() < 0.65 ? 'nearest_parabola' : (r.random() < 0.25 ? 'max' : 'sum');
+  params.ridgeCentroid = logLerp(0.018, 0.17, r.random());
+  params.ridgeWidth = lerp(0.05, 0.85, r.random());
+  params.levelsetSoftness = logLerp(0.004, 0.10, r.random());
+  params.levelsetDetail = lerp(0.05, 0.90, r.random());
+  params.ripplePeriod = lerp(5, 34, r.random());
+  params.rippleMix = lerp(0, 1.8, r.random());
+  params.gamma = lerp(0.45, 1.45, r.random());
+  params.nonlinearContrast = lerp(0.75, 1.75, r.random());
+  params.finalBlur = lerp(0, 2.8, r.random());
+  params.slopeLimit = r.random() < 0.25 ? 0 : lerp(0.20, 1.2, r.random());
+  refreshControlValues();
+  updateAll(true);
+}
+function resetParams() {
+  params = {...defaults};
+  document.getElementById('seedInput').value = 20260601;
+  document.getElementById('atomCombine').value = 'sum';
+  refreshControlValues();
+  updateAll(true);
+}
+
+function canvasToPngBytes(canvas) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(async blob => {
+      if (!blob) return reject(new Error('canvas.toBlob failed'));
+      resolve(new Uint8Array(await blob.arrayBuffer()));
+    }, 'image/png');
+  });
+}
+function crc32(bytes) {
+  if (!crc32.table) {
+    const table = new Uint32Array(256);
+    for (let i=0; i<256; i++) {
+      let c = i;
+      for (let k=0; k<8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      table[i] = c >>> 0;
+    }
+    crc32.table = table;
+  }
+  let c = 0xffffffff;
+  for (let i=0; i<bytes.length; i++) c = crc32.table[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+function dosTimeDate(date=new Date()) {
+  const time = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds()/2);
+  const d = ((date.getFullYear() - 1980) << 9) | ((date.getMonth()+1) << 5) | date.getDate();
+  return [time & 0xffff, d & 0xffff];
+}
+function makeZip(files) {
+  const enc = new TextEncoder();
+  const chunks = [];
+  const central = [];
+  let offset = 0;
+  const [mtime, mdate] = dosTimeDate();
+  for (const file of files) {
+    const nameBytes = enc.encode(file.name);
+    const data = file.data instanceof Uint8Array ? file.data : enc.encode(String(file.data));
+    const crc = crc32(data);
+    const local = new Uint8Array(30 + nameBytes.length);
+    let dv = new DataView(local.buffer);
+    dv.setUint32(0, 0x04034b50, true);
+    dv.setUint16(4, 20, true);      // version needed
+    dv.setUint16(6, 0, true);       // flags
+    dv.setUint16(8, 0, true);       // store, no compression
+    dv.setUint16(10, mtime, true); dv.setUint16(12, mdate, true);
+    dv.setUint32(14, crc, true); dv.setUint32(18, data.length, true); dv.setUint32(22, data.length, true);
+    dv.setUint16(26, nameBytes.length, true); dv.setUint16(28, 0, true);
+    local.set(nameBytes, 30);
+    chunks.push(local, data);
+
+    const cen = new Uint8Array(46 + nameBytes.length);
+    dv = new DataView(cen.buffer);
+    dv.setUint32(0, 0x02014b50, true);
+    dv.setUint16(4, 20, true); dv.setUint16(6, 20, true);
+    dv.setUint16(8, 0, true); dv.setUint16(10, 0, true);
+    dv.setUint16(12, mtime, true); dv.setUint16(14, mdate, true);
+    dv.setUint32(16, crc, true); dv.setUint32(20, data.length, true); dv.setUint32(24, data.length, true);
+    dv.setUint16(28, nameBytes.length, true); dv.setUint16(30, 0, true); dv.setUint16(32, 0, true);
+    dv.setUint16(34, 0, true); dv.setUint16(36, 0, true); dv.setUint32(38, 0, true);
+    dv.setUint32(42, offset, true);
+    cen.set(nameBytes, 46);
+    central.push(cen);
+    offset += local.length + data.length;
+  }
+  const centralStart = offset;
+  let centralSize = 0;
+  for (const c of central) { chunks.push(c); centralSize += c.length; }
+  const end = new Uint8Array(22);
+  const dv = new DataView(end.buffer);
+  dv.setUint32(0, 0x06054b50, true);
+  dv.setUint16(8, files.length, true); dv.setUint16(10, files.length, true);
+  dv.setUint32(12, centralSize, true); dv.setUint32(16, centralStart, true);
+  chunks.push(end);
+  return new Blob(chunks, {type: 'application/zip'});
+}
+async function downloadRandomSeedZip() {
+  const n = clamp(Math.round(Number(document.getElementById('batchN').value) || 1), 1, 200);
+  const includeWave = document.getElementById('zipIncludeWave').checked;
+  const baseSeed = Number(document.getElementById('seedInput').value) || Math.floor(Math.random()*1e9);
+  const savedSeed = document.getElementById('seedInput').value;
+  const files = [];
+  const grayCanvas = document.createElement('canvas'); grayCanvas.width = W; grayCanvas.height = H;
+  const waveCanvas = document.createElement('canvas'); waveCanvas.width = W; waveCanvas.height = H;
+  const manifest = [];
+  for (let i=0; i<n; i++) {
+    const seed = Math.round(baseSeed + i * 1009);
+    document.getElementById('seedInput').value = seed;
+    generateSample();
+    drawGray(grayCanvas, state.gray);
+    files.push({name: `sample_${String(i).padStart(4,'0')}_seed${seed}_gray.png`, data: await canvasToPngBytes(grayCanvas)});
+    let waveMetrics = null;
+    if (includeWave) {
+      const res = propagate(state.heightNorm, params.zMm);
+      drawHeat(waveCanvas, res.view);
+      files.push({name: `sample_${String(i).padStart(4,'0')}_seed${seed}_wave_z${params.zMm.toFixed(1)}mm.png`, data: await canvasToPngBytes(waveCanvas)});
+      waveMetrics = {peak_to_mean_p999_preview: res.peakToMean, bright_frac_preview: res.brightFrac};
+    }
+    manifest.push({index: i, seed, max_gray: params.maxGray, z_mm: params.zMm, ...waveMetrics});
+  }
+  files.push({name: 'params.json', data: JSON.stringify(paramsToCodeNames(), null, 2)});
+  files.push({name: 'manifest.json', data: JSON.stringify(manifest, null, 2)});
+  document.getElementById('seedInput').value = savedSeed;
+  updateAll(false);
+  const blob = makeZip(files);
+  const a = document.createElement('a');
+  a.download = `pattern_generator_${n}_samples_z${params.zMm.toFixed(1)}mm.zip`;
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+}
+
+function downloadCanvas(id, name) {
+  const a = document.createElement('a');
+  a.download = name;
+  a.href = document.getElementById(id).toDataURL('image/png');
+  a.click();
+}
+
+function initGrids() {
+  const sg = document.getElementById('sweepGrid');
+  for (const z of Z_SWEEP) {
+    const div = document.createElement('div');
+    const h = document.createElement('h3'); h.textContent = `z=${z} mm`;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    div.appendChild(h); div.appendChild(c); sg.appendChild(div);
+  }
+}
+
+document.getElementById('applyPresetBtn').addEventListener('click', applySelectedPreset);
+document.getElementById('generateBtn').addEventListener('click', () => updateAll(false));
+document.getElementById('sweepBtn').addEventListener('click', () => { if (!state.gray) generateSample(); renderSweep(); });
+document.getElementById('randomBtn').addEventListener('click', randomizeParams);
+document.getElementById('resetBtn').addEventListener('click', resetParams);
+document.getElementById('seedInput').addEventListener('change', scheduleUpdate);
+document.getElementById('downloadGray').addEventListener('click', () => downloadCanvas('grayCanvas', 'graymap.png'));
+document.getElementById('downloadWave').addEventListener('click', () => downloadCanvas('waveCanvas', `wave_z${params.zMm.toFixed(1)}mm.png`));
+document.getElementById('downloadZipBtn').addEventListener('click', downloadRandomSeedZip);
+document.getElementById('copyParams').addEventListener('click', async () => {
+  const txt = JSON.stringify(paramsToCodeNames(), null, 2);
+  try { await navigator.clipboard.writeText(txt); } catch (e) {}
+  document.getElementById('paramDump').textContent = txt;
+});
+
+syncControls();
+initGrids();
+document.getElementById('presetNote').textContent = PRESETS.mla_metric.label + ': ' + PRESETS.mla_metric.note;
+applySelectedPreset();
+</script>
+</body>
+</html>
