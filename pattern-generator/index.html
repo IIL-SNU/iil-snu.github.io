@@ -158,6 +158,10 @@
     }
     .metric b { display:block; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
     .metric span { font-variant-numeric: tabular-nums; }
+    .pcaWrap { display: grid; grid-template-columns: minmax(360px, 720px) 1fr; gap: 12px; align-items: start; }
+    #pcaCanvas { width: 100%; max-width: 720px; height: auto; background: #0b0f17; border: 1px solid var(--line); border-radius: 8px; cursor: crosshair; }
+    .pcaLegend { font-size: 12px; color: var(--muted); line-height: 1.55; }
+    .pcaLegend .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:middle; }
     .note {
       color: var(--muted);
       font-size: 12px;
@@ -337,6 +341,21 @@
     </section>
 
     <div class="card" style="margin-top:12px;">
+      <h2>Dataset PCA click-to-pattern <small>current 300 gray masks: MLA / Perlin / Voronoi</small></h2>
+      <div class="pcaWrap">
+        <canvas id="pcaCanvas" width="720" height="420"></canvas>
+        <div class="pcaLegend">
+          <div><span class="dot" style="background:#ff8a3d"></span>MLA <span class="dot" style="background:#74d27d;margin-left:12px;"></span>Perlin <span class="dot" style="background:#69b3ff;margin-left:12px;"></span>Voronoi</div>
+          <div id="pcaStatus" style="margin-top:8px;">Loading PCA data…</div>
+          <div class="note" style="font-size:11px;margin-top:8px;">
+            PCA는 현재 dataset gray mask를 active crop → physical height proxy → 160×100 vector로 만든 뒤 SVD로 계산했다.
+            plot을 클릭하면 그 위치에서 가장 가까운 dataset pattern을 로드해 현재 z에서 propagation한다. 2D PCA inverse는 유일하지 않으므로 off-manifold 위치는 nearest-sample snap으로 처리한다.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
       <h2>Basis components <small>standardized before weighted sum</small></h2>
       <div class="componentGrid" id="componentGrid"></div>
     </div>
@@ -496,6 +515,8 @@ const REFERENCE_MASKS = {
 
 let params = {...defaults};
 let state = {gray: null, heightNorm: null, wave: null, components: {}, metrics: {}, source: 'generated'};
+let datasetPCA = null;
+let selectedPcaPoint = null;
 let timer = null;
 
 class RNG {
@@ -1070,6 +1091,110 @@ function loadImageElement(url) {
     img.src = url;
   });
 }
+function domainColor(domain) {
+  if (domain === 'mla') return '#ff8a3d';
+  if (domain === 'perlin') return '#74d27d';
+  if (domain === 'voronoi') return '#69b3ff';
+  return '#d7dde8';
+}
+function pcaToCanvas(point, width, height) {
+  const pad = 38;
+  const x = pad + (point.pc1 - datasetPCA.pc1_min) / (datasetPCA.pc1_max - datasetPCA.pc1_min) * (width - 2*pad);
+  const y = height - pad - (point.pc2 - datasetPCA.pc2_min) / (datasetPCA.pc2_max - datasetPCA.pc2_min) * (height - 2*pad);
+  return {x, y};
+}
+function canvasToPca(x, y, width, height) {
+  const pad = 38;
+  const pc1 = datasetPCA.pc1_min + (x - pad) / Math.max(width - 2*pad, 1) * (datasetPCA.pc1_max - datasetPCA.pc1_min);
+  const pc2 = datasetPCA.pc2_min + (height - pad - y) / Math.max(height - 2*pad, 1) * (datasetPCA.pc2_max - datasetPCA.pc2_min);
+  return {pc1, pc2};
+}
+function drawDatasetPCA() {
+  const canvas = document.getElementById('pcaCanvas');
+  if (!canvas || !datasetPCA) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height, pad = 38;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = '#0b0f17'; ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle = '#2a3443'; ctx.lineWidth = 1;
+  ctx.strokeRect(pad, pad, w-2*pad, h-2*pad);
+  ctx.fillStyle = '#9aa7b8'; ctx.font = '12px ui-monospace, monospace';
+  ctx.fillText('PC1', w/2-10, h-8);
+  ctx.save(); ctx.translate(13,h/2+12); ctx.rotate(-Math.PI/2); ctx.fillText('PC2',0,0); ctx.restore();
+  ctx.font = '11px ui-monospace, monospace';
+  ctx.fillText(datasetPCA.pc1_min.toFixed(1), pad, h-20);
+  ctx.fillText(datasetPCA.pc1_max.toFixed(1), w-pad-42, h-20);
+  ctx.fillText(datasetPCA.pc2_max.toFixed(1), 8, pad+4);
+  ctx.fillText(datasetPCA.pc2_min.toFixed(1), 8, h-pad);
+  for (const p of datasetPCA.points) {
+    const q = pcaToCanvas(p, w, h);
+    ctx.beginPath();
+    ctx.fillStyle = domainColor(p.domain);
+    ctx.globalAlpha = selectedPcaPoint && selectedPcaPoint.id === p.id ? 1.0 : 0.78;
+    ctx.arc(q.x, q.y, selectedPcaPoint && selectedPcaPoint.id === p.id ? 5.2 : 3.2, 0, 2*Math.PI);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  if (selectedPcaPoint) {
+    const q = pcaToCanvas(selectedPcaPoint, w, h);
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(q.x, q.y, 8.0, 0, 2*Math.PI); ctx.stroke();
+  }
+}
+function nearestPcaPoint(pc1, pc2) {
+  const sx = Math.max(datasetPCA.pc1_max - datasetPCA.pc1_min, 1e-6);
+  const sy = Math.max(datasetPCA.pc2_max - datasetPCA.pc2_min, 1e-6);
+  let best = null, bestD = Infinity;
+  for (const p of datasetPCA.points) {
+    const dx = (p.pc1 - pc1) / sx, dy = (p.pc2 - pc2) / sy;
+    const d = dx*dx + dy*dy;
+    if (d < bestD) { bestD = d; best = p; }
+  }
+  return best;
+}
+async function loadDatasetPcaPoint(pointOrId) {
+  if (!datasetPCA) return;
+  const point = typeof pointOrId === 'number' ? datasetPCA.points.find(p => p.id === pointOrId) : pointOrId;
+  if (!point) return;
+  const t0 = performance.now();
+  const img = await loadImageElement(point.url);
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, 0, 0, W, H);
+  const data = ctx.getImageData(0, 0, W, H).data;
+  const gray = new Uint8ClampedArray(N);
+  for (let i=0; i<N; i++) gray[i] = data[4*i];
+  params.minGray = point.min_gray; params.maxGray = point.max_gray;
+  refreshControlValues();
+  selectedPcaPoint = point;
+  setGrayState(gray, point.min_gray, point.max_gray, 'dataset_pca', `PCA ${point.label}`, {});
+  state.pcaPointId = point.id;
+  state.referenceKey = null;
+  const res = propagate(state.heightNorm, params.zMm);
+  state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
+  drawGray(document.getElementById('grayCanvas'), state.gray);
+  drawHeat(document.getElementById('waveCanvas'), state.wave);
+  renderComponents();
+  updateMetrics(performance.now() - t0);
+  dumpParams();
+  drawDatasetPCA();
+  document.getElementById('pcaStatus').textContent = `selected ${point.label} · FL=${point.fl_mm ?? 'n/a'}mm · gray ${point.min_gray}-${point.max_gray} · PC=(${point.pc1.toFixed(2)}, ${point.pc2.toFixed(2)})`;
+}
+async function initDatasetPCA() {
+  const status = document.getElementById('pcaStatus');
+  try {
+    const res = await fetch('pca_dataset/dataset_pca.json');
+    datasetPCA = await res.json();
+    const ev = datasetPCA.explained_variance_ratio || [];
+    status.textContent = `loaded ${datasetPCA.n} masks · PC1 ${(100*ev[0]).toFixed(1)}%, PC2 ${(100*ev[1]).toFixed(1)}% · click plot to load nearest pattern`;
+    drawDatasetPCA();
+  } catch (err) {
+    status.textContent = `PCA data load failed: ${err}`;
+  }
+}
+
 async function loadReferenceMask(key) {
   const meta = REFERENCE_MASKS[key] || REFERENCE_MASKS.voronoi;
   const t0 = performance.now();
@@ -1123,7 +1248,7 @@ function setResolution(key, rerun=true) {
 
 function updateAll(runSweep=false) {
   const t0 = performance.now();
-  if (state.source !== 'reference' || !state.gray || state.gray.length !== N) generateSample();
+  if (state.source === 'generated' || !state.gray || state.gray.length !== N) generateSample();
   const res = propagate(state.heightNorm, params.zMm);
   state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
   drawGray(document.getElementById('grayCanvas'), state.gray);
@@ -1458,16 +1583,28 @@ document.getElementById('randomBtn').addEventListener('click', randomizeParams);
 document.getElementById('resetBtn').addEventListener('click', resetParams);
 document.getElementById('seedInput').addEventListener('change', scheduleUpdate);
 document.getElementById('resolutionSelect').addEventListener('change', (e) => {
-  const wasReference = state.source === 'reference';
+  const previousSource = state.source;
   const refKey = state.referenceKey || document.getElementById('referenceSelect').value;
+  const pcaId = state.pcaPointId;
   setResolution(e.target.value, false);
-  if (wasReference) loadReferenceMask(refKey);
+  if (previousSource === 'reference') loadReferenceMask(refKey);
+  else if (previousSource === 'dataset_pca' && pcaId != null) loadDatasetPcaPoint(pcaId);
   else if (e.target.value !== 'original') updateAll(false);
 });
 document.getElementById('downloadGray').addEventListener('click', () => downloadCanvas('grayCanvas', 'graymap.png'));
 document.getElementById('downloadWave').addEventListener('click', () => downloadCanvas('waveCanvas', `wave_z${params.zMm.toFixed(1)}mm.png`));
 document.getElementById('downloadZipBtn').addEventListener('click', downloadRandomSeedZip);
 document.getElementById('loadReferenceBtn').addEventListener('click', () => loadReferenceMask(document.getElementById('referenceSelect').value));
+document.getElementById('pcaCanvas').addEventListener('click', (ev) => {
+  if (!datasetPCA) return;
+  const canvas = ev.currentTarget;
+  const rect = canvas.getBoundingClientRect();
+  const x = (ev.clientX - rect.left) * canvas.width / rect.width;
+  const y = (ev.clientY - rect.top) * canvas.height / rect.height;
+  const pc = canvasToPca(x, y, canvas.width, canvas.height);
+  const point = nearestPcaPoint(pc.pc1, pc.pc2);
+  if (point) loadDatasetPcaPoint(point);
+});
 document.getElementById('copyParams').addEventListener('click', async () => {
   const txt = JSON.stringify(paramsToCodeNames(), null, 2);
   try { await navigator.clipboard.writeText(txt); } catch (e) {}
@@ -1479,6 +1616,7 @@ syncControls();
 initGrids();
 document.getElementById('presetNote').textContent = PRESETS.mla_metric.label + ': ' + PRESETS.mla_metric.note;
 applySelectedPreset();
+initDatasetPCA();
 </script>
 </body>
 </html>
