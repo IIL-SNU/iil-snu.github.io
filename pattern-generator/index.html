@@ -293,8 +293,8 @@
 
   <main class="stage">
     <div class="note">
-      이 HTML은 서버 없이 브라우저에서 generator와 wave propagation을 바로 계산한다. 실제 학습용 authoritative 구현은
-      <code>parameterized_field_generator.py</code> / <code>WavePropagator</code>이고, 여기서는 실시간 확인을 위해 256×128 preview로 축소했다.
+      이 HTML은 서버 없이 브라우저에서 generator와 wave propagation을 바로 계산한다. wave propagation은 학습 코드의
+      <code>LFmodel.MO_forward_batch</code> convention(thin phase → 2× zero padding → ASM → center crop → amplitude max-normalize)에 맞춘 preview이다.
     </div>
 
     <section class="canvasGrid">
@@ -341,9 +341,13 @@ const W = 256, H = 128, N = W * H;
 const MIN_GRAY = 90;
 const H_MAX_M = 15e-6;
 const WAVELENGTH_M = 550e-9;
-const N_MAT = 1.52, N_AIR = 1.0;
-// Preview FOV uses the real active width 2200 px * 2.7 um, downsampled to 256 px.
-const PIXEL_M = (2200 * 2.7e-6) / W;
+const N_MAT = 1.56, N_AIR = 1.0;
+// Match the original active design FOV: 2200×1400 px at 2.7 µm pitch.
+const ACTIVE_WIDTH_M = 2200 * 2.7e-6;
+const ACTIVE_HEIGHT_M = 1400 * 2.7e-6;
+const PIXEL_X_M = ACTIVE_WIDTH_M / W;
+const PIXEL_Y_M = ACTIVE_HEIGHT_M / H;
+const PIXEL_M = Math.sqrt(PIXEL_X_M * PIXEL_Y_M);
 const Z_SWEEP = [0, 1, 2, 3, 5, 8, 10, 15, 20];
 
 const defaults = {
@@ -534,20 +538,23 @@ function fft1d(re, im, inverse=false) {
     for (let i = 0; i < n; i++) { re[i] /= n; im[i] /= n; }
   }
 }
-function fft2d(re, im, inverse=false) {
-  const rowR = new Float64Array(W), rowI = new Float64Array(W);
-  for (let y = 0; y < H; y++) {
-    const off = y * W;
-    for (let x = 0; x < W; x++) { rowR[x] = re[off+x]; rowI[x] = im[off+x]; }
+function fft2dSized(re, im, width, height, inverse=false) {
+  const rowR = new Float64Array(width), rowI = new Float64Array(width);
+  for (let y = 0; y < height; y++) {
+    const off = y * width;
+    for (let x = 0; x < width; x++) { rowR[x] = re[off+x]; rowI[x] = im[off+x]; }
     fft1d(rowR, rowI, inverse);
-    for (let x = 0; x < W; x++) { re[off+x] = rowR[x]; im[off+x] = rowI[x]; }
+    for (let x = 0; x < width; x++) { re[off+x] = rowR[x]; im[off+x] = rowI[x]; }
   }
-  const colR = new Float64Array(H), colI = new Float64Array(H);
-  for (let x = 0; x < W; x++) {
-    for (let y = 0; y < H; y++) { const idx = y*W+x; colR[y] = re[idx]; colI[y] = im[idx]; }
+  const colR = new Float64Array(height), colI = new Float64Array(height);
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) { const idx = y*width+x; colR[y] = re[idx]; colI[y] = im[idx]; }
     fft1d(colR, colI, inverse);
-    for (let y = 0; y < H; y++) { const idx = y*W+x; re[idx] = colR[y]; im[idx] = colI[y]; }
+    for (let y = 0; y < height; y++) { const idx = y*width+x; re[idx] = colR[y]; im[idx] = colI[y]; }
   }
+}
+function fft2d(re, im, inverse=false) {
+  fft2dSized(re, im, W, H, inverse);
 }
 
 function spectralField(rng, c=params.spectralCentroid, bw=params.spectralBandwidth, slope=params.spectralSlope) {
@@ -854,37 +861,66 @@ function generateSample() {
 }
 
 function propagate(heightNorm, zMm) {
-  const re = new Float64Array(N), im = new Float64Array(N);
+  // Browser port of LFmodel.MO_forward_batch for a single sample:
+  // thin phase mask -> 2x zero padding -> ASM -> center crop -> abs amplitude -> max normalize.
+  const WP = W * 2, HP = H * 2, NP = WP * HP;
+  const padX = Math.floor(W / 2), padY = Math.floor(H / 2);
+  const re = new Float64Array(NP), im = new Float64Array(NP);
   const k = 2 * Math.PI / WAVELENGTH_M;
-  for (let i=0; i<N; i++) {
-    const phase = k * (N_MAT - N_AIR) * clamp(heightNorm[i],0,1) * H_MAX_M;
-    re[i] = Math.cos(phase); im[i] = Math.sin(phase);
-  }
-  fft2d(re, im, false);
-  const z = zMm * 1e-3;
+
   for (let y=0; y<H; y++) {
-    const fy = (y <= H/2 ? y : y-H) / (H * PIXEL_M);
     for (let x=0; x<W; x++) {
-      const fx = (x <= W/2 ? x : x-W) / (W * PIXEL_M);
-      const term = k*k - (2*Math.PI*fx)**2 - (2*Math.PI*fy)**2;
-      const idx = y*W+x;
-      if (term <= 0) { re[idx] = 0; im[idx] = 0; continue; }
-      const ph = Math.sqrt(term) * z;
-      const cr = Math.cos(ph), ci = Math.sin(ph);
-      const ar = re[idx], ai = im[idx];
-      re[idx] = ar*cr - ai*ci; im[idx] = ar*ci + ai*cr;
+      const src = y*W + x;
+      const dst = (y + padY) * WP + (x + padX);
+      const phase = k * (N_MAT - N_AIR) * clamp(heightNorm[src],0,1) * H_MAX_M;
+      re[dst] = Math.cos(phase);
+      im[dst] = Math.sin(phase);
     }
   }
-  fft2d(re, im, true);
-  const inten = new Float32Array(N);
+
+  fft2dSized(re, im, WP, HP, false);
+  const z = zMm * 1e-3;
+  for (let y=0; y<HP; y++) {
+    const fy = (y < HP/2 ? y : y-HP) / (HP * PIXEL_Y_M);
+    for (let x=0; x<WP; x++) {
+      const fx = (x < WP/2 ? x : x-WP) / (WP * PIXEL_X_M);
+      const term = k*k - (2*Math.PI*fx)**2 - (2*Math.PI*fy)**2;
+      const ph = (term > 0 ? Math.sqrt(term) : 0) * z;
+      const cr = Math.cos(ph), ci = Math.sin(ph);
+      const idx = y*WP+x;
+      const ar = re[idx], ai = im[idx];
+      re[idx] = ar*cr - ai*ci;
+      im[idx] = ar*ci + ai*cr;
+    }
+  }
+  fft2dSized(re, im, WP, HP, true);
+
+  const amp = new Float32Array(N);
+  let maxAmp = 0;
+  for (let y=0; y<H; y++) {
+    for (let x=0; x<W; x++) {
+      const dst = y*W+x;
+      const src = (y + padY) * WP + (x + padX);
+      const v = Math.hypot(re[src], im[src]);
+      amp[dst] = v;
+      if (v > maxAmp) maxAmp = v;
+    }
+  }
+
+  const view = new Float32Array(N);
   let sum = 0, sum2 = 0;
-  for (let i=0; i<N; i++) { const v = re[i]*re[i] + im[i]*im[i]; inten[i] = v; sum += v; sum2 += v*v; }
+  const den = Math.max(maxAmp, 1e-12);
+  for (let i=0; i<N; i++) {
+    const v = amp[i] / den;
+    view[i] = v;
+    sum += v;
+    sum2 += v*v;
+  }
   const mean = sum / N;
   const std = Math.sqrt(Math.max(sum2/N - mean*mean, 0));
-  const p999 = quantile(inten, 0.999);
+  const p999 = quantile(view, 0.999);
   let bright = 0;
-  for (let i=0; i<N; i++) if (inten[i] > mean + 2*std) bright++;
-  const view = normalize01(Float32Array.from(inten, v => Math.log1p(v)), true, 0.005, 0.995);
+  for (let i=0; i<N; i++) if (view[i] > mean + 2*std) bright++;
   return {view, peakToMean: p999 / Math.max(mean, 1e-12), brightFrac: bright / N, mean, std};
 }
 
