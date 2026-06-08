@@ -1,0 +1,347 @@
+{
+  "note": "LFmodel-equivalent NumPy ASM. Some previous reference names were inverted: mask_turing contains Voronoi-like cells; mask_voro contains Turing-like maze.",
+  "constants": {
+    "native_width": 2200,
+    "native_height": 1400,
+    "pixel_size_m": 2.7e-06,
+    "h_max_m": 1.5e-05,
+    "wavelength_m": 5.5e-07,
+    "n_mat": 1.56,
+    "n_air": 1.0
+  },
+  "height_modes": {
+    "direct255": "current train_LF wave branch: height=gray/255*15um",
+    "offset90": "projector inverse: gray<=90 -> 0, active max -> 15um*max_gray/255",
+    "active_min": "offset inverse using active nonzero min as zero height"
+  },
+  "references": [
+    {
+      "spec": {
+        "name": "reference_mla_3mm",
+        "family": "mla",
+        "path": "data/MLA_through_focus/mla_3mm.npz",
+        "kind": "npz_mla_height",
+        "note": "physical MLA heightmap from NPZ; gray visualization preserves physical max height",
+        "expected_fl_mm": 3.0,
+        "min_gray": null,
+        "max_gray": null
+      },
+      "load_meta": {
+        "source_path": "/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/data/MLA_through_focus/mla_3mm.npz",
+        "kind": "npz_mla_height",
+        "note": "physical MLA heightmap from NPZ; gray visualization preserves physical max height",
+        "physical_height_max_um": 7.640453815460205,
+        "gray_from_height": true
+      },
+      "gray_stats": {
+        "gray_min_all": 0,
+        "gray_max_all": 130,
+        "gray_mean_all": 113.4988935064935,
+        "active_frac": 0.9999996753246754,
+        "gray_min_active": 1,
+        "gray_q01_active": 86.0,
+        "gray_q05_active": 95.0,
+        "gray_median_active": 114.0,
+        "gray_q95_active": 128.0,
+        "gray_max_active": 130,
+        "gray_mean_active": 113.49893035679557
+      }
+    },
+    {
+      "spec": {
+        "name": "reference_voronoi_gray",
+        "family": "voronoi",
+        "path": "mask_turing/justflatfielding_int8ffMapTargetSingle.bmp",
+        "kind": "gray",
+        "note": "cell/Voronoi-like projector gray; directory name is historical/misleading",
+        "expected_fl_mm": null,
+        "min_gray": null,
+        "max_gray": null
+      },
+      "load_meta": {
+        "source_path": "/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/mask_turing/justflatfielding_int8ffMapTargetSingle.bmp",
+        "kind": "gray",
+        "note": "cell/Voronoi-like projector gray; directory name is historical/misleading"
+      },
+      "gray_stats": {
+        "gray_min_all": 0,
+        "gray_max_all": 208,
+        "gray_mean_all": 95.22930974025974,
+        "active_frac": 0.5487012987012987,
+        "gray_min_active": 136,
+        "gray_q01_active": 154.0,
+        "gray_q05_active": 157.0,
+        "gray_median_active": 176.0,
+        "gray_q95_active": 188.0,
+        "gray_max_active": 208,
+        "gray_mean_active": 173.55400828402367
+      }
+    },
+    {
+      "spec": {
+        "name": "reference_turing_gray",
+        "family": "turing",
+        "path": "mask_voro/justflatfielding_int8ffMapTargetSingle.bmp",
+        "kind": "gray",
+        "note": "maze/Turing-like projector gray; directory name is historical/misleading",
+        "expected_fl_mm": null,
+        "min_gray": null,
+        "max_gray": null
+      },
+      "load_meta": {
+        "source_path": "/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/mask_voro/justflatfielding_int8ffMapTargetSingle.bmp",
+        "kind": "gray",
+        "note": "maze/Turing-like projector gray; directory name is historical/misleading"
+      },
+      "gray_stats": {
+        "gray_min_all": 0,
+        "gray_max_all": 198,
+        "gray_mean_all": 93.18065649350649,
+        "active_frac": 0.5487012987012987,
+        "gray_min_active": 135,
+        "gray_q01_active": 151.0,
+        "gray_q05_active": 155.0,
+        "gray_median_active": 171.0,
+        "gray_q95_active": 180.0,
+        "gray_max_active": 198,
+        "gray_mean_active": 169.82036804733727
+      }
+    },
+    {
+      "spec": {
+        "name": "reference_perlin_generated",
+        "family": "perlin",
+        "path": "reports/domain_distribution_audit/final_figures_20260601/samples/reference_perlin.png",
+        "kind": "gray",
+        "note": "existing generated Perlin/fBm gray reference",
+        "expected_fl_mm": null,
+        "min_gray": 90,
+        "max_gray": 255
+      },
+      "load_meta": {
+        "source_path": "/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/reports/domain_distribution_audit/final_figures_20260601/samples/reference_perlin.png",
+        "kind": "gray",
+        "note": "existing generated Perlin/fBm gray reference"
+      },
+      "gray_stats": {
+        "gray_min_all": 0,
+        "gray_max_all": 255,
+        "gray_mean_all": 120.83093214285714,
+        "active_frac": 0.9999915584415584,
+        "gray_min_active": 1,
+        "gray_q01_active": 38.0,
+        "gray_q05_active": 60.0,
+        "gray_median_active": 120.0,
+        "gray_q95_active": 185.0,
+        "gray_max_active": 255,
+        "gray_mean_active": 120.83195215284285
+      }
+    },
+    {
+      "spec": {
+        "name": "reference_voronoi_binary",
+        "family": "voronoi_binary",
+        "path": "mask_turing/binary/voronoi_dense_300_0000.png",
+        "kind": "binary",
+        "note": "binary morphology-only Voronoi reference remapped to gray 0/205",
+        "expected_fl_mm": null,
+        "min_gray": 90,
+        "max_gray": 205
+      },
+      "load_meta": {
+        "source_path": "/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/mask_turing/binary/voronoi_dense_300_0000.png",
+        "kind": "binary",
+        "note": "binary morphology-only Voronoi reference remapped to gray 0/205"
+      },
+      "gray_stats": {
+        "gray_min_all": 0,
+        "gray_max_all": 205,
+        "gray_mean_all": 2.0159886363636366,
+        "active_frac": 0.009834090909090909,
+        "gray_min_active": 205,
+        "gray_q01_active": 205.0,
+        "gray_q05_active": 205.0,
+        "gray_median_active": 205.0,
+        "gray_q95_active": 205.0,
+        "gray_max_active": 205,
+        "gray_mean_active": 205.0
+      }
+    },
+    {
+      "spec": {
+        "name": "reference_turing_binary",
+        "family": "turing_binary",
+        "path": "mask_voro/binary/turing_4_resized.png",
+        "kind": "binary",
+        "note": "binary morphology-only Turing/maze reference remapped to gray 0/205",
+        "expected_fl_mm": null,
+        "min_gray": 90,
+        "max_gray": 205
+      },
+      "load_meta": {
+        "source_path": "/home/dgbae/mnt/nas/homes/DG/train/lensless/Lensless-Fabrication/learned-fab/mask_voro/binary/turing_4_resized.png",
+        "kind": "binary",
+        "note": "binary morphology-only Turing/maze reference remapped to gray 0/205"
+      },
+      "gray_stats": {
+        "gray_min_all": 0,
+        "gray_max_all": 205,
+        "gray_mean_all": 6.754949675324675,
+        "active_frac": 0.03295097402597403,
+        "gray_min_active": 205,
+        "gray_q01_active": 205.0,
+        "gray_q05_active": 205.0,
+        "gray_median_active": 205.0,
+        "gray_q95_active": 205.0,
+        "gray_max_active": 205,
+        "gray_mean_active": 205.0
+      }
+    }
+  ],
+  "best_by_ref_mode": [
+    {
+      "name": "reference_mla_3mm",
+      "family": "mla",
+      "height_mode": "direct255",
+      "best_z_mm": 1.0,
+      "best_focus_structure_score": 0.0,
+      "hf_ratio_at_best": 0.047453973442316055,
+      "large_component_frac_at_best": 0.0,
+      "height_max_um": 7.647058963775635,
+      "min_gray_used": 0,
+      "max_gray_used": 255
+    },
+    {
+      "name": "reference_mla_3mm",
+      "family": "mla",
+      "height_mode": "offset90",
+      "best_z_mm": 3.0,
+      "best_focus_structure_score": 0.05793629808570948,
+      "hf_ratio_at_best": 2.0286896228790283,
+      "large_component_frac_at_best": 0.2201453790238837,
+      "height_max_um": 7.647058963775635,
+      "min_gray_used": 90,
+      "max_gray_used": 130
+    },
+    {
+      "name": "reference_perlin_generated",
+      "family": "perlin",
+      "height_mode": "direct255",
+      "best_z_mm": 8.0,
+      "best_focus_structure_score": 0.004179566062699959,
+      "hf_ratio_at_best": 1.0522396564483643,
+      "large_component_frac_at_best": 0.01973001038421599,
+      "height_max_um": 15.0,
+      "min_gray_used": 0,
+      "max_gray_used": 255
+    },
+    {
+      "name": "reference_perlin_generated",
+      "family": "perlin",
+      "height_mode": "offset90",
+      "best_z_mm": 8.0,
+      "best_focus_structure_score": 0.00908145165929844,
+      "hf_ratio_at_best": 1.6237248182296753,
+      "large_component_frac_at_best": 0.04984423676012461,
+      "height_max_um": 15.0,
+      "min_gray_used": 90,
+      "max_gray_used": 255
+    },
+    {
+      "name": "reference_turing_binary",
+      "family": "turing_binary",
+      "height_mode": "direct255",
+      "best_z_mm": 20.0,
+      "best_focus_structure_score": 0.011729958624883945,
+      "hf_ratio_at_best": 1.0365517139434814,
+      "large_component_frac_at_best": 0.05088265835929388,
+      "height_max_um": 12.058823585510254,
+      "min_gray_used": 0,
+      "max_gray_used": 255
+    },
+    {
+      "name": "reference_turing_binary",
+      "family": "turing_binary",
+      "height_mode": "offset90",
+      "best_z_mm": 20.0,
+      "best_focus_structure_score": 0.011729958624883945,
+      "hf_ratio_at_best": 1.0365517139434814,
+      "large_component_frac_at_best": 0.05088265835929388,
+      "height_max_um": 12.058823585510254,
+      "min_gray_used": 90,
+      "max_gray_used": 205
+    },
+    {
+      "name": "reference_turing_gray",
+      "family": "turing",
+      "height_mode": "direct255",
+      "best_z_mm": 8.0,
+      "best_focus_structure_score": 0.04902784697912525,
+      "hf_ratio_at_best": 1.7649943828582764,
+      "large_component_frac_at_best": 0.13499480789200416,
+      "height_max_um": 11.647059440612793,
+      "min_gray_used": 0,
+      "max_gray_used": 255
+    },
+    {
+      "name": "reference_turing_gray",
+      "family": "turing",
+      "height_mode": "offset90",
+      "best_z_mm": 4.0,
+      "best_focus_structure_score": 0.03201483527925427,
+      "hf_ratio_at_best": 1.3838452100753784,
+      "large_component_frac_at_best": 0.10488058151609553,
+      "height_max_um": 11.647059440612793,
+      "min_gray_used": 90,
+      "max_gray_used": 198
+    },
+    {
+      "name": "reference_voronoi_binary",
+      "family": "voronoi_binary",
+      "height_mode": "direct255",
+      "best_z_mm": 2.0,
+      "best_focus_structure_score": 0.1548808587522585,
+      "hf_ratio_at_best": 2.704831838607788,
+      "large_component_frac_at_best": 0.3680412371134021,
+      "height_max_um": 12.058823585510254,
+      "min_gray_used": 0,
+      "max_gray_used": 255
+    },
+    {
+      "name": "reference_voronoi_binary",
+      "family": "voronoi_binary",
+      "height_mode": "offset90",
+      "best_z_mm": 2.0,
+      "best_focus_structure_score": 0.1548808587522585,
+      "hf_ratio_at_best": 2.704831838607788,
+      "large_component_frac_at_best": 0.3680412371134021,
+      "height_max_um": 12.058823585510254,
+      "min_gray_used": 90,
+      "max_gray_used": 205
+    },
+    {
+      "name": "reference_voronoi_gray",
+      "family": "voronoi",
+      "height_mode": "direct255",
+      "best_z_mm": 8.0,
+      "best_focus_structure_score": 0.11868535428530186,
+      "hf_ratio_at_best": 1.3768757581710815,
+      "large_component_frac_at_best": 0.2585669781931464,
+      "height_max_um": 12.235294342041016,
+      "min_gray_used": 0,
+      "max_gray_used": 255
+    },
+    {
+      "name": "reference_voronoi_gray",
+      "family": "voronoi",
+      "height_mode": "offset90",
+      "best_z_mm": 4.0,
+      "best_focus_structure_score": 0.08473630888774895,
+      "hf_ratio_at_best": 1.273743748664856,
+      "large_component_frac_at_best": 0.2035306334371755,
+      "height_max_um": 12.235294342041016,
+      "min_gray_used": 90,
+      "max_gray_used": 208
+    }
+  ]
+}
