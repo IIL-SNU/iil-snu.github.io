@@ -201,8 +201,25 @@
     </div>
 
     <fieldset>
+      <legend>Physics-first sag calibration</legend>
+      <div class="checkrow">
+        <input type="checkbox" id="physicsCalibrated" checked />
+        <label for="physicsCalibrated">absolute sag = R²/(2·Δn·f) (off = legacy assembly)</label>
+      </div>
+      <div class="row"><label>focus_min_mm</label><input data-key="focusMinMm" type="range" min="0.5" max="9" step="0.1" /><span class="value"></span></div>
+      <div class="row"><label>focus_max_mm</label><input data-key="focusMaxMm" type="range" min="0.6" max="10" step="0.1" /><span class="value"></span></div>
+      <div class="row"><label>feature_radius_um <small>(0=auto)</small></label><input data-key="featureRadiusUm" type="range" min="0" max="400" step="1" /><span class="value"></span></div>
+      <div class="row"><label>sag_cap_um</label><input data-key="sagCapUm" type="range" min="1" max="15" step="0.5" /><span class="value"></span></div>
+      <div class="row"><label>morph_baseline_q</label><input data-key="morphBaselineQ" type="range" min="0" max="0.9" step="0.01" /><span class="value"></span></div>
+      <p class="hint">morphology(component weights)만 형태를 정하고, 절대 sag가 초점 거리를 정한다. <b>Run z sweep</b>로 1–5mm best z·far-leak를 확인하라. 브라우저는 preview이며 최종 검증은 native <code>wave_eval.py</code>다.</p>
+    </fieldset>
+
+    <fieldset>
       <legend>Closest presets</legend>
       <div class="row"><label>preset</label><select id="presetSelect">
+        <option value="phys_mla">Physics-first — MLA (sag-calibrated)</option>
+        <option value="phys_voronoi">Physics-first — Voronoi (sag-calibrated)</option>
+        <option value="phys_turing">Physics-first — Turing (sag-calibrated)</option>
         <option value="native_mla">Procedural near-focus — MLA (experimental)</option>
         <option value="native_voronoi">Procedural near-focus — Voronoi (experimental)</option>
         <option value="native_turing">Procedural near-focus — Turing (experimental)</option>
@@ -437,6 +454,10 @@ const Z_SWEEP = [0, 1, 2, 3, 4, 5, 8, 10, 12, 15, 20];
 
 const defaults = {
   minGray: DEFAULT_MIN_GRAY, maxGray: 235, zMm: 1.0,
+  // Physics-first sag calibration (mirrors parameterized_field_generator.py).
+  // When on, morphology only sets the shape and absolute sag = R^2/(2 dn f) sets
+  // the focal distance, emitted as a direct255 graymap.  Off = legacy assembly.
+  physicsCalibrated: 1, featureRadiusUm: 0, focusMinMm: 1.5, focusMaxMm: 3.0, sagCapUm: 15, morphBaselineQ: 0.5,
   gamma: 1.0, nonlinearContrast: 1.15, finalBlur: 1.2, slopeLimit: 0.42,
   spectralWeight: 0.18, rankWeight: 0.07, zernikeWeight: 0.05, atomWeight: 0.16, causticWeight: 0.34, ridgeWeight: 0.16, levelsetWeight: 0.04, rippleWeight: 0.0,
   spectralCentroid: 0.070, spectralBandwidth: 0.060, spectralSlope: -1.2, spectralAnisotropy: 1.0, spectralOrientation: 0.0,
@@ -452,6 +473,42 @@ const defaults = {
 };
 
 const PRESETS = {
+  phys_mla: {
+    label: 'Physics-first — MLA (sag-calibrated)',
+    seed: 7,
+    atomCombine: 'nearest_parabola',
+    note: 'MLA regime as a point in the continuous space: atom-dominated, regular caps, tight 1.5–3mm focus band. Absolute sag (not normalization) sets the focal plane. Run z sweep to read best z.',
+    code: {
+      physics_calibrated: 1, focus_min_mm: 1.5, focus_max_mm: 3.0, feature_radius_um: 110, morph_baseline_q: 0.5,
+      spectral_weight: 0.10, rank_weight: 0.0, zernike_weight: 0.0, atom_weight: 0.85, caustic_weight: 0.0, ridge_weight: 0.0, levelset_weight: 0.0, ripple_weight: 0.0,
+      atom_count: 320, atom_radius_um: 110, atom_regular: 0.9, atom_radius_jitter: 0.18, atom_amp_jitter: 0.2, atom_missing_prob: 0.05,
+      spectral_centroid: 0.05, spectral_bandwidth: 0.03, nonlinear_contrast: 1.0, final_blur_sigma_px: 1.2, slope_limit_um_per_px: 0.45
+    }
+  },
+  phys_voronoi: {
+    label: 'Physics-first — Voronoi (sag-calibrated)',
+    seed: 11,
+    atomCombine: 'sum',
+    note: 'Voronoi/cell regime: ridge-dominated on a mid-frequency spectrum, broad 2–5mm focus band. Same generator, different weights — no family switch.',
+    code: {
+      physics_calibrated: 1, focus_min_mm: 2.0, focus_max_mm: 5.0, feature_radius_um: 0, morph_baseline_q: 0.5,
+      spectral_weight: 0.25, rank_weight: 0.0, zernike_weight: 0.0, atom_weight: 0.0, caustic_weight: 0.0, ridge_weight: 0.65, levelset_weight: 0.10, ripple_weight: 0.0,
+      ridge_source_centroid: 0.045, ridge_width: 0.30, spectral_centroid: 0.045, spectral_bandwidth: 0.03,
+      nonlinear_contrast: 1.1, final_blur_sigma_px: 1.6, slope_limit_um_per_px: 0.38
+    }
+  },
+  phys_turing: {
+    label: 'Physics-first — Turing (sag-calibrated)',
+    seed: 23,
+    atomCombine: 'sum',
+    note: 'Turing/maze regime: ridge field on a narrow low isotropic band (broad strokes), 2–5mm focus band. Lower spectral centroid than Voronoi.',
+    code: {
+      physics_calibrated: 1, focus_min_mm: 2.0, focus_max_mm: 5.0, feature_radius_um: 0, morph_baseline_q: 0.5,
+      spectral_weight: 0.30, rank_weight: 0.0, zernike_weight: 0.0, atom_weight: 0.0, caustic_weight: 0.0, ridge_weight: 0.60, levelset_weight: 0.0, ripple_weight: 0.0,
+      ridge_source_centroid: 0.012, ridge_width: 0.34, spectral_centroid: 0.012, spectral_bandwidth: 0.010,
+      nonlinear_contrast: 1.1, final_blur_sigma_px: 1.8, slope_limit_um_per_px: 0.35
+    }
+  },
   native_mla: {
     label: 'Procedural near-focus — MLA (experimental)',
     seed: 1527498704,
@@ -1133,6 +1190,66 @@ function setGrayState(gray, minG, maxG, source, label, components={}) {
   state.metrics.heightMinUm = 0; state.metrics.heightMaxUm = (maxG / 255) * 15;
 }
 
+// ---- Physics-first sag calibration (mirrors parameterized_field_generator.py) ----
+function featureRadiusM() {
+  if (params.featureRadiusUm > 0) return params.featureRadiusUm * 1e-6;
+  // spectralCentroid is normalized to the Nyquist-corner radius (~0.707 cyc/px).
+  const cyc = Math.max(params.spectralCentroid, 1e-3) * 0.707;
+  const rpx = Math.max(0.5 / Math.max(cyc, 1e-4), 1.0);
+  return rpx * PIXEL_M;
+}
+function targetFocalM() {
+  const fmin = Math.max(params.focusMinMm, 0.05) * 1e-3;
+  const fmax = Math.max(params.focusMaxMm, params.focusMinMm + 0.05) * 1e-3;
+  return 2.0 / (1.0/fmin + 1.0/fmax);   // optical-power midpoint of the focus band
+}
+function gradMagQuantile(arr, q) {
+  const grads = new Float32Array(N);
+  for (let yy=0; yy<H; yy++) for (let xx=0; xx<W; xx++) {
+    const l = arr[yy*W + Math.max(0,xx-1)], r = arr[yy*W + Math.min(W-1,xx+1)];
+    const u = arr[Math.max(0,yy-1)*W + xx], d = arr[Math.min(H-1,yy+1)*W + xx];
+    grads[yy*W+xx] = Math.hypot((r-l)*0.5, (d-u)*0.5);
+  }
+  return quantile(grads, q);
+}
+function calibrateAbsoluteSag(shape01) {
+  // Scale the dimensionless shape to absolute sag so the dominant feature
+  // curvature focuses at the target distance.  No global renormalize afterwards,
+  // so the optical phase survives (this is the key fix vs. the legacy path).
+  const baseline = quantile(shape01, clamp(params.morphBaselineQ, 0, 0.95));
+  const s = new Float32Array(N);
+  for (let i=0; i<N; i++) s[i] = Math.max(shape01[i] - baseline, 0);
+  const pk = quantile(s, 0.995);
+  const out = new Float32Array(N);
+  if (pk <= 1e-8) return out;
+  const Rm = featureRadiusM(), fM = targetFocalM(), dn = Math.max(N_MAT - N_AIR, 1e-6);
+  let sagPeak = (Rm*Rm) / (2*dn*fM);
+  const sagCap = Math.min(Math.max(params.sagCapUm*1e-6, 1e-7), H_MAX_M);
+  sagPeak = Math.min(sagPeak, sagCap);
+  for (let i=0; i<N; i++) out[i] = clamp((s[i]/pk) * sagPeak, 0, H_MAX_M);
+  return out;
+}
+function fabricateHeightM(heightM) {
+  // Blur + slope-limit in absolute height, then restore the pre-blur peak sag so
+  // smoothing does not silently kill focal power (gaussianBlur is amplitude
+  // preserving, unlike the legacy normalize-after-blur path).
+  let y = heightM;
+  const target = quantile(y, 0.995);
+  if (params.finalBlur > 0) y = gaussianBlur(y, params.finalBlur);
+  if (params.slopeLimit > 0) {
+    const limitM = params.slopeLimit * 1e-6;
+    for (let it=0; it<8; it++) {
+      if (gradMagQuantile(y, 0.995) <= limitM) break;
+      y = gaussianBlur(y, 0.8);
+    }
+  }
+  const post = quantile(y, 0.995);
+  const out = new Float32Array(N);
+  const sc = (post > 1e-9 && target > 1e-9) ? target/post : 1.0;
+  for (let i=0; i<N; i++) out[i] = clamp(y[i]*sc, 0, H_MAX_M);
+  return out;
+}
+
 function generateSample() {
   const seed = Number(document.getElementById('seedInput').value) || 1;
   const rng = new RNG(seed);
@@ -1164,16 +1281,27 @@ function generateSample() {
     const den = Math.tanh(contrast);
     for (let i=0; i<N; i++) raw[i] = Math.tanh(raw[i]*contrast) / den;
   }
-  let unit = normalize01(raw, true, 0.01, 0.99);
-  unit = curvatureProjection(unit);
-  unit = applyTone(unit);
+  // shape01 is the dimensionless morphology; the component weights above are the
+  // continuous topology knobs (cap vs ridge vs blob vs perlin), so there are no
+  // discrete pattern families.
+  const shape01 = normalize01(raw, true, 0.01, 0.99);
 
+  if (params.physicsCalibrated) {
+    // Physics-first: set absolute sag from the focus band, emit direct255 gray
+    // (gray/255 * H_MAX = height), so the wave panel focuses where intended.
+    let heightM = calibrateAbsoluteSag(shape01);
+    heightM = fabricateHeightM(heightM);
+    const gray = new Uint8ClampedArray(N);
+    for (let i=0; i<N; i++) gray[i] = clamp(Math.round(clamp(heightM[i]/H_MAX_M, 0, 1) * 255), 0, 255);
+    setGrayState(gray, 0, 255, 'generated', 'generated (physics)', comps);
+    return;
+  }
+
+  // Legacy assembly (renormalize + caustic anchor) kept for comparison.
+  let unit = curvatureProjection(shape01);
+  unit = applyTone(unit);
   const {minG, maxG} = grayBounds();
   if (causticPhysical && params.causticWeight > 0) {
-    // Physical curvature anchor: causticField() is sag/H_MAX.  Because gray→height
-    // later multiplies by maxGray/255, compensate here so local focal power remains
-    // close to the requested target after quantization.  This avoids the earlier
-    // failure mode where PCA-diverse masks had no clear 1--5 mm focus.
     const alpha = clamp(0.15 + 0.75 * params.causticWeight / Math.max(total, 1e-6), 0, 0.85);
     const scale = 255 / Math.max(maxG, minG + 1);
     for (let i=0; i<N; i++) {
@@ -1181,15 +1309,12 @@ function generateSample() {
       unit[i] = clamp((1 - alpha) * unit[i] + alpha * anchor, 0, 1);
     }
   }
-
   const gray = new Uint8ClampedArray(N);
-  let gmin = 255, gmax = 0;
   for (let i=0; i<N; i++) {
     const g = Math.round(minG + clamp(unit[i],0,1) * (maxG - minG));
     gray[i] = clamp(g, minG, maxG);
-    gmin = Math.min(gmin, gray[i]); gmax = Math.max(gmax, gray[i]);
   }
-  setGrayState(gray, minG, maxG, 'generated', 'generated', comps);
+  setGrayState(gray, minG, maxG, 'generated', 'generated (legacy)', comps);
 }
 
 function propagate(heightNorm, zMm) {
@@ -1253,10 +1378,20 @@ function propagate(heightNorm, zMm) {
   }
   const mean = sum / N;
   const std = Math.sqrt(Math.max(sum2/N - mean*mean, 0));
-  const p999 = quantile(view, 0.999);
+  // Single sort for all percentiles used by the focus metric.
+  const sorted = Float32Array.from(view).sort();
+  const qv = (p) => sorted[clamp(Math.round(p*(N-1)), 0, N-1)];
+  const p50 = qv(0.50), p995 = qv(0.995), p999 = qv(0.999);
   let bright = 0;
   for (let i=0; i<N; i++) if (view[i] > mean + 2*std) bright++;
-  return {view, peakToMean: p999 / Math.max(mean, 1e-12), brightFrac: bright / N, mean, std};
+  // Morphology-neutral focus signal (peak-to-median concentration x contrast):
+  // unlike the old large-component score this rewards BOTH MLA dot arrays and
+  // caustic networks, so MLA is no longer mistaken for speckle.  This is a
+  // browser preview; the native Python audit (wave_eval.py) is authoritative.
+  const contrast = Math.min(2, Math.max(0, (p995 - p50) / Math.max(std, 1e-6)));
+  const peakToMedian = p999 / Math.max(p50, 1e-4);
+  const focusScore = contrast * Math.tanh(peakToMedian / 12);
+  return {view, peakToMean: p999 / Math.max(mean, 1e-12), brightFrac: bright / N, mean, std, focusScore};
 }
 
 function drawGray(canvas, gray) {
@@ -1860,15 +1995,26 @@ function renderComponents() {
 }
 function renderSweep() {
   const grid = document.getElementById('sweepGrid'); grid.innerHTML = '';
+  const OBJ_MIN = 1.0, OBJ_MAX = 5.0;
+  let bestNear = {z: NaN, score: -1}, bestFar = {z: NaN, score: 0};
+  const cells = [];
   for (const z of Z_SWEEP) {
     const div = document.createElement('div');
     const h = document.createElement('h3'); h.textContent = `z=${z} mm`;
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     div.appendChild(h); div.appendChild(c); grid.appendChild(div);
     const res = propagate(state.heightNorm, z);
-    h.textContent = `z=${z} mm · ${res.peakToMean.toFixed(1)}`;
+    h.textContent = `z=${z} mm · focus ${res.focusScore.toFixed(2)}`;
     drawHeat(c, res.view);
+    cells.push({z, h, score: res.focusScore});
+    if (z >= OBJ_MIN && z <= OBJ_MAX) { if (res.focusScore > bestNear.score) bestNear = {z, score: res.focusScore}; }
+    else if (z > OBJ_MAX) { if (res.focusScore > bestFar.score) bestFar = {z, score: res.focusScore}; }
   }
+  for (const cell of cells) if (cell.z === bestNear.z) { cell.h.textContent = '★ ' + cell.h.textContent; cell.h.style.color = '#7CFC9A'; }
+  const leak = bestFar.score / Math.max(bestNear.score, 1e-9);
+  const wi = document.getElementById('waveInfo');
+  if (wi) wi.textContent = `best z (1–5mm) = ${bestNear.z} mm · focus ${bestNear.score.toFixed(2)} · far-leak ${leak.toFixed(2)} ` +
+    `${(bestNear.score >= 0.10 && leak <= 2.5) ? '✓ wave-valid (preview)' : '✗ check params'}`;
 }
 function updateMetrics(ms) {
   document.getElementById('grayInfo').textContent = `${state.sourceLabel || state.source || 'generated'} · floor=${params.minGray}, max=${params.maxGray}, ${W}×${H}, ${ms.toFixed(0)} ms`;
@@ -1929,9 +2075,16 @@ function syncControls() {
     });
   }
   document.getElementById('atomCombine').addEventListener('change', scheduleUpdate);
+  const physChk = document.getElementById('physicsCalibrated');
+  if (physChk) {
+    physChk.checked = !!params.physicsCalibrated;
+    physChk.addEventListener('change', () => { params.physicsCalibrated = physChk.checked ? 1 : 0; scheduleUpdate(); });
+  }
 }
 function refreshControlValues() {
   grayBounds();
+  const physChk = document.getElementById('physicsCalibrated');
+  if (physChk) physChk.checked = !!params.physicsCalibrated;
   const minEl = document.querySelector('input[data-key="minGray"]');
   const maxEl = document.querySelector('input[data-key="maxGray"]');
   if (minEl && maxEl) {
@@ -1961,7 +2114,8 @@ function applyCodePreset(code, seed, atomCombine, note, run=true) {
     ridge_weight: 'ridgeWeight', ridge_source_centroid: 'ridgeCentroid', ridge_width: 'ridgeWidth',
     levelset_weight: 'levelsetWeight', levelset_softness: 'levelsetSoftness', levelset_detail_weight: 'levelsetDetail',
     ripple_weight: 'rippleWeight', ripple_period_px: 'ripplePeriod', ripple_orthogonal_mix: 'rippleMix',
-    gamma: 'gamma', nonlinear_contrast: 'nonlinearContrast', final_blur_sigma_px: 'finalBlur', slope_limit_um_per_px: 'slopeLimit'
+    gamma: 'gamma', nonlinear_contrast: 'nonlinearContrast', final_blur_sigma_px: 'finalBlur', slope_limit_um_per_px: 'slopeLimit',
+    physics_calibrated: 'physicsCalibrated', feature_radius_um: 'featureRadiusUm', focus_min_mm: 'focusMinMm', focus_max_mm: 'focusMaxMm', sag_cap_um: 'sagCapUm', morph_baseline_q: 'morphBaselineQ'
   };
   params = {...defaults};
   for (const [src, dst] of Object.entries(map)) {
