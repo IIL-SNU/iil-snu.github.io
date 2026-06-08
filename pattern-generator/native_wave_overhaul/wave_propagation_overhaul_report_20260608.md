@@ -95,6 +95,19 @@ python3 reports/domain_distribution_audit/final_figures_20260601/reference_calib
 
 이 anchor set은 이전 generated examples처럼 wave output이 speckle로 붕괴하지 않고, 원본 reference와 유사하게 z sweep에서 구조가 유지된다.
 
+## 6. 2026-06-08 추가 수정: dense spectral branch 판정
+
+사용자가 지적한 촘촘한 spectral / ripple-dominant 패턴은 native propagation probe로 확인된 wave-valid family가 아니다. 이 분기는 PCA coverage를 넓히기 위해 남아 있던 legacy/proxy candidate-bank 성격이 강하고, 실제 ASM sweep에서는 1--5 mm focus라기보다 speckle/noise-like far-field texture로 보인다.
+
+따라서 HTML main random generator에서 다음을 수정했다.
+
+- high-centroid spectral tail profile의 sampling mass를 0으로 둬 기본 랜덤 생성에서 제외했다.
+- stale state가 해당 branch를 강제로 호출하더라도 smooth Perlin-like low/mid-frequency fallback으로 전환한다.
+- Turing-like branch는 reference와 맞게 낮은 spectral centroid, broader maze ridge, ripple weight 0으로 재조정했다.
+- 해당 branch는 더 이상 “wave prop으로 확인된 패턴”으로 표시하지 않고, legacy/noise-like coverage로 명시했다.
+
+현재 wave-valid로 취급할 수 있는 것은 native reference sweep과 `wave_valid_generator` probe에서 objective-band best / far leakage가 기록된 MLA, Voronoi, Turing, Perlin anchor뿐이다. 특히 Perlin/spectral 계열은 점수 자체가 약하므로 morphology anchor로만 쓰고, 단독 dense spectral texture는 training pattern으로 쓰지 않는 쪽이 맞다.
+
 ## 6. 현재 판단
 
 - **이전 r4 generator/release는 wave-valid 기준으로 폐기해야 한다.** PCA coverage만으로는 부족하다.
