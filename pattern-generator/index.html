@@ -1188,6 +1188,11 @@ function setGrayState(gray, minG, maxG, source, label, components={}) {
   state.source = source || 'generated'; state.sourceLabel = label || source || 'generated';
   state.metrics.grayMin = gmin; state.metrics.grayMax = gmax;
   state.metrics.heightMinUm = 0; state.metrics.heightMaxUm = (maxG / 255) * 15;
+  // Remember the gray->height convention this map was emitted with so the PCA
+  // marker projects with the SAME normalization (physics mode = direct255 0/255,
+  // legacy/reference = offset90 minG/maxG). Using params.minGray here would
+  // mis-normalize physics graymaps and misplace the marker.
+  state.emitMinG = minG; state.emitMaxG = maxG;
 }
 
 // ---- Physics-first sag calibration (mirrors parameterized_field_generator.py) ----
@@ -1617,7 +1622,8 @@ function projectGrayToDatasetPca(gray, minG, maxG) {
 
 function updateCurrentPcaMarker() {
   if (!datasetPCA || !state.gray || state.gray.length !== N) return;
-  const pc = projectGrayToDatasetPca(state.gray, params.minGray, params.maxGray);
+  const mg = (state.emitMinG ?? params.minGray), xg = (state.emitMaxG ?? params.maxGray);
+  const pc = projectGrayToDatasetPca(state.gray, mg, xg);
   if (!pc) return;
   currentPcaPoint = {...pc, label: state.sourceLabel || state.source || 'current'};
 }
@@ -1805,6 +1811,13 @@ function jitterGeneratedCode(code) {
   if (Number(out.slope_limit_um_per_px) > 0) add('slope_limit_um_per_px', 0.04, 0, 5.0);
   add('gamma', 0.025, 0.35, 1.8);
   add('nonlinear_contrast', 0.05, 0.5, 5.5);
+  // Physics-first axes (present only in the physics-calibrated bank): jitter the
+  // focus band / feature radius so click-to-pattern varies focal distance too.
+  if (Number.isFinite(Number(out.focus_min_mm))) add('focus_min_mm', 0.12, 0.5, 9.0);
+  if (Number.isFinite(Number(out.focus_max_mm))) {
+    out.focus_max_mm = clamp(Number(out.focus_max_mm) + randn() * 0.18, Number(out.focus_min_mm || 0.5) + 0.3, 10.0);
+  }
+  if (Number.isFinite(Number(out.feature_radius_um)) && Number(out.feature_radius_um) > 0) mul('feature_radius_um', 0.06, 20, 400);
   return out;
 }
 
