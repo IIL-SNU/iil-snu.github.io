@@ -211,7 +211,7 @@
       <div class="row"><label>feature_radius_um <small>(0=auto)</small></label><input data-key="featureRadiusUm" type="range" min="0" max="400" step="1" /><span class="value"></span></div>
       <div class="row"><label>sag_cap_um</label><input data-key="sagCapUm" type="range" min="1" max="15" step="0.5" /><span class="value"></span></div>
       <div class="row"><label>morph_baseline_q</label><input data-key="morphBaselineQ" type="range" min="0" max="0.9" step="0.01" /><span class="value"></span></div>
-      <p class="hint">sag-calibrated ON에서는 lenslet/atom branch가 실제 spherical-cap sag <code>Rcurv=Δn·f, h(r)=sqrt(Rcurv²-r²)-sqrt(Rcurv²-a²)</code>로 생성된다. 높이 clip 대신 aperture를 줄여 곡률을 보존하며, base height는 0이다. <b>Run z sweep</b>로 best z를 확인하라.</p>
+      <p class="hint">sag-calibrated ON에서는 lenslet/atom branch가 실제 spherical-cap sag <code>Rcurv=Δn·f, h(r)=sqrt(Rcurv²-r²)-sqrt(Rcurv²-a²)</code>로 생성된다. 높이 clip 대신 aperture를 줄여 곡률을 보존하고, cap은 base를 대체하지 않고 base 위에 더한다. <b>Run z sweep</b>로 best z를 확인하라.</p>
     </fieldset>
 
     <fieldset>
@@ -477,7 +477,7 @@ const PRESETS = {
     label: 'Physics-first — MLA (sag-calibrated)',
     seed: 7,
     atomCombine: 'nearest_parabola',
-    note: 'MLA regime: per-lenslet spherical-cap sag embedded in a zero-height base, tight 1.5–3mm focus band. Curvature radius is Δn·f; aperture is reduced if needed to preserve curvature under the height cap.',
+    note: 'MLA regime: per-lenslet spherical-cap sag added on top of the base, tight 1.5–3mm focus band. Curvature radius is Δn·f; aperture/base headroom is adjusted to preserve curvature under the height cap.',
     code: {
       physics_calibrated: 1, focus_min_mm: 1.5, focus_max_mm: 3.0, feature_radius_um: 110, morph_baseline_q: 0.5,
       spectral_weight: 0.10, rank_weight: 0.0, zernike_weight: 0.0, atom_weight: 0.85, caustic_weight: 0.0, ridge_weight: 0.0, levelset_weight: 0.0, ripple_weight: 0.0,
@@ -1396,9 +1396,20 @@ function generateSample() {
       // only as a weak base below the physical caps.
       const nonAtom = total;
       const alpha = params.atomWeight / Math.max(params.atomWeight + nonAtom, 1e-9);
-      const baseScale = Math.max(0, 1 - alpha);
       const lensM = fabricateHeightM(lensletPhysical);
-      for (let i=0; i<N; i++) heightM[i] = Math.max(heightM[i] * baseScale, lensM[i]);
+      let baseScale = Math.max(0, 1 - alpha);
+      let lensMax = 0, baseMax = 0;
+      for (let i=0; i<N; i++) {
+        if (lensM[i] > lensMax) lensMax = lensM[i];
+        const b = heightM[i] * baseScale;
+        if (b > baseMax) baseMax = b;
+      }
+      // Lenslets sit on top of the base.  If the physical cap leaves too little
+      // height budget, attenuate the base globally instead of clipping the cap
+      // center or replacing the lower cap by max(base, lens).
+      const headroom = Math.max(0, H_MAX_M - lensMax);
+      if (baseMax > headroom && baseMax > 1e-12) baseScale *= headroom / baseMax;
+      for (let i=0; i<N; i++) heightM[i] = clamp(heightM[i] * baseScale + lensM[i], 0, H_MAX_M);
     }
     const gray = new Uint8ClampedArray(N);
     for (let i=0; i<N; i++) gray[i] = clamp(Math.round(clamp(heightM[i]/H_MAX_M, 0, 1) * 255), 0, 255);

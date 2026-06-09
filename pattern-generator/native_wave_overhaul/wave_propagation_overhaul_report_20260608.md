@@ -148,16 +148,17 @@ python3 reports/domain_distribution_audit/final_figures_20260601/reference_calib
 
 1. `physics_calibrated=True`일 때 `atom_weight`는 더 이상 normalized morphology atom을 의미하지 않는다. 이제 per-site physical lenslet branch로 동작한다.
 2. 각 site마다 focal length `f_i`와 aperture `a_i`를 샘플링하고, 곡률 반경을 `R_curv=(n_mat-n_air)f_i`로 둔다.
-3. height profile은 zero-height base 위에 박힌 spherical-cap이다.
+3. height profile은 base를 대체하는 zero-base mask가 아니라, base surface 위에 더해지는 spherical-cap sag이다.
 
 ```text
-h(r) = sqrt(R_curv^2 - r^2) - sqrt(R_curv^2 - a_i^2),  r <= a_i
-h(r) = 0,                                               r > a_i
+cap(r) = sqrt(R_curv^2 - r^2) - sqrt(R_curv^2 - a_i^2),  r <= a_i
+cap(r) = 0,                                                   r > a_i
+height(r) = base(r) + cap(r)
 ```
 
 4. 작은 aperture에서는 기존 paraxial 식 `h0 ~= a_i^2 / (2 Δn f_i)`와 같지만, 구현은 spherical-cap exact form을 쓴다.
 5. 15 µm height budget을 넘는 경우에는 height를 clip하지 않고 aperture를 줄인다. height clipping은 cap 중심부를 평평하게 만들어 곡률과 focal length를 깨뜨리기 때문이다.
-6. non-lenslet base morphology가 있을 경우에도 lenslet height는 renormalize/scale하지 않고 `max(base_scaled, lenslet_cap)`로 합성한다. `atom_weight`는 lenslet 곡률 자체를 줄이는 값이 아니라 base 대비 lenslet branch dominance를 정하는 값이다.
+6. non-lenslet base morphology가 있을 경우 lenslet height는 renormalize/scale하지 않고 `base_scaled + lenslet_cap`으로 합성한다. 단, `base_scaled.max + lenslet_cap.max <= 15 µm`가 되도록 base를 전역 attenuate해서 lenslet이 base보다 낮아지거나 cap 중심이 clip되는 상황을 피한다. `atom_weight`는 lenslet 곡률 자체를 줄이는 값이 아니라 base 대비 lenslet branch dominance와 base headroom을 정하는 값이다.
 
 검증:
 
@@ -170,4 +171,4 @@ h(r) = 0,                                               r > a_i
 - `native_wave_overhaul/physical_lenslet_probe/physical_lenslet_focus_metrics.csv`
 - `native_wave_overhaul/physical_lenslet_probe/physical_lenslet_focus_summary.json`
 
-결론: atom/lenslet branch는 이제 단순 dot texture가 아니라 실제 focal-length-aware curvature primitive다. 다만 Voronoi/Turing/Perlin 일반화 generator는 여전히 reference-calibrated native z-sweep envelope 안에서 rejection해야 한다.
+결론: atom/lenslet branch는 이제 단순 dot texture가 아니라 base 위에 올라가는 실제 focal-length-aware curvature primitive다. 다만 Voronoi/Turing/Perlin 일반화 generator는 여전히 reference-calibrated native z-sweep envelope 안에서 rejection해야 한다.
