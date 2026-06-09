@@ -1193,6 +1193,16 @@ function causticField(rng) {
   }
   return out;
 }
+function causticHeightM(rng) {
+  // causticField is expressed as H_MAX-normalized sag.  Keep this as an
+  // absolute physical relief when sag-calibrated mode is on; if it is only
+  // re-normalized as a morphology channel, the local parabolic curvature is
+  // destroyed and the propagated field becomes diffuse/noise-like.
+  const unit = causticField(rng);
+  const out = new Float32Array(N);
+  for (let i=0; i<N; i++) out[i] = clamp(unit[i] * H_MAX_M, 0, H_MAX_M);
+  return out;
+}
 function randomField(rng) { const a = new Float32Array(N); for (let i=0;i<N;i++) a[i] = rng.normal(); return a; }
 
 function ridgeField(rng) {
@@ -1377,8 +1387,12 @@ function generateSample() {
     for (let i=0; i<N; i++) accum[i] += weight * v[i];
     total += Math.abs(weight);
   }
-  const causticPhysical = params.causticWeight > 0 ? causticField(rng) : null;
-  const lensletPhysical = (params.physicsCalibrated && params.atomWeight > 0) ? physicalLensletHeightM(new RNG((seed ^ 0x51f15eed) >>> 0)) : null;
+  const causticPhysical = params.causticWeight > 0 ? causticHeightM(rng) : null;
+  // Do not let tiny residual atom_weight create full-strength physical MLA
+  // caps.  Before this threshold, random Voronoi/Perlin/Turing draws looked
+  // atom-dominated because any atom_weight > 0 injected unscaled lenslets.
+  const useLensletAnchor = !!(params.physicsCalibrated && params.atomWeight >= 0.20);
+  const lensletPhysical = useLensletAnchor ? physicalLensletHeightM(new RNG((seed ^ 0x51f15eed) >>> 0)) : null;
   add('spectral', params.spectralWeight, spectralField(rng));
   add('low rank', params.rankWeight, rankField(rng));
   add('Zernike', params.zernikeWeight, zernikeField(rng));
@@ -1410,30 +1424,33 @@ function generateSample() {
     // (gray/255 * H_MAX = height), so the wave panel focuses where intended.
     let heightM = calibrateAbsoluteSag(shape01);
     heightM = fabricateHeightM(heightM);
-    if (lensletPhysical) {
-      // Preserve per-lenslet curvature.  Do not renormalize or scale by atomWeight,
-      // because that would move the focal plane.  Non-lenslet morphology is kept
-      // only as a weak base below the physical caps.
-      const nonAtom = total;
-      const alpha = params.atomWeight / Math.max(params.atomWeight + nonAtom, 1e-9);
-      const lensM = fabricateHeightM(lensletPhysical);
-      let baseScale = Math.max(0, 1 - alpha);
-      let lensMax = 0, baseMax = 0;
+    if (lensletPhysical || causticPhysical) {
+      // Preserve physical curvature anchors.  Morphology channels define broad
+      // Voronoi/Turing/Perlin appearance, but the parabolic anchors provide the
+      // actual 1–5 mm focusing power.  Combine by max(anchor) + attenuated base,
+      // never by re-normalizing the anchor.
+      const anchorM = new Float32Array(N);
+      if (causticPhysical) for (let i=0; i<N; i++) anchorM[i] = Math.max(anchorM[i], causticPhysical[i]);
+      if (lensletPhysical) for (let i=0; i<N; i++) anchorM[i] = Math.max(anchorM[i], lensletPhysical[i]);
+      const morphWeight =
+        Math.max(params.spectralWeight,0) + Math.max(params.rankWeight,0) + Math.max(params.zernikeWeight,0) +
+        Math.max(params.ridgeWeight,0) + Math.max(params.levelsetWeight,0) + Math.max(params.rippleWeight,0);
+      const anchorWeight = (lensletPhysical ? Math.max(params.atomWeight,0) : 0) + (causticPhysical ? Math.max(params.causticWeight,0) : 0);
+      let baseScale = clamp(morphWeight / Math.max(morphWeight + anchorWeight, 1e-9), 0.04, 0.90);
+      let anchorMax = 0, baseMax = 0;
       for (let i=0; i<N; i++) {
-        if (lensM[i] > lensMax) lensMax = lensM[i];
+        if (anchorM[i] > anchorMax) anchorMax = anchorM[i];
         const b = heightM[i] * baseScale;
         if (b > baseMax) baseMax = b;
       }
-      // Lenslets sit on top of the base.  If the physical cap leaves too little
-      // height budget, attenuate the base globally instead of clipping the cap
-      // center or replacing the lower cap by max(base, lens).
-      const headroom = Math.max(0, H_MAX_M - lensMax);
+      const headroom = Math.max(0, H_MAX_M - anchorMax);
       if (baseMax > headroom && baseMax > 1e-12) baseScale *= headroom / baseMax;
-      for (let i=0; i<N; i++) heightM[i] = clamp(heightM[i] * baseScale + lensM[i], 0, H_MAX_M);
+      for (let i=0; i<N; i++) heightM[i] = clamp(heightM[i] * baseScale + anchorM[i], 0, H_MAX_M);
     }
     const gray = new Uint8ClampedArray(N);
     for (let i=0; i<N; i++) gray[i] = clamp(Math.round(clamp(heightM[i]/H_MAX_M, 0, 1) * 255), 0, 255);
-    setGrayState(gray, 0, 255, 'generated', 'generated (physics)', comps);
+    const generatedLabel = (state.sourceLabel && state.sourceLabel.startsWith('random')) ? `${state.sourceLabel} (physics)` : 'generated (physics)';
+    setGrayState(gray, 0, 255, 'generated', generatedLabel, comps);
     return;
   }
 
@@ -1445,7 +1462,7 @@ function generateSample() {
     const alpha = clamp(0.15 + 0.75 * params.causticWeight / Math.max(total, 1e-6), 0, 0.85);
     const scale = 255 / Math.max(maxG, minG + 1);
     for (let i=0; i<N; i++) {
-      const anchor = clamp(causticPhysical[i] * scale, 0, 1);
+      const anchor = clamp((causticPhysical[i] / H_MAX_M) * scale, 0, 1);
       unit[i] = clamp((1 - alpha) * unit[i] + alpha * anchor, 0, 1);
     }
   }
@@ -1454,7 +1471,8 @@ function generateSample() {
     const g = Math.round(minG + clamp(unit[i],0,1) * (maxG - minG));
     gray[i] = clamp(g, minG, maxG);
   }
-  setGrayState(gray, minG, maxG, 'generated', 'generated (legacy)', comps);
+  const generatedLabel = (state.sourceLabel && state.sourceLabel.startsWith('random')) ? `${state.sourceLabel} (legacy)` : 'generated (legacy)';
+  setGrayState(gray, minG, maxG, 'generated', generatedLabel, comps);
 }
 
 function propagate(heightNorm, zMm) {
@@ -2421,7 +2439,9 @@ function randomizeParams() {
     [9.0,0.05,0.05,0.0,0.0,0.0,0.0,0.6], [7.5,0.05,0.05,0.0,0.0,0.3,0.0,0.7],
     [6.8,0.5,0.4,0.1,1.8,0.4,0.0,0.0]
   ];
-  const profileMass = [0.08,0.08,0.08,0.22,0.14,0.10,0.10,0.00,0.00,0.00,0.20];
+  // Balanced across visual/fabrication regimes.  MLA/lenslet branches are kept
+  // to ~20%; otherwise random draws visibly collapse to atom fields.
+  const profileMass = [0.10,0.10,0.12,0.22,0.20,0.04,0.08,0.00,0.00,0.00,0.14];
   let draw = r.random() * profileMass.reduce((a,b)=>a+b,0);
   let profIdx = 0;
   for (; profIdx<profileMass.length; profIdx++) {
@@ -2429,6 +2449,14 @@ function randomizeParams() {
     if (draw <= 0) break;
   }
   profIdx = Math.min(profIdx, profiles.length - 1);
+  const randomFamily = (
+    profIdx === 2 || profIdx === 6 ? 'mla_lenslet' :
+    profIdx === 3 ? 'soft_voronoi' :
+    profIdx === 4 ? 'turing_maze' :
+    profIdx === 10 ? 'perlin_smooth' :
+    profIdx === 5 ? 'caustic_only' :
+    'mixed_wave'
+  );
   const alpha = profiles[profIdx];
   const gammaSamples = alpha.map(a => -Math.log(Math.max(r.random(),1e-12)) / a);
   const inv = gammaSamples.map((v,i) => alpha[i] / Math.max(v,1e-6));
@@ -2616,6 +2644,32 @@ function randomizeParams() {
       params.slopeLimit = r.random() < 0.08 ? 0 : lerp(0.30, 0.95, r.random());
     }
   }
+  // Final guardrail: physical lenslets are unscaled curvature anchors, so they
+  // should only be present in explicit MLA branches.  Non-MLA patterns must use
+  // wave-caustic anchors + smooth morphology, otherwise a tiny atom_weight still
+  // creates full-strength dots and dominates the random output.
+  const isMlaRandom = randomFamily === 'mla_lenslet';
+  if (isMlaRandom) {
+    params.atomWeight = Math.max(Number(params.atomWeight) || 0, lerp(0.45, 0.72, r.random()));
+    params.causticWeight = Math.max(Number(params.causticWeight) || 0, lerp(0.10, 0.24, r.random()));
+    params.atomRegular = lerp(0.65, 0.98, r.random());
+    params.atomRadiusUm = logLerp(90, 260, r.random());
+    params.atomCount = Math.round(logLerp(120, 620, r.random()));
+    params.atomRadiusJitter = lerp(0.06, 0.32, r.random());
+    params.atomAmpJitter = lerp(0.04, 0.32, r.random());
+    params.atomMissingProb = lerp(0.02, 0.20, r.random());
+    params.atomDensityMod = lerp(0.00, 0.35, r.random());
+    document.getElementById('atomCombine').value = r.random() < 0.72 ? 'nearest_parabola' : 'max';
+  } else {
+    params.atomWeight = 0;
+    document.getElementById('atomCombine').value = 'sum';
+  }
+  {
+    const wkeys = ['spectralWeight','rankWeight','zernikeWeight','atomWeight','causticWeight','ridgeWeight','levelsetWeight','rippleWeight'];
+    const wsum = wkeys.reduce((s,k) => s + Math.max(Number(params[k]) || 0, 0), 0);
+    for (const k of wkeys) params[k] = Math.max(Number(params[k]) || 0, 0) / Math.max(wsum, 1e-9);
+  }
+  state.sourceLabel = `random ${randomFamily}`;
   refreshControlValues();
   updateAll(true);
 }
