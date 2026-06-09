@@ -204,14 +204,14 @@
       <legend>Physics-first sag calibration</legend>
       <div class="checkrow">
         <input type="checkbox" id="physicsCalibrated" checked />
-        <label for="physicsCalibrated">absolute sag = R²/(2·Δn·f) (off = legacy assembly)</label>
+        <label for="physicsCalibrated">physical sag/curvature (off = legacy assembly)</label>
       </div>
       <div class="row"><label>focus_min_mm</label><input data-key="focusMinMm" type="range" min="0.5" max="9" step="0.1" /><span class="value"></span></div>
       <div class="row"><label>focus_max_mm</label><input data-key="focusMaxMm" type="range" min="0.6" max="10" step="0.1" /><span class="value"></span></div>
       <div class="row"><label>feature_radius_um <small>(0=auto)</small></label><input data-key="featureRadiusUm" type="range" min="0" max="400" step="1" /><span class="value"></span></div>
       <div class="row"><label>sag_cap_um</label><input data-key="sagCapUm" type="range" min="1" max="15" step="0.5" /><span class="value"></span></div>
       <div class="row"><label>morph_baseline_q</label><input data-key="morphBaselineQ" type="range" min="0" max="0.9" step="0.01" /><span class="value"></span></div>
-      <p class="hint">morphology(component weights)만 형태를 정하고, 절대 sag가 초점 거리를 정한다. <b>Run z sweep</b>로 1–5mm best z·far-leak를 확인하라. 브라우저는 preview이며 최종 검증은 native <code>wave_eval.py</code>다.</p>
+      <p class="hint">sag-calibrated ON에서는 lenslet/atom branch가 실제 spherical-cap sag <code>Rcurv=Δn·f, h(r)=sqrt(Rcurv²-r²)-sqrt(Rcurv²-a²)</code>로 생성된다. 높이 clip 대신 aperture를 줄여 곡률을 보존하며, base height는 0이다. <b>Run z sweep</b>로 best z를 확인하라.</p>
     </fieldset>
 
     <fieldset>
@@ -297,7 +297,7 @@
       <div class="row"><label>spectral_weight</label><input data-key="spectralWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>rank_weight</label><input data-key="rankWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>zernike_weight</label><input data-key="zernikeWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
-      <div class="row"><label>atom_weight</label><input data-key="atomWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
+      <div class="row"><label>lenslet_weight</label><input data-key="atomWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>caustic_weight</label><input data-key="causticWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>ridge_weight</label><input data-key="ridgeWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>levelset_weight</label><input data-key="levelsetWeight" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
@@ -338,7 +338,7 @@
     </fieldset>
 
     <fieldset>
-      <legend>Smooth atoms / lenslet caps</legend>
+      <legend>Physical lenslets / legacy atoms</legend>
       <div class="row"><label>atom_count</label><input data-key="atomCount" type="range" min="0" max="1200" step="1" /><span class="value"></span></div>
       <div class="row"><label>atom_radius_um</label><input data-key="atomRadiusUm" type="range" min="20" max="700" step="1" /><span class="value"></span></div>
       <div class="row"><label>atom_regular</label><input data-key="atomRegular" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
@@ -346,7 +346,7 @@
       <div class="row"><label>amp_jitter</label><input data-key="atomAmpJitter" type="range" min="0" max="1.6" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>missing_prob</label><input data-key="atomMissingProb" type="range" min="0" max="0.75" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>density_mod</label><input data-key="atomDensityMod" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
-      <div class="row"><label>nearest parabola</label><select id="atomCombine"><option value="sum">sum</option><option value="max">max</option><option value="nearest_parabola">nearest_parabola</option></select><span class="value">mode</span></div>
+      <div class="row"><label>lenslet combine</label><select id="atomCombine"><option value="sum">sum</option><option value="max">max</option><option value="nearest_parabola">nearest_parabola</option></select><span class="value">physical if sag-calibrated</span></div>
     </fieldset>
 
     <fieldset>
@@ -477,7 +477,7 @@ const PRESETS = {
     label: 'Physics-first — MLA (sag-calibrated)',
     seed: 7,
     atomCombine: 'nearest_parabola',
-    note: 'MLA regime as a point in the continuous space: atom-dominated, regular caps, tight 1.5–3mm focus band. Absolute sag (not normalization) sets the focal plane. Run z sweep to read best z.',
+    note: 'MLA regime: per-lenslet spherical-cap sag embedded in a zero-height base, tight 1.5–3mm focus band. Curvature radius is Δn·f; aperture is reduced if needed to preserve curvature under the height cap.',
     code: {
       physics_calibrated: 1, focus_min_mm: 1.5, focus_max_mm: 3.0, feature_radius_um: 110, morph_baseline_q: 0.5,
       spectral_weight: 0.10, rank_weight: 0.0, zernike_weight: 0.0, atom_weight: 0.85, caustic_weight: 0.0, ridge_weight: 0.0, levelset_weight: 0.0, ripple_weight: 0.0,
@@ -1018,6 +1018,95 @@ function atomField(rng) {
   return out;
 }
 
+function physicalLensletHeightM(rng) {
+  // Actual local thin-lens sag, not a normalized morphology atom.
+  // For every site: Rcurv=Δn*f and
+  // h(r)=sqrt(Rcurv^2-r^2)-sqrt(Rcurv^2-a^2), h=0 outside aperture.
+  // If the requested aperture would exceed the height budget, shrink aperture
+  // rather than clipping heights, so local curvature and focal distance survive.
+  const out = new Float32Array(N);
+  const count = Math.max(0, Math.round(params.atomCount));
+  if (count <= 0) return out;
+  const pxUm = PIXEL_M * 1e6;
+  const baseR = Math.max(params.atomRadiusUm / pxUm, 1.0);
+  let pts = atomPositions(rng, count);
+  const accept = [];
+  if (params.atomDensityMod > 1e-6 || params.atomMissingProb > 1e-6) {
+    const density = gaussianBlur(normalize01(randomField(rng)), Math.max(2, 900 / pxUm));
+    for (const p of pts) {
+      const x = clamp(Math.round(p[0]), 0, W-1), y = clamp(Math.round(p[1]), 0, H-1);
+      const local = sigmoid((density[y*W+x] - 0.50) / 0.12);
+      const prob = (1 - params.atomMissingProb) * (0.12 + 0.88 * ((1 - params.atomDensityMod) + params.atomDensityMod * local));
+      if (rng.random() < prob) accept.push(p);
+    }
+    pts = accept.length ? accept : pts.slice(0, Math.max(1, Math.floor(0.03 * pts.length)));
+  }
+  if (!pts.length) return out;
+
+  function radiusPx() {
+    const j = clamp(params.atomRadiusJitter, 0, 2);
+    return clamp(baseR * Math.exp(rng.normal()*j - 0.5*j*j), Math.max(0.35*baseR, 1), 2.8*baseR);
+  }
+  function focalM() {
+    const fmin = Math.max(params.focusMinMm, 0.05) * 1e-3;
+    const fmax = Math.max(params.focusMaxMm, params.focusMinMm + 0.05) * 1e-3;
+    // Uniform optical power, not uniform distance, keeps the band balanced.
+    const power = lerp(1/fmax, 1/fmin, rng.random());
+    return 1 / Math.max(power, 1e-9);
+  }
+
+  const dn = Math.max(N_MAT - N_AIR, 1e-6);
+  const sagCapM = Math.min(Math.max(params.sagCapUm * 1e-6, 1e-7), H_MAX_M);
+  const lenses = pts.map(() => {
+    const requestedA = radiusPx() * PIXEL_M;
+    const rc = dn * focalM();
+    const capA = Math.sqrt(Math.max(2 * rc * sagCapM - sagCapM * sagCapM, 0));
+    const aperture = Math.max(PIXEL_M, Math.min(requestedA, 0.95 * rc, capA));
+    const edge = Math.sqrt(Math.max(rc * rc - aperture * aperture, 0));
+    return { rPx: aperture / PIXEL_M, rc, edge };
+  });
+  const combine = document.getElementById('atomCombine').value;
+
+  if (combine === 'nearest_parabola') {
+    for (let y=0; y<H; y++) {
+      for (let x=0; x<W; x++) {
+        let best = Infinity, bi = 0;
+        for (let i=0; i<pts.length; i++) {
+          const dx = x - pts[i][0], dy = y - pts[i][1];
+          const d2 = dx*dx + dy*dy;
+          if (d2 < best) { best = d2; bi = i; }
+        }
+        const lens = lenses[bi];
+        const distPx = Math.sqrt(best);
+        if (distPx < lens.rPx) {
+          const rm = distPx * PIXEL_M;
+          out[y*W+x] = Math.sqrt(Math.max(lens.rc*lens.rc - rm*rm, 0)) - lens.edge;
+        }
+      }
+    }
+    return out;
+  }
+
+  for (let i=0; i<pts.length; i++) {
+    const [cx, cy] = pts[i];
+    const lens = lenses[i];
+    const r = lens.rPx;
+    const pr = Math.max(2, Math.ceil(r));
+    const x0 = Math.max(0, Math.floor(cx)-pr), x1 = Math.min(W-1, Math.floor(cx)+pr);
+    const y0 = Math.max(0, Math.floor(cy)-pr), y1 = Math.min(H-1, Math.floor(cy)+pr);
+    for (let y=y0; y<=y1; y++) for (let x=x0; x<=x1; x++) {
+      const distPx = Math.sqrt((x-cx)**2 + (y-cy)**2);
+      if (distPx >= r) continue;
+      const rm = distPx * PIXEL_M;
+      const h = Math.sqrt(Math.max(lens.rc*lens.rc - rm*rm, 0)) - lens.edge;
+      const idx = y*W+x;
+      if (combine === 'sum') out[idx] = Math.min(H_MAX_M, out[idx] + h);
+      else out[idx] = Math.max(out[idx], h);
+    }
+  }
+  return out;
+}
+
 function causticPositions(rng, count) {
   const regular = clamp(params.causticRegular, 0, 1);
   if (regular <= 0.05) {
@@ -1269,10 +1358,15 @@ function generateSample() {
     total += Math.abs(weight);
   }
   const causticPhysical = params.causticWeight > 0 ? causticField(rng) : null;
+  const lensletPhysical = (params.physicsCalibrated && params.atomWeight > 0) ? physicalLensletHeightM(new RNG((seed ^ 0x51f15eed) >>> 0)) : null;
   add('spectral', params.spectralWeight, spectralField(rng));
   add('low rank', params.rankWeight, rankField(rng));
   add('Zernike', params.zernikeWeight, zernikeField(rng));
-  add('atoms', params.atomWeight, atomField(rng));
+  if (params.physicsCalibrated) {
+    if (lensletPhysical) comps['physical lenslets'] = normalize01(lensletPhysical);
+  } else {
+    add('legacy atoms', params.atomWeight, atomField(rng));
+  }
   if (causticPhysical) add('wave caustic', params.causticWeight, causticPhysical);
   add('ridge', params.ridgeWeight, ridgeField(rng));
   add('level-set', params.levelsetWeight, levelsetField(rng));
@@ -1296,6 +1390,16 @@ function generateSample() {
     // (gray/255 * H_MAX = height), so the wave panel focuses where intended.
     let heightM = calibrateAbsoluteSag(shape01);
     heightM = fabricateHeightM(heightM);
+    if (lensletPhysical) {
+      // Preserve per-lenslet curvature.  Do not renormalize or scale by atomWeight,
+      // because that would move the focal plane.  Non-lenslet morphology is kept
+      // only as a weak base below the physical caps.
+      const nonAtom = total;
+      const alpha = params.atomWeight / Math.max(params.atomWeight + nonAtom, 1e-9);
+      const baseScale = Math.max(0, 1 - alpha);
+      const lensM = fabricateHeightM(lensletPhysical);
+      for (let i=0; i<N; i++) heightM[i] = Math.max(heightM[i] * baseScale, lensM[i]);
+    }
     const gray = new Uint8ClampedArray(N);
     for (let i=0; i<N; i++) gray[i] = clamp(Math.round(clamp(heightM[i]/H_MAX_M, 0, 1) * 255), 0, 255);
     setGrayState(gray, 0, 255, 'generated', 'generated (physics)', comps);

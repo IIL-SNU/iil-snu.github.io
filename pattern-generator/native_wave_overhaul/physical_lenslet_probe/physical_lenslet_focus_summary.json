@@ -1,0 +1,46 @@
+{
+  "meta": [
+    {
+      "name": "single_R200_f3p0",
+      "radius_um": 200,
+      "focal_mm": 3.0,
+      "count_requested": null,
+      "count_actual": 1,
+      "height_max_um": 11.94723892211914,
+      "gray_max": 203,
+      "active_frac": 0.005578246753246753,
+      "r_px_mean": 74.0740737915039,
+      "focal_mm_mean": 3.0
+    },
+    {
+      "name": "array_R110_f2p2",
+      "radius_um": 110,
+      "focal_mm": 2.2,
+      "count_requested": 300,
+      "count_actual": 360,
+      "height_max_um": 14.37694263458252,
+      "gray_max": 244,
+      "active_frac": 0.4795487012987013,
+      "r_px_mean": 40.49881362915039,
+      "focal_mm_mean": 2.183223247528076
+    }
+  ],
+  "summary": [
+    {
+      "name": "single_R200_f3p0",
+      "best_z_mm": 3.0,
+      "best_score": 3.0,
+      "expected_focal_mm": 3.0,
+      "height_max_um": 11.94723892211914,
+      "gray_max": 203
+    },
+    {
+      "name": "array_R110_f2p2",
+      "best_z_mm": 3.0,
+      "best_score": 0.8777513864657658,
+      "expected_focal_mm": 2.183223247528076,
+      "height_max_um": 14.37694263458252,
+      "gray_max": 244
+    }
+  ]
+}
