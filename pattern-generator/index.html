@@ -74,7 +74,7 @@
     }
     .row label { color: #d6dce8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     input[type="range"] { width: 100%; accent-color: var(--accent); }
-    input[type="number"], select {
+    input[type="number"], input[type="text"], select {
       width: 100%;
       background: #0d1117;
       color: var(--text);
@@ -98,6 +98,15 @@
     button.primary { background: #174e82; border-color: #2d7fbd; }
     button.warn { background: #4b2b0b; border-color: #8f5b17; }
     .checkrow { display:flex; align-items:center; gap:8px; color: var(--muted); font-size:12px; margin:8px 0; }
+    .backendrow {
+      display: grid;
+      grid-template-columns: 74px 1fr 62px;
+      gap: 7px;
+      align-items: center;
+      margin: 6px 0;
+      font-size: 12px;
+    }
+    .backendStatus { color: var(--muted); font-size: 11px; line-height: 1.35; }
     .canvasGrid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -199,6 +208,14 @@
       <input type="checkbox" id="autoUpdate" checked />
       <label for="autoUpdate">Auto update on slider change</label>
     </div>
+
+    <fieldset>
+      <legend>Internal GPU backend</legend>
+      <div class="checkrow"><input type="checkbox" id="useGpuBackend" /><label for="useGpuBackend">Use server ASM backend for propagation</label></div>
+      <div class="backendrow"><label>URL</label><input id="gpuBackendUrl" type="text" placeholder="same origin, or http://server:8080" /><button id="gpuHealthBtn" type="button">Check</button></div>
+      <div class="backendrow"><label>GPU id</label><input id="gpuBackendId" type="number" min="0" max="7" value="0" /><span></span></div>
+      <div class="backendStatus" id="gpuBackendStatus">CPU browser FFT is used unless backend is enabled. Internal server: run <code>python3 pattern_generator_gpu_server.py --host 0.0.0.0 --port 8080</code>.</div>
+    </fieldset>
 
     <fieldset>
       <legend>Physics-first sag calibration</legend>
@@ -703,6 +720,7 @@ const REFERENCE_MASKS = {
 
 let params = {...defaults};
 let state = {gray: null, heightNorm: null, wave: null, components: {}, metrics: {}, source: 'generated'};
+let updateSerial = 0;
 let datasetPCA = null;
 let generatedBank = null;
 let selectedPcaPoint = null;
@@ -1516,6 +1534,114 @@ function propagate(heightNorm, zMm) {
   return {view, peakToMean: p999 / Math.max(mean, 1e-12), brightFrac: bright / N, mean, std, focusScore};
 }
 
+function gpuBackendEnabled() {
+  const el = document.getElementById('useGpuBackend');
+  return !!(el && el.checked);
+}
+function gpuBackendBaseUrl() {
+  const el = document.getElementById('gpuBackendUrl');
+  const raw = el ? String(el.value || '').trim() : '';
+  return raw.replace(/\/+$/, '');
+}
+function gpuBackendApiUrl(path) {
+  const base = gpuBackendBaseUrl();
+  return base ? `${base}${path}` : path;
+}
+function gpuBackendId() {
+  const el = document.getElementById('gpuBackendId');
+  return Math.max(0, Math.round(Number(el?.value || 0)));
+}
+function grayToPngDataUrl(gray) {
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(W, H);
+  for (let i=0; i<N; i++) {
+    const g = gray[i], j = 4*i;
+    img.data[j] = g; img.data[j+1] = g; img.data[j+2] = g; img.data[j+3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas.toDataURL('image/png');
+}
+async function propagateGpuBackend(zMm) {
+  if (!state.gray || state.gray.length !== N) throw new Error('no gray map to propagate');
+  const payload = {
+    gray_png: grayToPngDataUrl(state.gray),
+    z_mm: zMm,
+    min_gray: Math.round(Number(state.emitMinG ?? params.minGray ?? 0)),
+    max_gray: Math.round(Number(state.emitMaxG ?? params.maxGray ?? 255)),
+    pixel_x_um: PIXEL_X_M * 1e6,
+    pixel_y_um: PIXEL_Y_M * 1e6,
+    h_max_um: H_MAX_M * 1e6,
+    wavelength_nm: WAVELENGTH_M * 1e9,
+    n_mat: N_MAT,
+    n_air: N_AIR,
+    gpu: gpuBackendId(),
+    prefer_gpu: true
+  };
+  const res = await fetch(gpuBackendApiUrl('/api/propagate'), {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload),
+  });
+  const js = await res.json();
+  if (!res.ok || !js.ok) throw new Error(js.error || `HTTP ${res.status}`);
+  return {
+    view: null,
+    pngDataUrl: `data:image/png;base64,${js.amp_png_b64}`,
+    peakToMean: Number(js.peakToMean ?? 0),
+    brightFrac: Number(js.brightFrac ?? 0),
+    mean: Number(js.mean ?? 0),
+    std: Number(js.std ?? 0),
+    focusScore: Number(js.focusScore ?? 0),
+    backend: js.backend || 'server',
+    backendMs: Number(js.elapsed_ms ?? 0),
+    propMs: Number(js.prop_ms ?? 0),
+    padWidth: Number(js.pad_width ?? 0),
+    padHeight: Number(js.pad_height ?? 0),
+  };
+}
+async function propagateActive(heightNorm, zMm) {
+  if (!gpuBackendEnabled()) return propagate(heightNorm, zMm);
+  const status = document.getElementById('gpuBackendStatus');
+  try {
+    const res = await propagateGpuBackend(zMm);
+    if (status) status.textContent = `server ASM ${res.backend} GPU ${gpuBackendId()} · ${res.backendMs.toFixed(0)} ms total, propagation ${res.propMs.toFixed(0)} ms · pad ${res.padWidth}×${res.padHeight}`;
+    return res;
+  } catch (err) {
+    if (status) status.textContent = `backend failed (${err}); falling back to browser FFT`;
+    return propagate(heightNorm, zMm);
+  }
+}
+function drawImageDataUrl(canvas, dataUrl) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve();
+    };
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+}
+async function drawWaveResult(canvas, res) {
+  if (res && res.pngDataUrl) return drawImageDataUrl(canvas, res.pngDataUrl);
+  return drawHeat(canvas, res.view);
+}
+async function checkGpuBackend() {
+  const status = document.getElementById('gpuBackendStatus');
+  try {
+    const res = await fetch(gpuBackendApiUrl('/api/health'));
+    const js = await res.json();
+    if (!res.ok || !js.ok) throw new Error(js.error || `HTTP ${res.status}`);
+    if (status) status.textContent = `backend ok · ${js.backend} · GPUs=${js.gpu_count ?? 0} · ${js.cupy ? 'CuPy '+js.cupy_version : 'NumPy fallback'}`;
+  } catch (err) {
+    if (status) status.textContent = `backend check failed: ${err}`;
+  }
+}
+
 function drawGray(canvas, gray) {
   const ctx = canvas.getContext('2d');
   const img = ctx.createImageData(W, H);
@@ -2002,11 +2128,11 @@ async function loadDatasetPcaPoint(pointOrId) {
   setGrayState(gray, point.min_gray, point.max_gray, 'dataset_pca', `PCA ${point.label}`, {});
   state.pcaPointId = point.id;
   state.referenceKey = null;
-  const res = propagate(state.heightNorm, params.zMm);
+  const res = await propagateActive(state.heightNorm, params.zMm);
   state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
   updateCurrentPcaMarker();
   drawGray(document.getElementById('grayCanvas'), state.gray);
-  drawHeat(document.getElementById('waveCanvas'), state.wave);
+  await drawWaveResult(document.getElementById('waveCanvas'), res);
   renderComponents();
   updateMetrics(performance.now() - t0);
   dumpParams();
@@ -2061,11 +2187,11 @@ async function loadReferenceMask(key) {
   state.referenceKey = key;
   selectedPcaPoint = null;
   selectedGeneratedTarget = null;
-  const res = propagate(state.heightNorm, params.zMm);
+  const res = await propagateActive(state.heightNorm, params.zMm);
   state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
   updateCurrentPcaMarker();
   drawGray(document.getElementById('grayCanvas'), state.gray);
-  drawHeat(document.getElementById('waveCanvas'), state.wave);
+  await drawWaveResult(document.getElementById('waveCanvas'), res);
   renderComponents();
   document.getElementById('referenceNote').textContent = `${meta.label}: ${meta.note}`;
   updateMetrics(performance.now() - t0);
@@ -2097,17 +2223,21 @@ function setResolution(key, rerun=true) {
   if (rerun) updateAll(false);
 }
 
-function updateAll(runSweep=false) {
+async function updateAll(runSweep=false) {
+  const serial = ++updateSerial;
   const t0 = performance.now();
   if (state.source === 'generated' || !state.gray || state.gray.length !== N) generateSample();
-  const res = propagate(state.heightNorm, params.zMm);
+  const res = await propagateActive(state.heightNorm, params.zMm);
+  if (serial !== updateSerial) return;
   state.wave = res.view; state.metrics.peak = res.peakToMean; state.metrics.bright = res.brightFrac;
+  state.metrics.backend = res.backend || 'browser';
+  state.metrics.backendMs = res.backendMs || 0;
   updateCurrentPcaMarker();
   drawGray(document.getElementById('grayCanvas'), state.gray);
-  drawHeat(document.getElementById('waveCanvas'), state.wave);
+  await drawWaveResult(document.getElementById('waveCanvas'), res);
   renderComponents();
   updateMetrics(performance.now() - t0);
-  if (runSweep) renderSweep();
+  if (runSweep) await renderSweep();
   dumpParams();
   drawDatasetPCA();
 }
@@ -2123,7 +2253,7 @@ function renderComponents() {
     drawUnit(c, state.components[name] || new Float32Array(N));
   }
 }
-function renderSweep() {
+async function renderSweep() {
   const grid = document.getElementById('sweepGrid'); grid.innerHTML = '';
   const OBJ_MIN = 1.0, OBJ_MAX = 5.0;
   let bestNear = {z: NaN, score: -1}, bestFar = {z: NaN, score: 0};
@@ -2133,9 +2263,9 @@ function renderSweep() {
     const h = document.createElement('h3'); h.textContent = `z=${z} mm`;
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     div.appendChild(h); div.appendChild(c); grid.appendChild(div);
-    const res = propagate(state.heightNorm, z);
+    const res = await propagateActive(state.heightNorm, z);
     h.textContent = `z=${z} mm · focus ${res.focusScore.toFixed(2)}`;
-    drawHeat(c, res.view);
+    await drawWaveResult(c, res);
     cells.push({z, h, score: res.focusScore});
     if (z >= OBJ_MIN && z <= OBJ_MAX) { if (res.focusScore > bestNear.score) bestNear = {z, score: res.focusScore}; }
     else if (z > OBJ_MAX) { if (res.focusScore > bestFar.score) bestFar = {z, score: res.focusScore}; }
@@ -2148,7 +2278,8 @@ function renderSweep() {
 }
 function updateMetrics(ms) {
   document.getElementById('grayInfo').textContent = `${state.sourceLabel || state.source || 'generated'} · floor=${params.minGray}, max=${params.maxGray}, ${W}×${H}, ${ms.toFixed(0)} ms`;
-  document.getElementById('waveInfo').textContent = `z=${params.zMm.toFixed(1)} mm · ${W}×${H} · px ${ (PIXEL_X_M*1e6).toFixed(2)}×${(PIXEL_Y_M*1e6).toFixed(2)}µm`;
+  const backend = state.metrics.backend && state.metrics.backend !== 'browser' ? ` · ${state.metrics.backend} ${Number(state.metrics.backendMs || 0).toFixed(0)}ms` : ' · browser FFT';
+  document.getElementById('waveInfo').textContent = `z=${params.zMm.toFixed(1)} mm · ${W}×${H} · px ${ (PIXEL_X_M*1e6).toFixed(2)}×${(PIXEL_Y_M*1e6).toFixed(2)}µm${backend}`;
   document.getElementById('mGray').textContent = `${state.metrics.grayMin} … ${state.metrics.grayMax}`;
   document.getElementById('mHeight').textContent = `0 … ${state.metrics.heightMaxUm.toFixed(2)} µm`;
   document.getElementById('mPeak').textContent = `${state.metrics.peak.toFixed(2)}`;
@@ -2589,10 +2720,15 @@ async function downloadRandomSeedZip() {
     files.push({name: `sample_${String(i).padStart(4,'0')}_seed${seed}_gray.png`, data: await canvasToPngBytes(grayCanvas)});
     let waveMetrics = null;
     if (includeWave) {
-      const res = propagate(state.heightNorm, params.zMm);
-      drawHeat(waveCanvas, res.view);
+      const res = await propagateActive(state.heightNorm, params.zMm);
+      await drawWaveResult(waveCanvas, res);
       files.push({name: `sample_${String(i).padStart(4,'0')}_seed${seed}_wave_z${params.zMm.toFixed(1)}mm.png`, data: await canvasToPngBytes(waveCanvas)});
-      waveMetrics = {peak_to_mean_p999_preview: res.peakToMean, bright_frac_preview: res.brightFrac};
+      waveMetrics = {
+        peak_to_mean_p999_preview: res.peakToMean,
+        bright_frac_preview: res.brightFrac,
+        backend: res.backend || 'browser',
+        backend_ms: res.backendMs || 0,
+      };
     }
     manifest.push({index: i, seed, min_gray: params.minGray, max_gray: params.maxGray, preview_width: W, preview_height: H, z_mm: params.zMm, ...waveMetrics});
   }
@@ -2631,6 +2767,10 @@ document.getElementById('sweepBtn').addEventListener('click', () => { if (!state
 document.getElementById('randomBtn').addEventListener('click', randomizeParams);
 document.getElementById('resetBtn').addEventListener('click', resetParams);
 document.getElementById('seedInput').addEventListener('change', scheduleUpdate);
+document.getElementById('gpuHealthBtn').addEventListener('click', checkGpuBackend);
+document.getElementById('useGpuBackend').addEventListener('change', () => updateAll(false));
+document.getElementById('gpuBackendUrl').addEventListener('change', checkGpuBackend);
+document.getElementById('gpuBackendId').addEventListener('change', checkGpuBackend);
 document.getElementById('resolutionSelect').addEventListener('change', (e) => {
   const previousSource = state.source;
   const refKey = state.referenceKey || document.getElementById('referenceSelect').value;
