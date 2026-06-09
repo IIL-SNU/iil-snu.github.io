@@ -1980,7 +1980,7 @@ function generateFromPcaTarget(pc1, pc2) {
   state.sourceLabel = 'generated PCA target';
   state.pcaPointId = null;
   state.referenceKey = null;
-  const note = `Legacy PCA-target random generation: target=(${pc1.toFixed(2)}, ${pc2.toFixed(2)}), bank candidate #${cand.id} PC=(${cand.pc1.toFixed(2)}, ${cand.pc2.toFixed(2)}), normalized distance=${picked.dist.toFixed(3)}, family=${cand.morphology_family || 'n/a'}, bucket=${cand.selection_bucket || 'n/a'}, proxyWaveScore=${Number(cand.wave_objective_score ?? 0).toFixed(2)}, proxyPropRatio=${Number(cand.prop_focus_score_1_5_to_global ?? 0).toFixed(2)}, trainW=${Number(cand.training_weight ?? 0).toExponential(2)}; native validation still required`;
+  const note = `Balanced PCA-target random generation: target=(${pc1.toFixed(2)}, ${pc2.toFixed(2)}), bank candidate #${cand.id} PC=(${cand.pc1.toFixed(2)}, ${cand.pc2.toFixed(2)}), normalized distance=${picked.dist.toFixed(3)}, family=${cand.morphology_family || 'n/a'}, bucket=${cand.selection_bucket || 'n/a'}, proxyWaveScore=${Number(cand.wave_objective_score ?? 0).toFixed(2)}, proxyPropRatio=${Number(cand.prop_focus_score_1_5_to_global ?? 0).toFixed(2)}, trainW=${Number(cand.training_weight ?? 0).toExponential(2)}; proxy PCA bank, native validation still required`;
   applyCodePreset(code, seed, code.atom_combine || 'sum', note, false);
   state.source = 'generated';
   state.sourceLabel = `generated PCA target #${cand.id}`;
@@ -2042,7 +2042,7 @@ async function initGeneratedBank() {
     const familyMass = generatedBank.recommended_training_family_mass || {};
     const massText = Object.entries(mass).map(([k,v]) => `${k}:${(100*Number(v)).toFixed(1)}%`).join(', ');
     const familyText = Object.entries(familyMass).map(([k,v]) => `${k}:${(100*Number(v)).toFixed(1)}%`).join(', ');
-    status.textContent = `loaded ${datasetPCA.n} real masks + ${generatedBank.n} legacy/proxy generated candidates · buckets {${bucketText}} · bucket mass {${massText}} · family mass {${familyText}} · PC1 ${(100*ev[0]).toFixed(1)}%, PC2 ${(100*ev[1]).toFixed(1)}% · click=legacy stochastic params (not native wave-valid), Alt-click=nearest dataset`;
+    status.textContent = `loaded ${datasetPCA.n} real masks + ${generatedBank.n} rebalanced PCA-proxy generated candidates · buckets {${bucketText}} · bucket mass {${massText}} · family mass {${familyText}} · PC1 ${(100*ev[0]).toFixed(1)}%, PC2 ${(100*ev[1]).toFixed(1)}% · click=balanced stochastic params (proxy; native wave check required), Alt-click=nearest dataset`;
     drawDatasetPCA();
   } catch (err) {
     status.textContent = `generated candidate bank load failed: ${err}. Alt-click nearest dataset still works.`;
