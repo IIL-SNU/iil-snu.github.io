@@ -26,6 +26,7 @@ import json
 import math
 import mimetypes
 import os
+import socket
 import time
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
@@ -45,6 +46,36 @@ H_MAX_M_DEFAULT = 15e-6
 N_MAT_DEFAULT = 1.56
 N_AIR_DEFAULT = 1.0
 _TRANSFER_CACHE: dict[tuple[str, int, int, float, float, float, float], Any] = {}
+
+
+def _suggest_access_urls(host: str, port: int) -> list[str]:
+    """Return usable browser URLs.
+
+    0.0.0.0 is only a bind/listen address; browsers must connect to localhost
+    from the same machine or to the server's real LAN address from another
+    machine.
+    """
+    path = "/pattern-generator/"
+    if host not in {"0.0.0.0", "::", ""}:
+        return [f"http://{host}:{port}{path}"]
+    ips = ["127.0.0.1"]
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.connect(("8.8.8.8", 80))
+            ips.append(sock.getsockname()[0])
+    except OSError:
+        pass
+    try:
+        ips.extend(socket.gethostbyname_ex(socket.gethostname())[2])
+    except OSError:
+        pass
+    seen: set[str] = set()
+    urls: list[str] = []
+    for ip in ips:
+        if ip and ip not in seen:
+            seen.add(ip)
+            urls.append(f"http://{ip}:{port}{path}")
+    return urls
 
 
 def _json_response(handler: SimpleHTTPRequestHandler, status: int, payload: dict[str, Any]) -> None:
@@ -330,7 +361,10 @@ def main() -> None:
     server.gpu = int(args.gpu)  # type: ignore[attr-defined]
     backend = "cupy" if cp is not None else "numpy"
     print(f"serving {root}")
-    print(f"open http://{args.host}:{args.port}/pattern-generator/  backend={backend} gpu={args.gpu}")
+    print(f"listening on {args.host}:{args.port}  backend={backend} gpu={args.gpu}")
+    print("open one of these; do not open 0.0.0.0 in a browser:")
+    for url in _suggest_access_urls(args.host, args.port):
+        print(f"  {url}")
     server.serve_forever()
 
 
