@@ -211,7 +211,7 @@
       <div class="row"><label>feature_radius_um <small>(0=auto)</small></label><input data-key="featureRadiusUm" type="range" min="0" max="400" step="1" /><span class="value"></span></div>
       <div class="row"><label>sag_cap_um</label><input data-key="sagCapUm" type="range" min="1" max="15" step="0.5" /><span class="value"></span></div>
       <div class="row"><label>morph_baseline_q</label><input data-key="morphBaselineQ" type="range" min="0" max="0.9" step="0.01" /><span class="value"></span></div>
-      <p class="hint">sag-calibrated ON에서는 lenslet/atom branch가 실제 spherical-cap sag <code>Rcurv=Δn·f, h(r)=sqrt(Rcurv²-r²)-sqrt(Rcurv²-a²)</code>로 생성된다. 높이 clip 대신 aperture를 줄여 곡률을 보존하고, cap은 base를 대체하지 않고 base 위에 더한다. <b>Run z sweep</b>로 best z를 확인하라.</p>
+      <p class="hint">sag-calibrated ON에서는 모든 morphology가 base 아래로 내려가지 않는 smooth relief로 변환되고, lenslet/atom branch는 실제 spherical-cap sag <code>Rcurv=Δn·f, h(r)=sqrt(Rcurv²-r²)-sqrt(Rcurv²-a²)</code>로 base 위에 더해진다. <b>Run z sweep</b>로 best z를 확인하라.</p>
     </fieldset>
 
     <fieldset>
@@ -1307,20 +1307,22 @@ function gradMagQuantile(arr, q) {
   return quantile(grads, q);
 }
 function calibrateAbsoluteSag(shape01) {
-  // Scale the dimensionless shape to absolute sag so the dominant feature
-  // curvature focuses at the target distance.  No global renormalize afterwards,
-  // so the optical phase survives (this is the key fix vs. the legacy path).
+  // Convert the signed/normalized morphology to a non-negative smooth relief
+  // above the base floor, then scale to absolute sag.  This avoids undercuts
+  // below base and removes the hard ReLU kink that makes wave propagation speckly.
   const baseline = quantile(shape01, clamp(params.morphBaselineQ, 0, 0.95));
-  const s = new Float32Array(N);
-  for (let i=0; i<N; i++) s[i] = Math.max(shape01[i] - baseline, 0);
-  const pk = quantile(s, 0.995);
+  const pk = quantile(shape01, 0.995);
   const out = new Float32Array(N);
-  if (pk <= 1e-8) return out;
+  if (pk <= baseline + 1e-8) return out;
   const Rm = featureRadiusM(), fM = targetFocalM(), dn = Math.max(N_MAT - N_AIR, 1e-6);
   let sagPeak = (Rm*Rm) / (2*dn*fM);
   const sagCap = Math.min(Math.max(params.sagCapUm*1e-6, 1e-7), H_MAX_M);
   sagPeak = Math.min(sagPeak, sagCap);
-  for (let i=0; i<N; i++) out[i] = clamp((s[i]/pk) * sagPeak, 0, H_MAX_M);
+  for (let i=0; i<N; i++) {
+    const t = clamp((shape01[i] - baseline) / Math.max(pk - baseline, 1e-9), 0, 1);
+    const smooth = t * t * (3 - 2*t);  // C1 at base and peak
+    out[i] = clamp(smooth * sagPeak, 0, H_MAX_M);
+  }
   return out;
 }
 function fabricateHeightM(heightM) {

@@ -159,6 +159,7 @@ height(r) = base(r) + cap(r)
 4. 작은 aperture에서는 기존 paraxial 식 `h0 ~= a_i^2 / (2 Δn f_i)`와 같지만, 구현은 spherical-cap exact form을 쓴다.
 5. 15 µm height budget을 넘는 경우에는 height를 clip하지 않고 aperture를 줄인다. height clipping은 cap 중심부를 평평하게 만들어 곡률과 focal length를 깨뜨리기 때문이다.
 6. non-lenslet base morphology가 있을 경우 lenslet height는 renormalize/scale하지 않고 `base_scaled + lenslet_cap`으로 합성한다. 단, `base_scaled.max + lenslet_cap.max <= 15 µm`가 되도록 base를 전역 attenuate해서 lenslet이 base보다 낮아지거나 cap 중심이 clip되는 상황을 피한다. `atom_weight`는 lenslet 곡률 자체를 줄이는 값이 아니라 base 대비 lenslet branch dominance와 base headroom을 정하는 값이다.
+7. lenslet 이외의 spectral / ridge / level-set / Voronoi-like / Turing-like / Perlin-like morphology도 모두 `morph_baseline_q`를 base floor로 둔 뒤 `smoothstep((shape-baseline)/(peak-baseline))`로 non-negative relief로 변환한다. 즉 어떤 family도 base 아래로 내려가는 valley를 만들지 않고, base 접점에서 slope가 0에 가까운 smooth gradient를 갖는다.
 
 검증:
 
