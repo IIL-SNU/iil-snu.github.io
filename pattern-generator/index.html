@@ -236,7 +236,6 @@
       <div class="row"><label>preset</label><select id="presetSelect">
         <option value="phys_mla">Physics-first — MLA (sag-calibrated)</option>
         <option value="phys_voronoi">Physics-first — Voronoi (sag-calibrated)</option>
-        <option value="phys_voronoi_envelope">Physics-first — Voronoi envelope (lenslet overlap)</option>
         <option value="phys_turing">Physics-first — Turing (sag-calibrated)</option>
         <option value="native_mla">Procedural near-focus — MLA (experimental)</option>
         <option value="native_voronoi">Procedural near-focus — Voronoi (experimental)</option>
@@ -364,7 +363,7 @@
       <div class="row"><label>amp_jitter</label><input data-key="atomAmpJitter" type="range" min="0" max="1.6" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>missing_prob</label><input data-key="atomMissingProb" type="range" min="0" max="0.75" step="0.01" /><span class="value"></span></div>
       <div class="row"><label>density_mod</label><input data-key="atomDensityMod" type="range" min="0" max="1" step="0.01" /><span class="value"></span></div>
-      <div class="row"><label>lenslet combine</label><select id="atomCombine"><option value="sum">sum</option><option value="max">max</option><option value="nearest_parabola">nearest_parabola</option><option value="smooth_voronoi">smooth_voronoi</option></select><span class="value">physical if sag-calibrated</span></div>
+      <div class="row"><label>lenslet combine</label><select id="atomCombine"><option value="sum">sum</option><option value="max">max</option><option value="nearest_parabola">nearest_parabola</option></select><span class="value">physical if sag-calibrated</span></div>
     </fieldset>
 
     <fieldset>
@@ -388,18 +387,6 @@
       <br/>Native reports: <a href="native_wave_overhaul/wave_propagation_overhaul_report_20260608.md" target="_blank">overhaul report</a>, <a href="native_wave_overhaul/native_wave_overhaul_report.md" target="_blank">reference audit</a>, <a href="native_wave_overhaul/wave_valid_generator/wave_valid_generator_probe_report.md" target="_blank">procedural probe</a>.
       Figures: <a href="native_wave_overhaul/fig_native_reference_wave_sweep_offset90.png" target="_blank">original reference sweep</a>, <a href="native_wave_overhaul/reference_calibrated_bank/fig_reference_calibrated_anchors.png" target="_blank">reference-calibrated anchors</a>, <a href="fig_pca_coverage_diagnostic_latest.png" target="_blank">legacy PCA coverage</a>.
       Static bundle: <a href="pattern_generator_wave_valid_bundle_20260608.zip" target="_blank">download HTML + native audit assets</a>.
-    </div>
-    <div class="note">
-      <b>2026-06-12 Voronoi/lenslet-overlap research update:</b>
-      reference Voronoi graymap 단면을 보면 active crop 내부는 binary edge가 아니라 <code>136..208</code> gray의 smooth relief이고,
-      강한 gradient normal profile은 넓은 valley/peak transition을 보인다.
-      겹친 lenslet을 <code>sum</code>으로 더하면 overlap 부위가 포화되어 cell boundary가 사라지고,
-      <code>max / smoothmax upper envelope</code>로 합성해야 near-straight Voronoi crease/valley network가 생긴다.
-      새 preset <b>Physics-first — Voronoi envelope</b>와 <code>smooth_voronoi</code> combine mode를 추가했다.
-      <br/>Research artifacts:
-      <a href="research_voronoi_overlap/fig_voronoi_internal_profiles.png" target="_blank">Voronoi graymap profiles</a>,
-      <a href="research_voronoi_overlap/fig_lenslet_overlap_voronoi_envelope_model.png" target="_blank">lenslet overlap model</a>,
-      <a href="research_voronoi_overlap/voronoi_lenslet_overlap_report.md" target="_blank">short report</a>.
     </div>
 
     <section class="canvasGrid">
@@ -525,21 +512,6 @@ const PRESETS = {
       spectral_weight: 0.25, rank_weight: 0.0, zernike_weight: 0.0, atom_weight: 0.0, caustic_weight: 0.0, ridge_weight: 0.65, levelset_weight: 0.10, ripple_weight: 0.0,
       ridge_source_centroid: 0.045, ridge_width: 0.30, spectral_centroid: 0.045, spectral_bandwidth: 0.03,
       nonlinear_contrast: 1.1, final_blur_sigma_px: 1.6, slope_limit_um_per_px: 0.38
-    }
-  },
-  phys_voronoi_envelope: {
-    label: 'Physics-first — Voronoi envelope (lenslet overlap)',
-    seed: 20260612,
-    atomCombine: 'smooth_voronoi',
-    note: 'Research update: overlapping lenslets are composed as a smooth upper envelope instead of a sum. Equal-curvature caps switch on near-straight Voronoi bisectors; smoothmax softens the crease to match the measured reference graymap gradients.',
-    code: {
-      physics_calibrated: 1, focus_min_mm: 2.0, focus_max_mm: 4.5, feature_radius_um: 0, morph_baseline_q: 0.45,
-      spectral_weight: 0.18, rank_weight: 0.02, zernike_weight: 0.02, atom_weight: 0.38, caustic_weight: 0.24, ridge_weight: 0.28, levelset_weight: 0.10, ripple_weight: 0.0,
-      atom_count: 190, atom_radius_um: 240, atom_regular: 0.12, atom_radius_jitter: 0.34, atom_amp_jitter: 0.10, atom_missing_prob: 0.03, atom_density_mod_strength: 0.22,
-      caustic_count: 160, caustic_radius_um: 260, caustic_focus_mm: 3.2, caustic_focus_spread: 0.32, caustic_regular: 0.08, caustic_radius_jitter: 0.35, caustic_amp_jitter: 0.20, caustic_power_boost: 1.6, caustic_missing_prob: 0.10,
-      ridge_source_centroid: 0.030, ridge_width: 0.42, spectral_centroid: 0.030, spectral_bandwidth: 0.030, spectral_slope: -2.3,
-      levelset_softness: 0.030, levelset_detail_weight: 0.30,
-      nonlinear_contrast: 1.08, final_blur_sigma_px: 0.8, slope_limit_um_per_px: 0.55
     }
   },
   phys_turing: {
@@ -1112,33 +1084,6 @@ function physicalLensletHeightM(rng) {
     return { rPx: aperture / PIXEL_M, rc, edge };
   });
   const combine = document.getElementById('atomCombine').value;
-
-  if (combine === 'smooth_voronoi') {
-    // Overlapped-lenslet Voronoi envelope:
-    // additive caps make overlap regions high/saturated, while the upper
-    // envelope of equal-curvature caps switches on near-straight bisectors.
-    // A small log-sum-exp smoothmax keeps the Voronoi crease printable and
-    // closer to the measured reference_voronoi_gray gradients.
-    const tau = 0.035 * H_MAX_M;
-    for (let y=0; y<H; y++) {
-      for (let x=0; x<W; x++) {
-        let best = 0.0, second = 0.0;
-        for (let i=0; i<pts.length; i++) {
-          const lens = lenses[i];
-          const distPx = Math.sqrt((x - pts[i][0])**2 + (y - pts[i][1])**2);
-          const rm = distPx * PIXEL_M;
-          let h = 0.0;
-          if (rm < 0.98 * lens.rc) h = Math.sqrt(Math.max(lens.rc*lens.rc - rm*rm, 0)) - lens.edge;
-          h = clamp(h, 0, H_MAX_M);
-          if (h > best) { second = best; best = h; }
-          else if (h > second) second = h;
-        }
-        const b = Math.max(best, second);
-        out[y*W+x] = clamp(b + tau * Math.log(Math.exp((best-b)/tau) + Math.exp((second-b)/tau)) - tau*Math.log(2), 0, H_MAX_M);
-      }
-    }
-    return out;
-  }
 
   if (combine === 'nearest_parabola') {
     for (let y=0; y<H; y++) {
