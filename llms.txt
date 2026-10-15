@@ -38,9 +38,9 @@ Pathologists read tissue through chemical stains such as hematoxylin and eosin (
 - Data: FPVS example FPM data, https://github.com/IIL-SNU/FPVS/tree/main/data
 - Data: Digital staining literature database, https://doi.org/10.1186/s43074-023-00113-4
 
-### [Lensless Cameras](https://iilab.io/lensless-cameras.html)
+### [Lensless Cameras and Learned Optics](https://iilab.io/lensless-cameras.html)
 
-A conventional camera needs a stack of lenses, which sets a lower limit on its size, weight and cost. A lensless camera replaces the lenses with a thin patterned mask just above a bare image sensor. The mask encodes the scene into a pattern on the sensor, and the image is reconstructed computationally. We design and fabricate the masks and develop the reconstruction algorithms: masks with designed point-spread functions are made in a single lithography step, also directly on the sensor, and physics-guided neural networks reconstruct the images. Applications include polarization, hyperspectral and eye-tracking cameras, and privacy-preserving imaging.
+A conventional camera needs a stack of lenses, which sets a lower limit on its size, weight and cost. A lensless camera replaces the lenses with a thin patterned mask just above a bare image sensor. The mask encodes the scene into a pattern on the sensor, and the image is reconstructed computationally. We design the camera hardware for each application and develop the reconstruction algorithms: masks with designed point-spread functions are made in a single lithography step, also directly on the sensor, and physics-guided neural networks reconstruct the images. Applications include polarization, hyperspectral and eye-tracking cameras, and privacy-preserving imaging.
 
 - Lee, K.C., Bae, J., Baek, N., Jung, J., Park, W., & Lee, S.A. (2023). Design and single-shot fabrication of lensless cameras with arbitrary point spread functions. Optica. https://doi.org/10.1364/OPTICA.466072
 - Lee, Y., Chae, H., Lee, K.C., Baek, N., Kim, T., Jung, J., & Lee, S.A. (2022). Fabrication of Integrated Lensless Cameras via UV-Imprint Lithography. IEEE Photonics Journal. https://doi.org/10.1109/JPHOT.2022.3157373
@@ -53,7 +53,7 @@ A conventional camera needs a stack of lenses, which sets a lower limit on its s
 
 ### [Dynamic Speckle Imaging](https://iilab.io/speckle-imaging.html)
 
-When laser light enters living tissue, moving red blood cells make the speckle pattern fluctuate, at a rate set by the flow speed. Measuring the fluctuation directly usually requires cameras running at more than ten thousand frames per second. Rolling-shutter speckle imaging (RSSI) uses the row-by-row exposure of CMOS sensors, in which successive rows are exposed microseconds apart, so that a single frame records the speckle dynamics. With elongated speckles and a physical model, one frame gives both the flow speed and the fraction of moving scatterers. Applications include cerebral blood-flow mapping, pulse waveforms at the fingertip and real-time analysis with physics-guided neural networks.
+We analyze speckle produced by dynamic scattering to measure the dynamics of a sample. When laser light enters living tissue, moving red blood cells make the speckle pattern fluctuate, at a rate set by the flow speed. Measuring the fluctuation directly usually requires cameras running at more than ten thousand frames per second. Rolling-shutter speckle imaging (RSSI) uses the row-by-row exposure of CMOS sensors, in which successive rows are exposed microseconds apart, so that a single frame records the speckle dynamics. With elongated speckles and a physical model, one frame gives both the flow speed and the fraction of moving scatterers. Applications include cerebral blood-flow mapping, pulse waveforms at the fingertip and real-time analysis with physics-guided neural networks.
 
 - Yi, C., Jung, J., Im, J., Lee, K.C., Chung, E., & Lee, S.A. (2022). Single-shot temporal speckle correlation imaging using rolling shutter image sensors. Optica. https://doi.org/10.1364/OPTICA.465361
 - Yi, C., Byun, S., Lee, Y., & Lee, S.A. (2024). Improvements and validation of a spatiotemporal speckle correlation model for rolling shutter speckle imaging. Biomedical Optics Express. https://doi.org/10.1364/BOE.514497
@@ -64,7 +64,7 @@ When laser light enters living tissue, moving red blood cells make the speckle p
 
 ### [Interactive Biology](https://iilab.io/interactive-biology.html)
 
-Human-biology interaction (HBI) studies how people can play, create and learn with living cells rather than simulations. Our systems couple a microscope to a projector: drawings on a touchscreen or hand gestures become patterns of light, and light-sensitive Euglena cells respond in real time. These platforms were used in museum exhibits, immersive installations, biotic games and artworks, and informed a review of the field of micro-HBI. This is a past area of work.
+Human-biology interaction (HBI) studies how people can play, create and learn with living cells rather than simulations. Our systems couple a microscope to a projector: drawings on a touchscreen or hand gestures become patterns of light, and light-sensitive Euglena cells respond in real time. These platforms were used in museum exhibits, immersive installations, biotic games and artworks, and informed a review of the field of micro-HBI.
 
 - Lee, S.A., Bumbacher, E., Chung, A.M., Cira, N., Walker, B., Park, J.Y., Starr, B., Blikstein, P., & Riedel-Kruse, I.H. (2015). Trap it! A playful human-biology interaction for a museum installation. Proceedings of the 33rd Annual ACM Conference on Human Factors in Computing Systems (CHI). https://doi.org/10.1145/2702123.2702220
 - Lee, K., Jung, J., & Lee, S.A. (2020). MicroAquarium: An Immersive and Interactive Installation with Living Microorganisms. Extended Abstracts of the 2020 CHI Conference on Human Factors in Computing Systems. https://doi.org/10.1145/3334480.3383164

@@ -4,9 +4,9 @@
   var PLAIN = {
     fp: "Fourier ptychography (FP) illuminates a sample from many angles and combines the low-resolution images computationally into one wide-field, high-resolution image with quantitative phase. We have built smartphone, single-shot and polarization-resolved FP microscopes and use them for virtual staining of tissue slides.",
     vs: "We image unstained tissue slides with Fourier ptychographic microscopes and train neural networks to turn the measured phase into the appearance of chemically stained slides. Work with pathologists at Severance Hospital covers faded-slide restoration, faster scanning and stains other than H&E.",
-    lensless: "A lensless camera replaces the lens with a thin phase mask above the image sensor and recovers the image computationally. We design and fabricate the masks and develop reconstruction networks for polarization, hyperspectral, eye-tracking and privacy-preserving imaging.",
-    speckle: "Rolling-shutter speckle imaging measures blood flow from a single camera frame by using the row-by-row readout of a standard CMOS sensor. Applications include cerebral blood-flow mapping, pulse waveforms at the fingertip and real-time analysis with neural networks.",
-    hbi: "Systems that couple a microscope and a projector so that people can interact in real time with living, light-responsive microorganisms, used in museum exhibits, installations, games and artworks. This is a past area of work."
+    lensless: "A lensless camera replaces the lens with a thin phase mask above the image sensor and recovers the image computationally. We design the camera hardware, including the masks we fabricate, for each application, and develop the reconstruction algorithms. Applications include polarization, hyperspectral, eye-tracking and privacy-preserving imaging.",
+    speckle: "We analyze speckle produced by dynamic scattering to measure the dynamics of a sample. Rolling-shutter speckle imaging measures blood flow from a single camera frame by using the row-by-row readout of a standard CMOS sensor. Applications include cerebral blood-flow mapping, pulse waveforms at the fingertip and real-time analysis with neural networks.",
+    hbi: "Systems that couple a microscope and a projector so that people can interact in real time with living, light-responsive microorganisms, used in museum exhibits, installations, games and artworks."
   };
   var LEAD = {
     fp: { f: "pupil-multiplexing-fp-render.png", ratio: "1600 / 1175", tight: true },
@@ -61,7 +61,6 @@
     var m = H.mr({ project: p.slug, sort: true });
     return m.length ? m : (p.figures || []).filter(function (f) { return !NOT_LAB.test(f.src); });
   }
-  document.getElementById("r-count").textContent = themes.length + " themes, " + all.length + " projects";
   document.getElementById("r-index").innerHTML = themes.map(function (t, i) {
     var f = H.mrGet(IDX[t.key] || "") || {}, src = f.src;
     if (src) H.claim(src);
@@ -108,8 +107,8 @@
   document.getElementById("themes").innerHTML = themes.map(function (t, i) {
     var media = leadFig(t) + keyFigs(t);
     var projects = projRows(t);
-    return '<section class="theme' + (t.key === "hbi" ? " past" : "") + '" data-th="' + esc(t.key) + '" id="' + esc(t.key) + '" aria-labelledby="h-' + esc(t.key) + '"><div class="wrap">' +
-      '<header class="t-head"><span class="t-n" aria-hidden="true" data-rv></span><h2 class="h1" id="h-' + esc(t.key) + '" data-rv>' + esc(t.title) + '</h2><span class="meta t-y" data-rv>' + span(t) + (t.key === "hbi" ? ", past work" : "") + "</span></header>" +
+    return '<section class="theme' + "" + '" data-th="' + esc(t.key) + '" id="' + esc(t.key) + '" aria-labelledby="h-' + esc(t.key) + '"><div class="wrap">' +
+      '<header class="t-head"><span class="t-n" aria-hidden="true" data-rv></span><h2 class="h1" id="h-' + esc(t.key) + '" data-rv>' + esc(t.title) + '</h2><span class="meta t-y" data-rv>' + span(t)  + "</span></header>" +
       '<div class="t-grid"><div class="t-text"><p class="lede" data-rv>' + esc(PLAIN[t.key] || t.summary) + "</p>" +
       '<h3 class="meta t-ph" data-rv>Projects <span class="n">' + (t.projects || []).length + '</span></h3><ul class="p-list" data-stagger>' + projects + "</ul>" +
       (H.themePage[t.key] ? '<p class="t-page" data-rv><a class="btn" href="' + H.themePage[t.key] + '">' + esc(t.title) + ": papers, code and projects " + H.arrow + "</a></p>" : "") + "</div>" +

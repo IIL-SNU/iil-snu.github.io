@@ -124,9 +124,9 @@
   })();
   var TILE = {
     fp: { pan: true, sub: "Fourier ptychography, phase and polarization imaging, virtual staining" },
-    lensless: { video: "assets/research2/video/turing-mask-zoom.mp4", pos: "50% 50%", sub: "Phase masks and learned reconstruction" },
-    speckle: { video: "assets/research2/video/rssi-in-vivo-time-lapse.mp4", pos: "50% 50%", sub: "Blood-flow imaging with rolling-shutter speckle" },
-    hbi: { pos: "50% 50%", sub: "Interactive experiments with living microorganisms (past work)" }
+    lensless: { video: "assets/research2/video/turing-mask-zoom.mp4", pos: "50% 50%", sub: "Lensless camera hardware designed for each application, and the algorithms that reconstruct its images" },
+    speckle: { video: "assets/research2/video/rssi-in-vivo-time-lapse.mp4", pos: "50% 50%", sub: "Analyzing speckle from dynamic scattering to measure sample dynamics, such as blood flow" },
+    hbi: { pos: "50% 50%", sub: "Interactive experiments with living microorganisms" }
   };
   Object.keys(TILE).forEach(function (k) {
     var n = H.FIG_HOME[k], f = (/^assets\//.test(n) ? H.findFig(n) : H.mrGet(n)) || {};
@@ -136,7 +136,7 @@
     var c = TILE[t.key] || { src: t.keyFigure.src, sub: "" };
     var f = H.findFig(c.src) || {};
     var alt = c.alt || f.alt || "", cap = c.cap || f.caption || "", credit = c.credit || f.credit || "";
-    var title = t.key === "lensless" ? "Lensless Cameras" : t.title;
+    var title = t.title;
     return '<li data-rv style="--i:' + (i % 3) + '"><a class="tile hover-host" data-th="' + esc(t.key) + '" href="research.html#' + esc(t.key) + '">' +
       '<div class="media zoom wash ' + (c.mat || "") + '">' + (c.video ? H.video(c.video, c.src, alt) : c.pan ? H.img(c.src, alt, { cls: "pan-x" }) : H.img(c.src, alt, { style: "object-position:" + c.pos, sizes: "(max-width: 560px) 100vw, (max-width: 980px) 50vw, 25vw" })) +
       '<p class="w-cap">' + esc(cap) + (credit ? '<span class="credit">' + esc(credit) + "</span>" : "") + "</p></div>" +
