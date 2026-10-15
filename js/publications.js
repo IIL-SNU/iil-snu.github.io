@@ -129,5 +129,6 @@
     new IntersectionObserver(function (es) { tb.classList.toggle("stuck", !es[0].isIntersecting); }).observe(sentinel);
   }
   apply();
+  H.press(document.getElementById("press-c"), "en");
   H.reveal();
 })();

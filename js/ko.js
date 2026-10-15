@@ -91,5 +91,6 @@
   /* contact */
   var c = pi.contact || {};
   $("ko-mail").innerHTML = '<a class="ul" href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a><button class="copy" type="button" data-copy="' + esc(c.email) + '" aria-label="이메일 주소 복사">Copy</button>';
+  H.press(document.getElementById("press-c"), "ko");
   H.reveal();
 })();
