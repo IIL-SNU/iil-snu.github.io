@@ -1,5 +1,6 @@
 /* Press coverage and journal features (compiled 2026-10-15).
    Sources: lab 실적 sheet (홍보 tab), Naver News and web searches; every URL was opened and checked to be about this laboratory or Seung Ah Lee's papers.
+   Each story lists one or two representative articles (original release, department news, or the most detailed / major outlet).
    Excluded: pages that could not be opened, law-firm promotional articles (2026-08), and coverage that does not concern the laboratory's work. */
 window.IIL = window.IIL || {};
 IIL.press = [
@@ -27,58 +28,9 @@ IIL.press = [
    },
    {
     "date": "2026-08-04",
-    "outlet": "BRIC",
-    "title": "세계 최정상 수준의 연구를 위해 국내·외 연구기관 손잡는다",
-    "url": "https://www.ibric.org/bric/trend/bio-news.do?mode=view&articleNo=10047151",
-    "lang": "ko"
-   },
-   {
-    "date": "2026-08-04",
     "outlet": "연합뉴스",
     "title": "서울대-칼텍 손잡는다…국제 연구플랫폼 4곳 선정",
     "url": "https://www.yna.co.kr/view/AKR20260804077200017",
-    "lang": "ko"
-   },
-   {
-    "date": "2026-08-04",
-    "outlet": "뉴시스",
-    "title": "서울대·포스텍·DGIST·KAIST, 해외 유수 연구기관과 10년 공동연구",
-    "url": "https://www.newsis.com/view/NISX20260804_0003735283",
-    "lang": "ko"
-   },
-   {
-    "date": "2026-08-04",
-    "outlet": "아시아경제",
-    "title": "서울대-칼텍·포스텍-막스플랑크 '맞손'…세계 최고 연구기관과 10년 공동연구",
-    "url": "https://view.asiae.co.kr/article/2026080409453193473",
-    "lang": "ko"
-   },
-   {
-    "date": "2026-08-04",
-    "outlet": "동아사이언스",
-    "title": "반도체검사·양자신소재 등 해외 연구협력 컨소시엄 10년간 지원",
-    "url": "https://www.dongascience.com/news/view/79258",
-    "lang": "ko"
-   },
-   {
-    "date": "2026-08-04",
-    "outlet": "머니투데이",
-    "title": "10년간 年 23억 투입 '탑티어 사업', 서울대 등 4개 컨소시엄 선정",
-    "url": "https://www.mt.co.kr/tech/2026/08/04/2026080410292952033",
-    "lang": "ko"
-   },
-   {
-    "date": "2026-08-04",
-    "outlet": "서울경제TV",
-    "title": "과기정통부, 칼텍·막스플랑크 손잡고 ‘10년 연구’…4개 컨소시엄 선정",
-    "url": "https://www.sentv.co.kr/article/view/sentv202608040087",
-    "lang": "ko"
-   },
-   {
-    "date": "2026-08-04",
-    "outlet": "브릿지경제",
-    "title": "세계 최정상급 연구 위해 국내·외 연구기관 협력 지원",
-    "url": "https://www.viva100.com/article/20260804500754",
     "lang": "ko"
    }
   ]
@@ -158,37 +110,9 @@ IIL.press = [
   "items": [
    {
     "date": "2023-03-09",
-    "outlet": "울산신문",
-    "title": "예술과 과학이 만나 '뒤틀린 데이터'",
-    "url": "https://www.ulsanpress.net/news/articleView.html?idxno=415565",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-03-09",
     "outlet": "아시아경제",
     "title": "예술, 과학 만나 사고쳤다?… 울산시립미술관 콜라보展 ‘뒤틀린 데이터’",
     "url": "https://view.asiae.co.kr/article/2023030908504510930",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-03-09",
-    "outlet": "울산매일",
-    "title": "울산시립미술관 예술과 과학 협업 전시'뒤틀린 데이터'",
-    "url": "https://www.iusm.co.kr/news/articleView.html?idxno=1010333",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-03-09",
-    "outlet": "CNB뉴스",
-    "title": "울산시립미술관, 예술과 과학 협업 전시 ‘뒤틀린 데이터’ 개최",
-    "url": "https://www.cnbnews.com/news/article.html?no=590857",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-03-09",
-    "outlet": "울산제일일보",
-    "title": "예술·과학 융합으로 예술의 새 가능성 찾기",
-    "url": "http://www.ujeil.com/news/articleView.html?idxno=323131",
     "lang": "ko"
    },
    {
@@ -196,48 +120,6 @@ IIL.press = [
     "outlet": "뉴시스",
     "title": "울산시립미술관, 예술·과학 협업전 '뒤틀린 데이터' 2부 개막",
     "url": "http://www.newsis.com/view/?id=NISX20230503_0002289476",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-05-03",
-    "outlet": "울산매일",
-    "title": "울산시립미술관, 예술-과학 협업 전시 '뒤틀린 데이터'2부 전시 개막",
-    "url": "https://www.iusm.co.kr/news/articleView.html?idxno=1014375",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-05-03",
-    "outlet": "울산신문",
-    "title": "예술-과학의 협업…울산시립미술관 '뒤틀린 데이터' 두번째 이야기",
-    "url": "https://www.ulsanpress.net/news/articleView.html?idxno=503875",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-06-26",
-    "outlet": "부산일보",
-    "title": "울산시립미술관 ‘뒤틀린 데이터’ 전시 연계 세미나 개최",
-    "url": "https://www.busan.com/view/busan/view.php?code=2023062616304044074",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-06-27",
-    "outlet": "울산매일",
-    "title": "28일 울산시립미술관, '뒤틀린 데이터'전 세미나",
-    "url": "https://www.iusm.co.kr/news/articleView.html?idxno=1018086",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-06-27",
-    "outlet": "울산신문",
-    "title": "울산시립미술관, 뒤틀린 데이터 전시 연계 세미나",
-    "url": "https://www.ulsanpress.net/news/articleView.html?idxno=507251",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-06-27",
-    "outlet": "경상일보",
-    "title": "울산시립미술관, 28일 ‘뒤틀린 데이터’ 연계 세미나",
-    "url": "https://www.ksilbo.co.kr/news/articleView.html?idxno=973340",
     "lang": "ko"
    }
   ]
@@ -296,58 +178,9 @@ IIL.press = [
    },
    {
     "date": "2023-01-18",
-    "outlet": "베리타스알파",
-    "title": "연세대 이승아 교수팀 마스크 기반 초박형 렌즈리스 카메라 설계/제작 기술 개발",
-    "url": "http://www.veritas-a.com/news/articleView.html?idxno=444542",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-18",
-    "outlet": "뉴시스",
-    "title": "연세대, 세계 최초 초박형 렌즈리스 광학소자 개발",
-    "url": "http://www.newsis.com/view/?id=NISX20230118_0002163033",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-18",
-    "outlet": "디지털타임스",
-    "title": "연세대 이승아 교수팀, 마스크 기반 초박형 렌즈리스 카메라 설계 및 제작 기술 개발",
-    "url": "https://www.dt.co.kr/article/11490431",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-18",
-    "outlet": "베타뉴스",
-    "title": "연세대 이승아 교수팀, 마스크 기반 ‘렌즈리스 카메라’ 설계 및 제작 기술 개발",
-    "url": "https://www.betanews.net/article/view/beta202301180089",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-18",
     "outlet": "서울경제",
     "title": "'렌즈리스 카메라' 상용화 길 열렸다",
     "url": "https://www.sedaily.com/NewsView/29KITRTWLU",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-18",
-    "outlet": "대학지성 In&Out",
-    "title": "연세대 이승아 교수팀, 마스크 기반 초박형 렌즈리스 카메라 설계 및 제작 기술 개발",
-    "url": "https://www.unipress.co.kr/news/articleView.html?idxno=7749",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-27",
-    "outlet": "이코노미사이언스",
-    "title": "마스크 기반 초박형 렌즈리스 카메라 설계 및 제작 기술 개발",
-    "url": "http://www.e-science.co.kr/news/articleView.html?idxno=90516",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-04-19",
-    "outlet": "연세기술지주",
-    "title": "[공과대학] 이승아 교수팀, 마스크 기반 초박형 렌즈리스 카메라 설계 및 제작 기술 개발",
-    "url": "https://www.ysuholdings.com/en/tech/result.do?mode=view&articleNo=659",
     "lang": "ko"
    }
   ]
@@ -376,51 +209,9 @@ IIL.press = [
    },
    {
     "date": "2023-01-09",
-    "outlet": "파이낸셜뉴스",
-    "title": "연세대, 'CES 2023'서 단독전시관 운영…혁신기술상 2개 분야 수상도",
-    "url": "https://www.fnnews.com/news/202301091301114555",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-09",
-    "outlet": "대학저널",
-    "title": "연세대, CES 2023 단독 전시관 운영",
-    "url": "https://m.dhnews.co.kr/news/view/1065572644131029",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-09",
-    "outlet": "교수신문",
-    "title": "연세대, ‘CES 2023’에서 첨단 기술 세계 무대에 선보여",
-    "url": "http://www.kyosu.net/news/articleView.html?idxno=99146",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-09",
-    "outlet": "베리타스알파",
-    "title": "연세대 공과대학 'CES 2023'서 단독 전시관 운영..우수 연구 성과 전시",
-    "url": "http://www.veritas-a.com/news/articleView.html?idxno=443613",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-09",
-    "outlet": "한국대학신문",
-    "title": "연세대, ‘CES 2023’에서 첨단 기술 세계 무대 선보여",
-    "url": "https://news.unn.net/news/articleView.html?idxno=540300",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-09",
     "outlet": "전자신문",
     "title": "[CES 2023]연세대, CES에 첫 참가...첨단 기술 선봬",
     "url": "https://www.etnews.com/20230109000233",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-10",
-    "outlet": "한국강사신문",
-    "title": "연세대학교 공과대학, ‘CES 2023’에서 첨단 기술 세계 무대에 선보여",
-    "url": "https://www.lecturernews.com/news/articleView.html?idxno=116393",
     "lang": "ko"
    }
   ]
@@ -432,11 +223,11 @@ IIL.press = [
   "kind": "press",
   "en": {
    "t": "Blood-flow speed from a single speckle image",
-   "d": "National Research Foundation of Korea press release on rolling-shutter speckle imaging of cerebral blood flow, followed by news coverage, an NRF video and an interview."
+   "d": "National Research Foundation of Korea press release on rolling-shutter speckle imaging of cerebral blood flow."
   },
   "ko": {
    "t": "한 장의 사진으로 뇌혈관 혈류 속도 측정",
-   "d": "롤링 셔터 스페클 영상으로 뇌혈관 혈류 속도를 측정한 연구가 한국연구재단 보도자료로 소개되었고, 이후 언론 보도와 연구재단 영상, 인터뷰로 이어졌습니다."
+   "d": "롤링 셔터 스페클 영상으로 뇌혈관 혈류 속도를 측정한 연구가 한국연구재단 보도자료로 소개되었습니다."
   },
   "paper": {
    "label": "C. Yi et al., Optica 2022",
@@ -445,23 +236,9 @@ IIL.press = [
   "items": [
    {
     "date": "2022-12-21",
-    "outlet": "BRIC",
+    "outlet": "한국연구재단 보도자료 (BRIC)",
     "title": "한 장의 사진으로 뇌혈관 혈류 속도 측정한다",
     "url": "https://www.ibric.org/bric/trend/bio-news.do?mode=view&articleNo=8877315",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-21",
-    "outlet": "뉴시스",
-    "title": "사진 한장으로 뇌혈관 속 혈류 속도 측정한다",
-    "url": "http://www.newsis.com/view/?id=NISX20221221_0002131695",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-21",
-    "outlet": "메디컬투데이",
-    "title": "“한 장의 사진으로 뇌혈관 혈류 속도 측정한다”",
-    "url": "https://mdtoday.co.kr/news/view/1065604970255623",
     "lang": "ko"
    },
    {
@@ -469,111 +246,6 @@ IIL.press = [
     "outlet": "헤럴드경제",
     "title": "사진 한 장으로 ‘뇌혈관 질환’ 빠르게 잡아낸다",
     "url": "https://biz.heraldcorp.com/article/3026420",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-21",
-    "outlet": "베리타스알파",
-    "title": "연세대 이승아 교수팀 '한 장의 사진으로 뇌혈관 혈류 속도 측정하는 기술' 개발",
-    "url": "http://www.veritas-a.com/news/articleView.html?idxno=441639",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-21",
-    "outlet": "이코노미사이언스",
-    "title": "뇌혈관 혈류 속도를 한 장의 사진으로 측정",
-    "url": "http://www.e-science.co.kr/news/articleView.html?idxno=90489",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-21",
-    "outlet": "충청뉴스",
-    "title": "한국연구재단, 뇌혈관 혈류 속도 정량 측정 기술 소개",
-    "url": "http://www.ccnnews.co.kr/news/articleView.html?idxno=279950",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-21",
-    "outlet": "헬스코리아뉴스",
-    "title": "모바일 사진 한장으로 뇌혈관 혈류 속도 측정한다",
-    "url": "https://www.hkn24.com/news/articleView.html?idxno=330976",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-21",
-    "outlet": "후생신보",
-    "title": "한 장의 사진으로 뇌혈관 혈류 속도 측정",
-    "url": "http://www.whosaeng.com/sub_read.html?uid=141124&section=sc2",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-21",
-    "outlet": "바이오타임즈",
-    "title": "사진 한 장으로 뇌혈관 혈류 속도 측정 성공, 뇌혈관 질환 예측 가능해질까",
-    "url": "https://www.biotimes.co.kr/news/articleView.html?idxno=9372",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-22",
-    "outlet": "코리아헬스로그",
-    "title": "연세대, 사진 한 장으로 뇌혈관 혈류 속도 측정하는 기술 개발",
-    "url": "https://www.koreahealthlog.com/news/articleView.html?idxno=40141",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-22",
-    "outlet": "BioIN",
-    "title": "한 장의 사진으로 뇌혈관 혈류 속도 측정한다",
-    "url": "https://www.bioin.or.kr/rsrch_Rslt.do?num=316650&cmd=view&bid=research&cPage=1",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-27",
-    "outlet": "특허뉴스",
-    "title": "[사이언스] 한 장의 사진으로 뇌혈관 혈류 속도 측정한다",
-    "url": "http://www.e-patentnews.com/9100",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-29",
-    "outlet": "로하스시사뉴스",
-    "title": "뇌혈관 혈류 속도 측정을 한장의 사진으로 가능할까?",
-    "url": "http://www.asialohas.org/2343",
-    "lang": "ko"
-   },
-   {
-    "date": "2022-12-30",
-    "outlet": "브레인미디어",
-    "title": "한 장의 사진으로 뇌혈관 혈류 속도 측정한다",
-    "url": "http://www.brainmedia.co.kr/BrainScience/23207",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-01-08",
-    "outlet": "하이닥",
-    "title": "사진 한 장으로 뇌혈관 혈류 속도 측정 성공… 뇌혈관 질환 예측 가능해져",
-    "url": "https://news.hidoc.co.kr/news/articleView.html?idxno=29120",
-    "lang": "ko"
-   },
-   {
-    "date": "2023-12-05",
-    "outlet": "사이언스올",
-    "title": "한 장의 사진으로 뇌혈관 혈류 속도 측정한다",
-    "url": "https://www.scienceall.com/brd/board/337/L/menu/239?brdType=R&bbsSn=408553",
-    "lang": "ko"
-   },
-   {
-    "date": "2024-04-01",
-    "outlet": "한국연구재단 YouTube",
-    "title": "[NRF 연구성과] 한 장의 사진으로 뇌혈관 혈류 속도 측정한다",
-    "url": "https://www.youtube.com/watch?v=SgrIu-6KGQI",
-    "lang": "ko"
-   },
-   {
-    "date": "2025-06-23",
-    "outlet": "이헬스통신",
-    "title": "\"뇌혈관질환 혈류 변화 영상화 가능합니다\"",
-    "url": "https://www.e-healthnews.com/bbs/board.php?bo_table=person&wr_id=985",
     "lang": "ko"
    }
   ]
@@ -636,34 +308,6 @@ IIL.press = [
     "title": "New exhibit plunges people in the world of microbes",
     "url": "https://www.sciencedaily.com/releases/2019/10/191002131921.htm",
     "lang": "en"
-   },
-   {
-    "date": "2019-10-02",
-    "outlet": "Bioengineer.org",
-    "title": "Stanford-made exhibit plunges people in the world of microbes",
-    "url": "https://bioengineer.org/stanford-made-exhibit-plunges-people-in-the-world-of-microbes/",
-    "lang": "en"
-   },
-   {
-    "date": "2019-10-02",
-    "outlet": "EurekAlert!",
-    "title": "Stanford-made exhibit plunges people in the world of microbes",
-    "url": "https://www.eurekalert.org/news-releases/464932",
-    "lang": "en"
-   },
-   {
-    "date": "2019-10",
-    "outlet": "EurekAlert!",
-    "title": "Dancing with Microbes (image)",
-    "url": "https://www.eurekalert.org/multimedia/827347",
-    "lang": "en"
-   },
-   {
-    "date": "2019-11-16",
-    "outlet": "BPoD",
-    "title": "Tiny Dancers",
-    "url": "https://bpod.org.uk/archive/2019/11/16",
-    "lang": "en"
    }
   ]
  },
@@ -674,11 +318,11 @@ IIL.press = [
   "kind": "press",
   "en": {
    "t": "LudusScope: a smartphone microscope for playing with microbes",
-   "d": "Stanford press release and coverage of the 3D-printed interactive smartphone microscope for life-science education."
+   "d": "Stanford press release on the 3D-printed interactive smartphone microscope for life-science education."
   },
   "ko": {
    "t": "LudusScope: 미생물과 상호작용하는 스마트폰 현미경",
-   "d": "생명과학 교육용 3D 프린팅 스마트폰 현미경에 관한 스탠퍼드 보도자료와 언론 보도입니다."
+   "d": "생명과학 교육용 3D 프린팅 스마트폰 현미경에 관한 스탠퍼드 보도자료와 기사입니다."
   },
   "paper": {
    "label": "H. Kim et al., PLOS ONE 2016",
@@ -693,80 +337,10 @@ IIL.press = [
     "lang": "en"
    },
    {
-    "date": "2016-10-06",
-    "outlet": "Gizmodo",
-    "title": "This Smartphone Microscope Lets You Play Games With Microbes",
-    "url": "https://gizmodo.com/this-smartphone-microscope-lets-you-play-games-with-mic-1787482078",
-    "lang": "en"
-   },
-   {
-    "date": "2016-10-06",
-    "outlet": "3DPrint.com",
-    "title": "Get Your Kids Excited About Microbiology Now with the 3D Printed Microscope Powered by Your Smartphone",
-    "url": "https://3dprint.com/151711/3d-printed-microscope-stanford/",
-    "lang": "en"
-   },
-   {
-    "date": "2016-10-07",
-    "outlet": "Medical Design & Outsourcing",
-    "title": "Smartphone Microscope Developed By Stanford Bioengineer Creates Interactive Tool For Microbiology",
-    "url": "https://www.medicaldesignandoutsourcing.com/smartphone-microscope-developed-by-stanford-bioengineer-creates-interactive-tool-for-microbiology/",
-    "lang": "en"
-   },
-   {
-    "date": "2016-10-07",
-    "outlet": "New Atlas",
-    "title": "DIY smartphone microscope plays Pac-Man with microbes",
-    "url": "https://newatlas.com/ludusscope-microscopic-games/45810",
-    "lang": "en"
-   },
-   {
-    "date": "2016-10-07",
-    "outlet": "Refractor.io",
-    "title": "DIY smartphone microscope plays Pac-Man with microbes",
-    "url": "https://refractor.io/science/diy-smartphone-microscope-plays-pac-man-with-microbes/",
-    "lang": "en"
-   },
-   {
-    "date": "2016-10-07",
-    "outlet": "microBEnet",
-    "title": "OMG - I want one: 'Smartphone Microscope Lets You Play Games With Microbes'",
-    "url": "https://microbe.net/2016/10/06/omg-i-want-one-smartphone-microscope-lets-you-play-games-with-microbes/",
-    "lang": "en"
-   },
-   {
-    "date": "2016-10-09",
-    "outlet": "Good News Network",
-    "title": "Smartphone Microscope Will Let Kids Easily Explore Microbiology",
-    "url": "https://www.goodnewsnetwork.org/smartphone-microscope-will-let-kids-easily-explore-microbiology/",
-    "lang": "en"
-   },
-   {
-    "date": "2016-10-11",
-    "outlet": "UNAM Global",
-    "title": "Smartphone microscope creates interactive tool for microbiology",
-    "url": "https://unamglobal.unam.mx/global_revista/smartphone-microscope-creates-interactive-tool-for-microbiology/",
-    "lang": "en"
-   },
-   {
     "date": "2016-10-17",
     "outlet": "Smithsonian Magazine",
     "title": "With This Smartphone Microscope, You Can Play Soccer and Pac-Man With Microbes",
     "url": "https://www.smithsonianmag.com/innovation/with-this-smartphone-microscope-you-can-play-soccer-and-pac-man-with-microbes-180960793/",
-    "lang": "en"
-   },
-   {
-    "date": "2016-10-28",
-    "outlet": "The Himalayan Times",
-    "title": "New 3D printed microscope lets kids 'play' microbiology",
-    "url": "https://thehimalayantimes.com/ampArticle/177716",
-    "lang": "en"
-   },
-   {
-    "date": "2016-11-18",
-    "outlet": "ASME",
-    "title": "The Bio-Arcade",
-    "url": "https://www.asme.org/topics-resources/content/the-bioarcade",
     "lang": "en"
    }
   ]
@@ -797,20 +371,6 @@ IIL.press = [
     "lang": "en"
    },
    {
-    "date": "2015-04-23",
-    "outlet": "Stanford Bio-X",
-    "title": "Stanford team makes biotechnology interactive with remote-control labs",
-    "url": "https://biox.stanford.edu/highlight/stanford-team-makes-biotechnology-interactive-remote-control-labs",
-    "lang": "en"
-   },
-   {
-    "date": "2015-04-23",
-    "outlet": "EurekAlert!",
-    "title": "Stanford team makes biotechnology interactive with games and remote-control labs",
-    "url": "https://www.eurekalert.org/news-releases/503235",
-    "lang": "en"
-   },
-   {
     "date": "2015-05-01",
     "outlet": "Stanford Medicine News Center",
     "title": "Making biotechnology interactive with games, remote-control labs",
@@ -826,11 +386,11 @@ IIL.press = [
   "kind": "press",
   "en": {
    "t": "The ePetri dish: a smart Petri dish on an image sensor",
-   "d": "Caltech press release and coverage of the on-chip cell-imaging platform built from a smartphone image sensor and LEGO parts."
+   "d": "Caltech press release on the on-chip cell-imaging platform built from a smartphone image sensor and LEGO parts."
   },
   "ko": {
    "t": "ePetri: 이미지 센서 위의 스마트 페트리 접시",
-   "d": "스마트폰 이미지 센서와 레고 부품으로 만든 온칩 세포 영상 플랫폼에 관한 칼텍 보도자료와 언론 보도입니다."
+   "d": "스마트폰 이미지 센서와 레고 부품으로 만든 온칩 세포 영상 플랫폼에 관한 칼텍 보도자료와 기사입니다."
   },
   "paper": {
    "label": "G. Zheng, S. A. Lee et al., PNAS 2011",
@@ -845,59 +405,10 @@ IIL.press = [
     "lang": "en"
    },
    {
-    "date": "2011-10-04",
-    "outlet": "ScienceDaily",
-    "title": "Engineers build smart petri dish: Device can be used for medical diagnostics, imaging cell growth continuously",
-    "url": "https://www.sciencedaily.com/releases/2011/10/111003151834.htm",
-    "lang": "en"
-   },
-   {
     "date": "2011-10-11",
     "outlet": "MIT Technology Review",
     "title": "Wired Petri Dish Gives Real-Time Updates",
     "url": "https://www.technologyreview.com/2011/10/11/87162/wired-petri-dish-gives-real-time-updates/",
-    "lang": "en"
-   },
-   {
-    "date": "2011-10-11",
-    "outlet": "socaltech.com",
-    "title": "Caltech Engineers Use Legos, Google Smartphone For Smart Petri Dish",
-    "url": "https://socaltech.com/caltech_engineers_use_legos_google_smartphone_for_smart_petri_dish/s-0038670.html",
-    "lang": "en"
-   },
-   {
-    "date": "2011-10-13",
-    "outlet": "PCWorld",
-    "title": "Lego Bricks, Smartphones Combine to Make Serious Scientific Gadgetry",
-    "url": "https://www.pcworld.com/article/477332/lego_bricks_smartphones_combine_to_make_serious_scientific_gadgetry.html",
-    "lang": "en"
-   },
-   {
-    "date": "2011-10-13",
-    "outlet": "iMedicalApps",
-    "title": "The ePetri dish, using a smartphone to analyze cell growth",
-    "url": "https://www.imedicalapps.com/2011/10/epetri-dish-smartphone-analyze-cell-growth/",
-    "lang": "en"
-   },
-   {
-    "date": "2011-10-13",
-    "outlet": "LabMedica",
-    "title": "Smart Petri Dish Simplifies Medical Diagnostic Tests",
-    "url": "https://mobile.labmedica.com/technology/articles/294737561/smart-petri-dish-simplifies-medical-diagnostic-tests.html",
-    "lang": "en"
-   },
-   {
-    "date": "2011-10-18",
-    "outlet": "Laser Focus World",
-    "title": "Smartphone-driven, lensless Petri dish images cell cultures in real time",
-    "url": "https://www.laserfocusworld.com/biooptics/bioimaging/microscopy/article/14192415/smartphone-driven-lensless-petri-dish-images-cell-cultures-in-real-time",
-    "lang": "en"
-   },
-   {
-    "date": "2011-10",
-    "outlet": "Cleanroom Technology",
-    "title": "Caltech engineers build 'smart' Petri dish",
-    "url": "https://cleanroomtechnology.com/caltech-engineers-build-smart-petri-dish-65508",
     "lang": "en"
    }
   ]
@@ -925,13 +436,6 @@ IIL.press = [
     "outlet": "MIT Technology Review",
     "title": "A $1.50 Lens-Free Microscope",
     "url": "https://www.technologyreview.com/2010/10/22/199763/a-150-lens-free-microscope/",
-    "lang": "en"
-   },
-   {
-    "date": "2010-11-01",
-    "outlet": "Vision Systems Design",
-    "title": "Lensless microscopy system reveals 3-D structures",
-    "url": "https://www.vision-systems.com/cameras-accessories/article/16738511/medical-applications-lensless-microscopy-system-reveals-3-d-structures",
     "lang": "en"
    }
   ]
