@@ -7,12 +7,12 @@
 
   /* ---------------- hero: computed laser speckle with the laboratory mark (PI 2026-10-15) ----------------
      Fully developed laser speckle behind an elliptical aperture (as in rolling-shutter speckle imaging), computed once with a
-     512 x 512 FFT. Outside the letter shapes of the iil mark the speckle is completely still; inside them the field is a moving
-     combination of four further speckle realisations (unit-norm weights, so the statistics stay those of developed speckle),
-     so the grains decorrelate there the way they do over flowing blood and the letters appear through motion. The two fields
-     are mixed with a soft mask rasterised from the mark: E = cos(pi m / 2) E_static + sin(pi m / 2) E_dynamic(t). A faint navy
-     tint inside the letters keeps them readable in the still frame; the gold stars of the mark are drawn as small gold marks.
-     Only pixels inside the mask are recomputed per frame. Pauses offscreen, on the pause button and with reduced motion (one
+     512 x 512 FFT. Outside the shapes of the iil mark (letters and the two stars) the speckle is completely still; inside them
+     the field is a moving combination of four further speckle realisations (unit-norm weights, so the statistics stay those of
+     developed speckle), so the grains decorrelate there the way they do over flowing blood and the mark appears only through
+     motion: no colour, tint or outline (PI 2026-10-15), one palette everywhere. The two fields are mixed with a soft mask
+     rasterised from the mark: E = cos(pi m / 2) E_static + sin(pi m / 2) E_dynamic(t). Only pixels inside the mask are
+     recomputed per frame. Pauses offscreen, on the pause button and with reduced motion (one
      still frame); nothing is added to the DOM. */
   (function viz() {
     var host = document.getElementById("viz"), cv = document.getElementById("viz-c"), pp = document.getElementById("viz-pp");
@@ -52,14 +52,13 @@
       var s = 0; for (var j = 0; j < NN; j++) s += re[j] * re[j] + im[j] * im[j];
       var g = 1 / Math.sqrt(s / NN); for (var j2 = 0; j2 < NN; j2++) { re[j2] *= g; im[j2] *= g; }
     }
-    /* the mark: letter shapes (two bars, the dot, the L) and the two gold stars, same paths as the inline logo (viewBox 0 26 712 516) */
+    /* the mark: letter shapes (two bars, the dot, the L) and the two stars, same paths as the inline logo (viewBox 0 26 712 516) */
     var BARS = ["M74 238h86a12 12 0 0 1 12 12v263a12 12 0 0 1-12 12H74a12 12 0 0 1-12-12V250a12 12 0 0 1 12-12Z",
       "M288 238h86a12 12 0 0 1 12 12v263a12 12 0 0 1-12 12h-86a12 12 0 0 1-12-12V250a12 12 0 0 1 12-12Z",
       "M331 78a67 67 0 1 1 0 134a67 67 0 1 1 0-134Z",
       "M486 87h82a12 12 0 0 1 12 12v281a73 73 0 0 0 73 73h43a12 12 0 0 1 12 12v61a12 12 0 0 1-12 12h-76A146 146 0 0 1 474 392V99a12 12 0 0 1 12-12Z"];
     var STARS = ["M116 30C121.75 110.5 150.5 139.25 231 145C150.5 150.75 121.75 179.5 116 260C110.25 179.5 81.5 150.75 1 145C81.5 139.25 110.25 110.5 116 30Z",
       "M186 181C187.55 202.7 195.3 210.45 217 212C195.3 213.55 187.55 221.3 186 243C184.45 221.3 176.7 213.55 155 212C176.7 210.45 184.45 202.7 186 181Z"];
-    var STARC = [[116, 145], [186, 212]];
     var LS = .58 * N / 712, LX = N / 2 - 356 * LS, LY = N / 2 - 284 * LS + N * .01;
     function place(c) { c.setTransform(LS, 0, 0, LS, LX, LY); }
     var m = new Float32Array(NN), okPath = typeof Path2D === "function";
@@ -67,7 +66,7 @@
       var oc = document.createElement("canvas"); oc.width = oc.height = N;
       var mc = oc.getContext("2d");
       if (mc) {
-        place(mc); mc.fillStyle = "#fff"; BARS.forEach(function (d) { mc.fill(new Path2D(d)); });
+        place(mc); mc.fillStyle = "#fff"; BARS.concat(STARS).forEach(function (d) { mc.fill(new Path2D(d)); });
         var md = mc.getImageData(0, 0, N, N).data;
         for (var i7 = 0; i7 < NN; i7++) m[i7] = md[i7 * 4 + 3] / 255;
         /* soft edge: two passes of a 5-pixel box blur in each direction */
@@ -86,20 +85,18 @@
       var A = STOPS[z - 1], B = STOPS[z], w = (t0 - A[0]) / (B[0] - A[0] || 1);
       for (var ch = 0; ch < 3; ch++) LUT[l * 3 + ch] = A[1][ch] + (B[1][ch] - A[1][ch]) * w;
     }
-    var NAVY = [29, 48, 87], TINT = .1;
     /* soft round envelope: the pattern fades out towards the edge like an illuminated spot */
     var env = new Float32Array(NN);
     for (var y7 = 0; y7 < N; y7++) for (var x7 = 0; x7 < N; x7++) { var rr = Math.hypot(x7 - N / 2 + .5, y7 - N / 2 + .5) / (N * .39); env[y7 * N + x7] = Math.exp(-Math.pow(rr, 6)); }
     var img = ctx.createImageData(N, N), px = img.data, G = 1.25;
-    function paint(i, Iv, mm) {
-      var n = (1 - Math.exp(-Iv / G)) * env[i], q = (n * 255) | 0, o = i * 4, k3 = TINT * mm;
-      px[o] = LUT[q * 3] + (NAVY[0] - LUT[q * 3]) * k3; px[o + 1] = LUT[q * 3 + 1] + (NAVY[1] - LUT[q * 3 + 1]) * k3;
-      px[o + 2] = LUT[q * 3 + 2] + (NAVY[2] - LUT[q * 3 + 2]) * k3; px[o + 3] = 255;
+    function paint(i, Iv) {
+      var q = ((1 - Math.exp(-Iv / G)) * env[i] * 255) | 0, o = i * 4;
+      px[o] = LUT[q * 3]; px[o + 1] = LUT[q * 3 + 1]; px[o + 2] = LUT[q * 3 + 2]; px[o + 3] = 255;
     }
     /* static field (whole canvas), then four dynamic realisations kept only at the mask pixels */
     speckle();
     var idx = [];
-    for (var i8 = 0; i8 < NN; i8++) { if (m[i8] > .004 && env[i8] > .002) idx.push(i8); else paint(i8, re[i8] * re[i8] + im[i8] * im[i8], 0); }
+    for (var i8 = 0; i8 < NN; i8++) { if (m[i8] > .004 && env[i8] > .002) idx.push(i8); else paint(i8, re[i8] * re[i8] + im[i8] * im[i8]); }
     var M = idx.length, ca = new Float32Array(M), cb = new Float32Array(M), sR = new Float32Array(M), sI = new Float32Array(M), DR = [], DI = [];
     var x0 = N, y0 = N, x1 = 0, y1 = 0;
     for (var p = 0; p < M; p++) {
@@ -113,16 +110,6 @@
       DR.push(dr); DI.push(di);
     }
     re = im = null;
-    var starPaths = okPath ? STARS.map(function (d) { return new Path2D(d); }) : [];
-    function stars() {
-      if (!starPaths.length) return;
-      /* each star drawn at 55% of its size in the mark, about its own centre */
-      ctx.fillStyle = "#F6B45D";
-      starPaths.forEach(function (sp, k4) {
-        var cx = STARC[k4][0], cy = STARC[k4][1];
-        ctx.save(); place(ctx); ctx.translate(cx, cy); ctx.scale(.55, .55); ctx.translate(-cx, -cy); ctx.fill(sp); ctx.restore();
-      });
-    }
     /* unit 4-vector of weights: the dynamic field E_dynamic = sum w_k E_k keeps developed-speckle statistics at every time */
     function frame(time) {
       var a = Math.PI / 4 + .35 * Math.sin(.21 * time), bb = time, c2 = 1.37 * time + 1;
@@ -131,13 +118,12 @@
       for (var p3 = 0; p3 < M; p3++) {
         var er = sR[p3] + w1 * R1[p3] + w2 * R2[p3] + w3 * R3[p3] + w4 * R4[p3];
         var ei = sI[p3] + w1 * I1[p3] + w2 * I2[p3] + w3 * I3[p3] + w4 * I4[p3];
-        var i9 = idx[p3]; paint(i9, er * er + ei * ei, m[i9]);
+        paint(idx[p3], er * er + ei * ei);
       }
       if (time === T0) ctx.putImageData(img, 0, 0);
       else if (M) ctx.putImageData(img, 0, 0, x0, y0, x1 - x0 + 1, y1 - y0 + 1);
-      stars();
     }
-    var T0 = .6, t = T0, last = 0, raf = 0, playing = !(H.reduce || H.still), vis = true, SPEED = .55;
+    var T0 = .6, t = T0, last = 0, raf = 0, playing = !(H.reduce || H.still), vis = true, SPEED = .8;
     frame(t);
     if (!pp) return;
     if (H.reduce || H.still) { pp.hidden = true; return; }
