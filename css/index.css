@@ -232,3 +232,18 @@
 @media (max-width: 560px) {
   .tiles > li, .tiles > li:nth-child(n) { grid-column: span 12; }
 }
+
+/* 2026-10-15: all four theme tiles share one size and one 4:3 image frame at every width */
+.tiles > li, .tiles > li:nth-child(n) { grid-column: span 3; }
+.tiles .tile .media, .tiles > li:nth-child(n) .tile .media { width: 100%; height: auto; aspect-ratio: 4 / 3; }
+@media (max-width: 1080px) { .tiles > li, .tiles > li:nth-child(n) { grid-column: span 6; } }
+@media (max-width: 600px) { .tiles > li, .tiles > li:nth-child(n) { grid-column: span 12; } }
+/* Computational Microscopy tile: light travelling left to right along the optical axis of the rendering */
+.media.flow > img { padding: 4% 6%; transform-origin: 50% 50%; animation: flow-drift 14s ease-in-out infinite alternate; }
+.media.flow::before { content: ""; position: absolute; inset: -10% auto -10% 0; width: 38%; z-index: 1; pointer-events: none;
+  background: linear-gradient(100deg, transparent 0%, color-mix(in srgb, var(--sky) 55%, transparent) 45%, color-mix(in srgb, var(--white) 70%, transparent) 50%, color-mix(in srgb, var(--sky) 55%, transparent) 55%, transparent 100%);
+  mix-blend-mode: soft-light; transform: translateX(-120%); animation: flow-sweep 4.8s cubic-bezier(.45,.05,.25,1) infinite; }
+@keyframes flow-sweep { 0% { transform: translateX(-120%); opacity: 0; } 12% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateX(300%); opacity: 0; } }
+@keyframes flow-drift { from { transform: translateX(-1.5%) scale(1.02); } to { transform: translateX(1.5%) scale(1.02); } }
+@media (prefers-reduced-motion: reduce) { .media.flow > img, .media.flow::before { animation: none; } .media.flow::before { display: none; } }
+.tiles > li { display: flex; } .tiles > li > .tile { flex: 1; }

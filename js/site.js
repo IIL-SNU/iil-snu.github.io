@@ -183,7 +183,7 @@
      and two Resources cards. research.js claims them first, so its project sheets never repeat them. */
   /* PI 2026-10-15: Computational Microscopy shows the lab's smartphone FP microscope (instrument photo), Lensless Cameras the
      Optica 2023 camera module (phase mask and aperture on a board-level sensor), not a bench setup */
-  H.FIG_HOME = { fp: "smartphone-fp-microscope-photo.jpg", lensless: "lensless-camera-module-with-coin.jpg",
+  H.FIG_HOME = { fp: "assets/research2/fp/pupil-multiplexing-fp-render.png", lensless: "assets/research2/lensless/turing-phase-mask-photo.jpg",
     speckle: "rssi-in-vivo-time-lapse-poster.jpg", hbi: "assets/research/hbi/euglpollock-exhibition.jpg" };
   H.FIG_THEME = { fp: ["fp-forward-model-schematic.png", "fp-high-res-he-glands.jpg"], vs: ["phase-to-he-and-ihc-split.jpg"],
     lensless: ["assets/research/lensless/uv-imprint-integrated-camera-prototype.jpg", "phase-mask-height-map-3d.jpg"] };

@@ -119,8 +119,8 @@
   /* one figure per theme (H.FIG_HOME in site.js); research figures stay small on this page. The themes are parallel areas,
      not steps: tiles carry no sequence numbers and no arrows (PI 2026-10-15). */
   var TILE = {
-    fp: { pos: "50% 64%", sub: "Fourier ptychography, phase and polarization imaging, virtual staining" },
-    lensless: { pos: "50% 46%", sub: "Phase masks and learned reconstruction" },
+    fp: { mat: "contain mat-white flow", alt: "Rendering of a Fourier ptychographic microscope with pupil-plane polarization multiplexing", cap: "Pupil-plane multiplexing Fourier ptychographic microscope: LED array, sample, objective, split polarizer and camera.", credit: "H. Chae et al., Laser & Photonics Reviews 2026", pos: "50% 50%", sub: "Fourier ptychography, phase and polarization imaging, virtual staining" },
+    lensless: { alt: "Fabricated phase mask with a Turing-pattern relief, backlit", cap: "Phase mask with a Turing-pattern relief, fabricated in one exposure by grayscale lithography.", credit: "Imaging Intelligence Laboratory", pos: "50% 50%", sub: "Phase masks and learned reconstruction" },
     speckle: { video: "assets/research2/video/rssi-in-vivo-time-lapse.mp4", pos: "50% 50%", sub: "Blood-flow imaging with rolling-shutter speckle" },
     hbi: { pos: "50% 50%", sub: "Interactive experiments with living microorganisms (past work)" }
   };

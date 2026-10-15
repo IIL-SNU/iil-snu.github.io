@@ -17,6 +17,8 @@
   /* figure per highlighted paper (from the research figure library) */
   var R = "assets/research2/";
   var FIG = {
+    byun2026physicsguided: R + "speckle/physics-guided-speckle-network.png",
+    bae2026integrated: R + "lensless/ifin-network-blocks.png",
     kang2026geometryaware: R + "lensless/gapc-asm-psf-fidelity-study.jpg",
     chae2026pupil: R + "fp/starch-birefringence-jones.jpg",
     lee2026semisupervised: R + "vs/learned-illumination-raw.jpg",
