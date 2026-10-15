@@ -82,7 +82,7 @@
 
   var pt = IIL.patents || [];
   document.getElementById("pt-count").textContent = pt.length + " patents";
-  document.getElementById("patents").innerHTML = pt.map(function (p) {
+  document.getElementById("pat-list").innerHTML = pt.map(function (p) {
     var inv = esc(p.inventors || "").replace(/SA Lee/g, "<strong>SA Lee</strong>");
     var st = p.status === "granted" ? "Granted" : (p.status === "application" ? "Application" : esc(p.status || ""));
     return '<li data-rv><a class="pat" href="' + esc(p.url) + '" target="_blank" rel="noopener"><span class="pat-t"><span class="ul-t">' + esc(p.title) + "</span></span>" +
@@ -130,5 +130,37 @@
   }
   apply();
   H.press(document.getElementById("press-c"), "en");
+
+  /* ---------- section tabs under the title: Publications / Patents / Press coverage ----------
+     Without scripts all three sections stay on the page and the tabs are plain anchors. With scripts one section is
+     shown at a time (body[data-view]); the URL hash (#papers, #patents, #press; #h-patents for old links) selects it. */
+  document.getElementById("tn-papers").textContent = pubs.length;
+  document.getElementById("tn-patents").textContent = pt.length;
+  document.getElementById("tn-press").textContent = (IIL.press || []).length;
+  var tabs = Array.prototype.slice.call(document.querySelectorAll("#p-tabs a"));
+  var VIEWS = { papers: 1, patents: 1, press: 1 }, ALIAS = { "h-patents": "patents", "h-press": "press" };
+  function show(v, scroll) {
+    if (!VIEWS[v]) v = "papers";
+    document.body.setAttribute("data-view", v);
+    tabs.forEach(function (a) { if (a.getAttribute("data-view") === v) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current"); });
+    if (scroll) window.scrollTo({ top: 0, behavior: "auto" });
+    H.reveal();
+  }
+  function fromHash() { var h = location.hash.slice(1); return ALIAS[h] || h; }
+  tabs.forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      var v = a.getAttribute("data-view");
+      history.replaceState(null, "", v === "papers" ? location.pathname + location.search : "#" + v);
+      show(v, false);
+    });
+  });
+  window.addEventListener("hashchange", function () { show(fromHash(), true); });
+  show(fromHash(), false);
+  /* a hash such as #patents also matches an element id; keep the tabs at the top instead of jumping to it */
+  if (location.hash && !H.prerender) {
+    window.scrollTo(0, 0);
+    window.addEventListener("load", function () { setTimeout(function () { window.scrollTo(0, 0); }, 0); });
+  }
   H.reveal();
 })();
