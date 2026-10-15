@@ -50,13 +50,13 @@
 .th-back { margin-top: clamp(32px, 4vw, 52px); display: flex; gap: 10px; flex-wrap: wrap; }
 
 @media (max-width: 900px) {
-  .th-plist { grid-template-columns: 1fr; }
+  .th-plist { grid-template-columns: minmax(0, 1fr); }
   .th-body .t-media { order: 0; }
 }
 @media (max-width: 560px) {
   .th-p { padding: 18px; }
   .th-facts { padding: 4px 18px 14px; }
-  .th-facts dl > div { grid-template-columns: 1fr; gap: 4px; }
+  .th-facts dl > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
 }
 
 /* ---------- Korean page ---------- */

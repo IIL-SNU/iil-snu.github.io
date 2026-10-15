@@ -128,8 +128,8 @@ a.al-n:hover .arr { transform: translate(2px, -2px); }
   .nd-b { padding: 0 1px; }
   .nd-n { font-size: 12.5px; margin-top: 8px; }
   .nd-r { font-size: 11.5px; }
-  .cd { width: 248px; }
-  .nd.cd-b .cd { left: calc(50% - 124px + var(--sx, 0px)); }
+  .cd { width: 276px; } /* wide enough for the longest member email and its Copy button on one line (2026-10-16) */
+  .nd.cd-b .cd { left: calc(50% - 138px + var(--sx, 0px)); }
   .nd.pi .cd { width: min(300px, calc(100vw - 24px)); }
   .nd.pi.cd-b .cd { left: calc(50% - min(150px, 50vw - 12px) + var(--sx, 0px)); }
   .mosaic { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 124px; }
@@ -169,3 +169,5 @@ a.al-n:hover .arr { transform: translate(2px, -2px); }
 .al-em { justify-self: start; margin-top: 2px; font-size: 13px; color: var(--ink-3); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; overflow-wrap: anywhere; transition: color .25s, text-decoration-color .25s; }
 .al-em:hover, .al-em:focus-visible { color: var(--navy); text-decoration-color: var(--steel); }
 @media (max-width: 640px) { .tc-ph { display: block; margin: 2px 0 0; } }
+/* 2026-10-16: the email address and its Copy button stay on one line (the button no longer wraps alone on phones) */
+.tc-em { white-space: nowrap; }

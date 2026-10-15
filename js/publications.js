@@ -1,9 +1,7 @@
-/* Publications: grouped by year, text search, topic filter chips; highlighted papers carry a figure thumbnail with hover zoom. */
 (function () {
   "use strict";
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
   var pubs = (IIL.pubs || []).slice().sort(function (a, b) { return b.year - a.year; });
-  /* four themes; virtual staining is part of computational microscopy and stays available as a sub-filter */
   var TOPICS = [["all", "All"], ["micro", "Computational microscopy"], ["vs", "Virtual staining"], ["lensless", "Lensless cameras"], ["speckle", "Dynamic speckle imaging"], ["hbi", "Interactive biology"], ["other", "Other"]];
   function topicsOf(p) {
     var t = [];
@@ -14,7 +12,6 @@
     return t.length ? t : ["other"];
   }
   var TNAME = {}; TOPICS.forEach(function (t) { TNAME[t[0]] = t[1]; });
-  /* figure per highlighted paper (from the research figure library) */
   var R = "assets/research2/";
   var FIG = {
     byun2026physicsguided: R + "speckle/physics-guided-speckle-network.png",
@@ -32,24 +29,18 @@
     lee2023design: R + "lensless/custom-psfs-raw-and-reconstructions.jpg",
     yi2022singleshot: R + "speckle/rssi-principle.jpg",
     baek2022lensless: R + "lensless/polarization-camera-exploded-render.png",
-    lee2022fabrication: R + "lensless/uv-imprint-process-and-device-structure.png", /* figure of the paper; the camera photo is on the Lensless Cameras page */
+    lee2022fabrication: R + "lensless/uv-imprint-process-and-device-structure.png",
     yi2021remember: R + "hbi/remember-pipeline.png",
     lee2021smartphonebased: "assets/research/fp/smartphone-fp-blood-smear-amplitude-phase.jpg"
   };
-
   var PHOTO = { lee2022euglpollock: true };
-  /* arXiv versions recorded in the research data (data/research_lensless.js, IFIN refs) */
   var ARXIV = { bae2026integrated: "2607.04608" };
   function authors(s) { return esc(s).replace(/Lee, S\.A\.(\*?)/g, "<strong>Lee, S.A.$1</strong>"); }
-
-  /* 2019 and later by year; everything before 2019 in one "Pre-group" block (PI request 2026-10-15) */
   var PRE = 2019;
   var years = [], all = [];
   pubs.forEach(function (p) { if (all.indexOf(p.year) < 0) all.push(p.year); if (p.year >= PRE && years.indexOf(p.year) < 0) years.push(p.year); });
   var pre = pubs.filter(function (p) { return p.year < PRE; });
   var preRange = pre.length ? pre[pre.length - 1].year + "–" + pre[0].year : "";
-  document.getElementById("p-total").textContent = pubs.length + " publications, " + all[all.length - 1] + "–" + all[0];
-
   var groups = years.map(function (y) { return { id: "y" + y, h: "<span>" + y + "</span>", items: pubs.filter(function (p) { return p.year === y; }) }; });
   if (pre.length) groups.push({ id: "pre-group", pre: true, h: '<span>Pre-group<span class="yr-sub">publications (' + preRange + ")</span></span>", items: pre });
   document.getElementById("pubs").innerHTML = groups.map(function (g) {
@@ -57,7 +48,7 @@
     return '<section class="yr' + (g.pre ? " yr-pre" : "") + '" aria-labelledby="' + g.id + '"><h2 class="yr-h" id="' + g.id + '">' + g.h + '<span class="yr-n">' + items.length + '</span></h2><ol class="yr-list">' +
       items.map(function (p) {
         var href = p.url || (p.doi ? "https://doi.org/" + p.doi : "");
-        var t = href ? '<a class="pub-t" href="' + esc(href) + '" target="_blank" rel="noopener"><span class="ul-t">' + esc(p.title) + '</span> <span class="ext" aria-hidden="true">&#8599;</span></a>' : '<span class="pub-t">' + esc(p.title) + "</span>";
+        var t = href ? '<a class="pub-t" href="' + esc(href) + '" target="_blank" rel="noopener"><span class="ul-t">' + esc(p.title) + '</span>&nbsp;<span class="ext" aria-hidden="true">&#8599;</span></a>' : '<span class="pub-t">' + esc(p.title) + "</span>";
         var text = [p.title, p.authors, p.venue, p.venueShort, p.year, p.doi].join(" ").toLowerCase();
         var tp = topicsOf(p);
         var fig = FIG[p.id], thumb = "";
@@ -79,7 +70,6 @@
           (tag ? '<span class="tag blush">' + tag + "</span>" : "") + (p.era === "pre" ? '<span class="tag plain">Before IIL</span>' : "") + "</p></div></li>";
       }).join("") + "</ol></section>";
   }).join("");
-
   var pt = IIL.patents || [];
   document.getElementById("pt-count").textContent = pt.length + " patents";
   document.getElementById("pat-list").innerHTML = pt.map(function (p) {
@@ -88,13 +78,11 @@
     return '<li data-rv><a class="pat" href="' + esc(p.url) + '" target="_blank" rel="noopener"><span class="pat-t"><span class="ul-t">' + esc(p.title) + "</span></span>" +
       '<span class="pat-i">' + inv + '</span><span class="pat-m">' + esc(p.number) + " &middot; " + st + " " + esc(p.year) + "</span></a></li>";
   }).join("");
-
   var chips = document.getElementById("chips"), state = { t: "all", q: "" };
   chips.innerHTML = TOPICS.map(function (t) {
     var n = t[0] === "all" ? pubs.length : pubs.filter(function (p) { return topicsOf(p).indexOf(t[0]) >= 0; }).length;
     return '<button type="button" class="chip" data-t="' + t[0] + '" data-th="' + (t[0] === "micro" ? "fp" : t[0]) + '" aria-pressed="' + (t[0] === "all") + '">' + t[1] + ' <span class="n">' + n + "</span></button>";
   }).join("");
-
   var q = document.getElementById("q"), count = document.getElementById("count"), none = document.getElementById("none");
   var lis = Array.prototype.slice.call(document.querySelectorAll(".pub")), secs = Array.prototype.slice.call(document.querySelectorAll(".yr"));
   function apply() {
@@ -130,10 +118,6 @@
   }
   apply();
   H.press(document.getElementById("press-c"), "en");
-
-  /* ---------- section tabs under the title: Publications / Patents / Press coverage ----------
-     Without scripts all three sections stay on the page and the tabs are plain anchors. With scripts one section is
-     shown at a time (body[data-view]); the URL hash (#papers, #patents, #press; #h-patents for old links) selects it. */
   document.getElementById("tn-papers").textContent = pubs.length;
   document.getElementById("tn-patents").textContent = pt.length;
   document.getElementById("tn-press").textContent = (IIL.press || []).length;
@@ -157,7 +141,6 @@
   });
   window.addEventListener("hashchange", function () { show(fromHash(), true); });
   show(fromHash(), false);
-  /* a hash such as #patents also matches an element id; keep the tabs at the top instead of jumping to it */
   if (location.hash && !H.prerender) {
     window.scrollTo(0, 0);
     window.addEventListener("load", function () { setTimeout(function () { window.scrollTo(0, 0); }, 0); });

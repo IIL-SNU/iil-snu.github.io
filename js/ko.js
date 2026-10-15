@@ -1,6 +1,3 @@
-/* Korean page (ko.html): research by application area. Published results only (data/pubs.js,
-   data/research_*.js facts, data/resources.js); no unpublished numbers and no company projects.
-   {id} or {id;id} in the text becomes a citation with a DOI link from data/pubs.js; {@url|label} links to a URL. */
 (function () {
   "use strict";
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
@@ -8,7 +5,6 @@
   var byId = {};
   (IIL.pubs || []).forEach(function (p) { byId[p.id] = p; });
   function $(id) { return document.getElementById(id); }
-
   function person(a) {
     var m = String(a).replace(/\*/g, "").trim().match(/^([^,]+),\s*(.+)$/);
     if (!m) return a;
@@ -27,8 +23,6 @@
     }).filter(Boolean).join("; ") + ")</span>";
   }
   function fill(s) { return esc(s).replace(/\{([^}]+)\}/g, function (m, ids) { return cite(ids.split(";")); }); }
-
-  /* Korean copy rewritten 2026-10-15 (PI: plain 합니다체, no list-label colons, no translationese; facts unchanged) */
   var AREAS = [
     { th: "fp", h: "바이오·의료 영상 장비",
       p: "염색하지 않은 세포와 조직에서 정량 위상과 복굴절을 측정하는 현미경을 개발합니다. 무염색 조직 슬라이드를 H&E 염색 영상으로 바꾸는 가상 염색과, 일반 카메라 센서로 혈류를 측정하는 동적 스페클 이미징도 연구합니다.",
@@ -36,8 +30,8 @@
         "푸리에 타이코그래피 현미경(Fourier ptychographic microscopy, FPM)은 LED나 디스플레이로 시료를 여러 각도에서 비추며 저배율 대물렌즈로 영상을 여러 장 찍습니다. 이 영상들을 합쳐 넓은 시야의 고해상도 영상과 정량 위상 영상을 얻습니다. 스마트폰으로 만든 FPM의 해상도는 2.1 × 1.6 mm² 시야에서 870 nm(half-pitch)입니다. {lee2021smartphonebased}",
         "단일 촬영 FPM은 편광으로 구분한 조명을 동시에 비추어, 영상 한 장으로 대물렌즈 회절 한계의 2.5배 해상도를 얻습니다. 정량 위상 동영상은 초당 75프레임으로 찍을 수 있습니다. {yoon2025singleshot}",
         "편광 FPM은 동공면을 편광 필름으로 나누어, 흑백 카메라 한 대로 복굴절과 광축 방향, 위상을 한 번에 측정합니다. {chae2026pupil}",
-        "가상 염색은 염색하지 않은 조직의 위상 영상을 신경망으로 H&E 염색 영상으로 바꾸는 디지털 병리 기술입니다. 10년쯤 지나 색이 바랜 병리 슬라이드를 이 방법으로 복원했습니다. 학습으로 얻은 조명 패턴 16개를 쓰면 4 mm × 3 mm 영역을 약 5초 만에 촬영할 수 있습니다. {chae2024restoring;lee2026semisupervised}",
-        "동적 스페클 이미징에서는 롤링셔터 스페클 영상법(rolling-shutter speckle imaging, RSSI)을 개발했습니다. 일반 CMOS 이미지 센서는 영상을 한 줄씩 차례로 읽는데, 이 방식을 이용하면 사진 한 장으로 혈류 지도를 얻을 수 있습니다. 손끝 맥파를 재는 RSSPG는 기존 광용적맥파(PPG)보다 중복맥 패임(dicrotic notch)을 14배 더 뚜렷하게 측정했습니다. {yi2022singleshot;lee2024rolling}"
+        "가상 염색은 염색하지 않은 조직의 위상 영상을 신경망으로 H&E 염색 영상으로 바꾸는 디지털 병리 기술입니다. 약 10년이 지나 색이 바랜 병리 슬라이드를 이 방법으로 복원했습니다. 학습으로 얻은 조명 패턴 16개를 쓰면 4 mm × 3 mm 영역을 약 5초 만에 촬영할 수 있습니다. {chae2024restoring;lee2026semisupervised}",
+        "동적 스페클 이미징에서는 롤링 셔터 스페클 이미징(rolling-shutter speckle imaging, RSSI)을 개발했습니다. 일반 CMOS 이미지 센서는 영상을 한 줄씩 차례로 읽는데, 이 방식을 이용하면 사진 한 장으로 혈류 지도를 얻을 수 있습니다. 손끝 맥파를 재는 RSSPG는 기존 광용적맥파(PPG)보다 중복맥 패임(dicrotic notch)을 14배 더 뚜렷하게 측정했습니다. {yi2022singleshot;lee2024rolling}"
       ],
       links: [["computational-microscopy.html", "계산 현미경 (영문)"], ["computational-microscopy.html#virtual-staining", "가상 염색 (영문)"], ["speckle-imaging.html", "동적 스페클 이미징 (영문)"]] },
     { th: "speckle", h: "반도체·디스플레이 광학 계측·검사",
@@ -62,15 +56,12 @@
       ],
       links: [["lensless-cameras.html", "렌즈리스 카메라 (영문)"]] }
   ];
-
   $("ko-pi").textContent = ID.piIntroKo || "";
   $("ko-areas").innerHTML = AREAS.map(function (a, i) {
     return '<section class="ko-area" data-th="' + a.th + '" aria-labelledby="ko-a' + i + '" data-rv><h3 class="h2" id="ko-a' + i + '">' + esc(a.h) + "</h3>" +
       "<p>" + esc(a.p) + "</p><ul>" + a.items.map(function (s) { return "<li>" + fill(s) + "</li>"; }).join("") + "</ul>" +
       '<p class="ko-links">' + a.links.map(function (l) { return '<a class="ul" href="' + l[0] + '">' + esc(l[1]) + "</a>"; }).join("") + "</p></section>";
   }).join("");
-
-  /* representative papers (data/pubs.js) */
   var SEL = ["chae2026pupil", "lee2026semisupervised", "bae2026integrated", "kang2026geometryaware", "yoon2025singleshot", "chae2024restoring", "lee2024highresolution", "lee2024rolling", "lee2023design", "kim2023apertureencoded", "yi2022singleshot", "baek2022lensless", "lee2022fabrication", "lee2021smartphonebased"];
   $("ko-pubs").innerHTML = SEL.map(function (id) {
     var p = byId[id]; if (!p) return "";
@@ -79,16 +70,12 @@
       '<p class="th-pv"><em>' + esc(p.venue) + "</em>" + (p.details ? ", " + esc(p.details) : "") + " (" + p.year + ")" +
       (p.doi ? ' <a class="pub-id" href="https://doi.org/' + esc(p.doi) + '" target="_blank" rel="noopener">doi:' + esc(p.doi) + "</a>" : "") + "</p></li>";
   }).join("");
-
-  /* patents of the laboratory (data/pubs.js IIL.patents) */
   var PAT = ["US12108134B2", "US12062190B2", "US11880965B2"];
   $("ko-pat").innerHTML = (IIL.patents || []).filter(function (p) { return PAT.indexOf(p.number) >= 0; }).map(function (p) {
     return '<li lang="en"><p class="th-pt"><a class="ul" href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.title) + "</a></p>" +
       '<p class="th-pa">' + esc(p.inventors).replace(/SA Lee/g, "<strong>SA Lee</strong>") + "</p>" +
       '<p class="th-pv">' + esc(p.number) + ", " + (p.status === "granted" ? "granted" : esc(p.status)) + " " + esc(p.year) + "</p></li>";
   }).join("");
-
-  /* contact */
   var c = pi.contact || {};
   $("ko-mail").innerHTML = '<a class="ul" href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a><button class="copy" type="button" data-copy="' + esc(c.email) + '" aria-label="이메일 주소 복사">Copy</button>';
   H.press(document.getElementById("press-c"), "ko");

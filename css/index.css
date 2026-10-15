@@ -141,7 +141,7 @@
   .news-ctrl { width: 100%; }
 }
 
-/* news logo cards: official marks contained and centred on a palette tint */
+/* news logo cards: official marks contained and centered on a palette tint */
 .ev .logo-card { display: grid; place-items: center; padding: 14% 16%; background: var(--sky-soft); }
 .ev .logo-card img { width: 100%; height: 100%; object-fit: contain; transform: none; }
 .ev .logo-card.lc-talk, .ev .logo-card.lc-service { background: var(--lav-soft); }
@@ -189,15 +189,10 @@
 .news-sec .chip:not([aria-pressed="true"]) { background: color-mix(in srgb, var(--white) 70%, transparent); box-shadow: none; }
 .news-sec .chip:not([aria-pressed="true"]):hover { background: var(--blush); }
 
-/* ---------- principal investigator (standard intro, data/identity.js) ---------- */
-.pi-sec { padding: clamp(48px, 6vw, 88px) 0; background: var(--white); }
-.pi-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(24px, 5vw, 80px); align-items: start; }
-.pi-sec .eyebrow { margin-bottom: 10px; }
-.pi-sec .h2 a { transition: color .25s; }
-.pi-sec .h2 a:hover { color: var(--steel); }
-.pi-sec .lede { max-width: 68ch; }
-.pi-links { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; }
-@media (max-width: 900px) { .pi-grid { grid-template-columns: 1fr; gap: 14px; } }
+/* faces strip: the PI portrait is a link to pi.html (the home PI section was removed 2026-10-16) */
+.faces .f-pi { display: block; border-radius: 50%; }
+.faces .f-pi:focus-visible { outline: 2px solid var(--steel); outline-offset: 3px; }
+.faces li:focus-within .nm { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---------- hero (PI 2026-10-15): text first, a small computed speckle pattern beside it; no photograph, no carousel ---------- */
 .hero { padding: clamp(36px, 5vw, 84px) 0 clamp(44px, 5.5vw, 88px); }
@@ -215,7 +210,7 @@
 .viz-pp[aria-pressed="true"] .i-play { display: block; }
 .viz-pp[aria-pressed="true"] .i-pause { display: none; }
 .hero-viz .caption { margin-top: 12px; max-width: 46ch; }
-/* theme tiles: a colour dot instead of a sequence number, no arrows (the themes are parallel areas) */
+/* theme tiles: a color dot instead of a sequence number, no arrows (the themes are parallel areas) */
 .t-row .t-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--th, var(--steel)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--navy) 14%, transparent); transform: translateY(-1px); align-self: center; }
 .tile:hover .t-row .t-dot { background: var(--white); }
 .tile .t-sub { padding-left: calc(10px + 14px + 8px); }
@@ -255,8 +250,17 @@
 }
 @media (max-width: 980px) { .hero-viz { justify-self: center; width: min(100%, 460px); margin: 8px auto 0; } }
 /* Computational Microscopy tile: the row of the lab's FP microscopes (2160 x 450) is wider than the tile, so it pans slowly
-   left and right (ping-pong, eased); with reduced motion and in still captures it stays centred (PI 2026-10-15) */
+   left and right (ping-pong, eased); with reduced motion and in still captures it stays centered (PI 2026-10-15) */
 .tile .media > img.pan-x { object-fit: cover; object-position: 0% 50%; background: var(--white); animation: pan-x 18s cubic-bezier(.45, 0, .55, 1) infinite alternate; }
 @keyframes pan-x { from { object-position: 0% 50%; } to { object-position: 100% 50%; } }
 @media (prefers-reduced-motion: reduce) { .tile .media > img.pan-x { animation: none; object-position: 50% 50%; } }
 .still .tile .media > img.pan-x { animation: none; object-position: 50% 50%; }
+/* 2026-10-16: Computational Microscopy tile. The row (2160 x 450 px, six panels) is drawn at 79% of the tile height, so the
+   4:3 tile shows a 760 px-wide window of it whose edges fall in the white gaps between panels: at rest (still captures, reduced
+   motion) the polarized FP and pupil-division schematics (x = 740-1500 px) with all labels whole; when moving, it pans from the
+   first two panels to the last two. "translate" (not "transform") so the hover zoom still applies. */
+.tile .media:has(> img.pan-x) { background: var(--white); }
+.tile .media > img.pan-x, .still .tile .media > img.pan-x { position: absolute; left: 0; top: 10.5%; width: auto; height: 79%; max-width: none; object-fit: fill; object-position: 0 0; background: transparent; translate: 0 0; animation: pan-row 18s cubic-bezier(.45, 0, .55, 1) infinite alternate; }
+@keyframes pan-row { from { translate: 0 0; } to { translate: -64.8% 0; } }
+.still .tile .media > img.pan-x { animation: none; translate: -34.26% 0; }
+@media (prefers-reduced-motion: reduce) { .tile .media > img.pan-x { animation: none; translate: -34.26% 0; } }

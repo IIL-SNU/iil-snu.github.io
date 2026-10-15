@@ -1,28 +1,21 @@
-/* H1 Palette: shared behaviour (helpers, entrance motion, header, menu, focus trap, copy email,
-   parallax inside frames, cursor-following loupe, lightbox). Namespace: window.H1. */
 (function () {
   "use strict";
   var root = document.documentElement;
   var reduce = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  /* ?still renders the final state without motion (for static screenshots). */
   var still = /[?&]still\b/.test(location.search);
   if (still) { root.classList.add("still"); reduce = true; }
-  /* ?prerender (used only by _dev/build_deploy.py): render the content without motion so the static snapshot is clean */
   var prerender = /[?&]prerender\b/.test(location.search);
   if (prerender) reduce = true;
   var fine = !!(window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches);
   var BASE = "";
-
   var H = (window.H1 = {});
   H.base = BASE; H.reduce = reduce; H.still = still; H.fine = fine; H.prerender = prerender;
   H.esc = function (s) {
     return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   };
-  /* normalised headshots (assets/people/norm, same 4:5 frame, face height and eye line matched across people; crop/scale only) */
   H.face = function (src, small) { return String(src || "").replace("assets/people/", small ? "assets/people/norm/sm/" : "assets/people/norm/"); };
   H.dims = function (src) { return (window.IIL_DIMS && window.IIL_DIMS[src]) || null; };
   H.url = function (src) { return /^img\//.test(src) ? src : BASE + src; };
-  /* <img> with intrinsic size. src is relative to the site root, or local when it starts with img/ */
   H.img = function (src, alt, o) {
     o = o || {};
     var d = o.wh || H.dims(src) || [1600, 1000];
@@ -35,8 +28,6 @@
     a += o.eager ? ' fetchpriority="high"' : (still ? "" : ' loading="lazy"');
     return a + ' decoding="async">';
   };
-  /* responsive variants of research figures (assets/research/sm/400|800, PNGs are stored as JPEG there) */
-  /* assets/research2 variants are local to this concept: img/sm/research2/400|800/... */
   H.sm = function (src, w) {
     if (/^assets\/research2\//.test(src)) return src.replace("assets/research2/", "img/sm/research2/" + w + "/").replace(/\.png$/, ".jpg");
     return src.replace("assets/research/", "assets/research/sm/" + w + "/").replace(/\.png$/, ".jpg");
@@ -47,14 +38,10 @@
     out.push(BASE + src + " " + full + "w");
     return out.join(", ");
   };
-  /* smallest variant at least w pixels wide (for thumbnails and loupe-free cards) */
   H.thumb = function (src, w) {
     var s = H.sm(src, w <= 400 ? 400 : 800);
     return H.dims(s) ? s : src;
   };
-
-  /* ---------- curated research media (data/media_research.js) ----------
-     status "presented": shown in talks only, so captions lose numeric details and the credit says so. */
   var MR = ((window.IIL && IIL.mediaResearch) || []).slice();
   var KORD = { hero: 1, hardware: 2, result: 3, figure: 4, diagram: 5, animation: 6 };
   H.mrCap = function (m) {
@@ -71,7 +58,6 @@
   H.mrFig = function (m) {
     return m ? { src: m.src, alt: H.mrCap(m), caption: H.mrCap(m), credit: H.mrCredit(m), kind: m.kind, status: m.status, theme: m.theme, project: m.project, w: m.width, h: m.height, video: m.video, labels: m.labels } : null;
   };
-  /* page that owns each image ("place" in the data): other pages skip it, so no image repeats across the site */
   H.page = (location.pathname.split("/").pop() || "index.html").replace(/\.html$/, "") || "index";
   MR = MR.filter(function (m) { return !m.hidden; });
   H.mr = function (q) {
@@ -85,16 +71,10 @@
     });
     return out.map(H.mrFig);
   };
-  /* one-use registry for the current page: claim(src) is true the first time a file (any size variant) is used */
   var USED = {};
   H.key = function (src) { return String(src || "").split("/").pop().replace(/\.(jpe?g|png|webp|gif|svg|mp4)$/i, ""); };
   H.claim = function (src) { var k = H.key(src); if (!k || USED[k]) return false; USED[k] = 1; return true; };
   H.isUsed = function (src) { return !!USED[H.key(src)]; };
-  /* news card media (shared by Home and Team so the Team gallery can skip photos already shown on Home).
-     Priority: lab photo, then a figure from the paper for paper-related items (IIL.newsPaperFigs, data/news_paperfigs.js),
-     then a matching lab event photo (gallery), then the verified official logo of the event/organisation (IIL.newsLogos,
-     data/news_logos.js), then a text panel. No journal covers or proposal diagrams. Photos and figures are used once;
-     logos may recur (same organisation), so they are not claimed. */
   var NEWS_SKIP = /lab_group_snu|lab_interior|assets\/people\/|assets\/news\/people\//;
   H.newsMedia = function () {
     if (H._nm) return H._nm;
@@ -133,13 +113,11 @@
     H._nmKeys = seen;
     return H._nm;
   };
-  /* muted looping video with poster: pauses offscreen, never autoplays with reduced motion or in ?still captures */
   H.video = function (src, poster, label, o) {
     o = o || {};
     var d = H.dims(poster) || [1280, 720];
     return '<video class="vid' + (o.cls ? " " + o.cls : "") + '" muted loop playsinline preload="none" poster="' + H.esc(H.url(poster)) + '" width="' + d[0] + '" height="' + d[1] + '" aria-label="' + H.esc(label || "") + '" data-src="' + H.esc(H.url(src)) + '"></video>';
   };
-  /* labels over a side-by-side video (left panel, right panel), e.g. raw sensor image and reconstruction */
   H.vidLabels = function (l) {
     return l && l.length === 2 ? '<span class="cmp-lab l vid-lab" aria-hidden="true">' + H.esc(l[0]) + '</span><span class="cmp-lab r vid-lab" aria-hidden="true">' + H.esc(l[1]) + "</span>" : "";
   };
@@ -171,8 +149,6 @@
     if (!m) return H.esc(d);
     return m[2] ? (short ? MON : MONTHS)[+m[2] - 1] + " " + m[1] : m[1];
   };
-  /* ---------- research themes: four themes; Virtual Staining (data key "vs") is a sub-area of Computational Microscopy ("fp").
-     The data files keep five entries (data/research_*.js); pages group them through these helpers. ---------- */
   H.PARENT = { vs: "fp" };
   H.SUBTITLE = { vs: "Virtual staining" };
   H.mainKey = function (k) { return H.PARENT[k] || k; };
@@ -181,20 +157,11 @@
   H.themes = function () { return H.allThemes().filter(function (t) { return !H.PARENT[t.key]; }); };
   H.subthemes = function (k) { return H.allThemes().filter(function (t) { return H.PARENT[t.key] === k; }); };
   H.themeData = function (k) { var a = H.allThemes(); for (var i = 0; i < a.length; i++) if (a[i].key === k) return a[i]; return null; };
-  /* display title of the main theme a data key belongs to ("vs" -> "Computational Microscopy") */
   H.themeTitle = function (k) { var t = H.themeData(H.mainKey(k)); return t ? t.title : ""; };
-  /* research figures placed on pages other than research.html (one image, one place): the Home theme tiles, the theme pages
-     and two Resources cards. research.js claims them first, so its project sheets never repeat them. */
-  /* PI 2026-10-15: Computational Microscopy shows the row of FP microscopes built in the lab (the tile pans across it), Lensless
-     Cameras a short movie of a fabricated Turing-pattern phase mask (tweezers macro photo, then backlit) */
   H.FIG_HOME = { fp: "fp-hardware-family-row.png", lensless: "turing-mask-zoom-poster.jpg",
     speckle: "rssi-in-vivo-time-lapse-poster.jpg", hbi: "assets/research/hbi/euglpollock-exhibition.jpg" };
-  /* Lensless Cameras page: a raw-to-reconstruction video of the lab's lensless depth camera, then the UV-imprint camera
-     prototype (figure of Y. Lee, H. Chae et al., IEEE Photonics J. 2022) and a designed phase-mask surface */
   H.FIG_THEME = { fp: ["fp-forward-model-schematic.png", "fp-high-res-he-glands.jpg"], vs: ["phase-to-he-and-ihc-split.jpg"],
     lensless: ["lensless-raw-to-reconstruction-blocks-poster.jpg", "assets/research/lensless/uv-imprint-integrated-camera-prototype.jpg", "phase-mask-height-map-3d.jpg"] };
-  /* Resources cards, the Publications figure of the UV-imprint paper, its 3D-refocusing figure on the Home news card, and
-     live-cells-fp-phase-full-fov (the uncropped field of live-cells-fp-phase-wide, kept off the project sheets so the two never appear together) */
   H.FIG_OTHER = ["lensless-camera-schematic.png", "ifin-mask-height-and-psfs.jpg", "live-cells-fp-phase-full-fov.jpg", "uv-imprint-process-and-device-structure.png", "uv-imprint-3d-refocusing.jpg"];
   H.claimElsewhere = function () {
     var all = [];
@@ -202,7 +169,6 @@
     Object.keys(H.FIG_THEME).forEach(function (k) { all = all.concat(H.FIG_THEME[k]); });
     all.concat(H.FIG_OTHER).forEach(function (n) { H.claim(n); });
   };
-  /* one crawlable page per research theme (research.html stays the overview) */
   H.themePage = { fp: "computational-microscopy.html", vs: "computational-microscopy.html#virtual-staining", lensless: "lensless-cameras.html", speckle: "speckle-imaging.html", hbi: "interactive-biology.html" };
   H.pad = function (n) { return (n < 10 ? "0" : "") + n; };
   H.arrow = '<span class="arr" aria-hidden="true">&#8594;</span>';
@@ -220,10 +186,6 @@
     }
     return null;
   };
-
-  /* ---------- entrance motion ----------
-     Content is visible by default. Only when an IntersectionObserver works does the page add .rv-on, which hides
-     not-yet-revealed elements; safety timers reveal anything still hidden. */
   var io = null;
   if (!reduce && "IntersectionObserver" in window) {
     try {
@@ -259,8 +221,6 @@
   setTimeout(function () {
     if (!document.querySelector(".rv-in") && root.classList.contains("rv-on")) root.classList.remove("rv-on");
   }, 4000);
-
-  /* ---------- header ---------- */
   var header = document.querySelector(".site-header");
   var lastY = window.scrollY, ticking = false;
   function onScroll() {
@@ -275,8 +235,6 @@
   window.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
   onScroll();
   if (header) header.addEventListener("focusin", function () { header.classList.remove("away"); });
-
-  /* ---------- focus trap for modal dialogs ---------- */
   H.trap = function (dlg) {
     dlg.addEventListener("keydown", function (e) {
       if (e.key !== "Tab") return;
@@ -289,8 +247,6 @@
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     });
   };
-
-  /* ---------- mobile menu ---------- */
   var menu = document.getElementById("menu"), menuBtn = document.querySelector(".menu-btn");
   if (menu && menuBtn && typeof menu.showModal === "function") {
     menu.querySelectorAll("nav li").forEach(function (li, i) { li.style.setProperty("--i", i); });
@@ -299,8 +255,6 @@
     menu.querySelector(".close").addEventListener("click", function () { menu.close(); });
     H.trap(menu);
   } else if (menuBtn) menuBtn.hidden = true;
-
-  /* ---------- copy email ---------- */
   function copyText(t) {
     if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t);
     return new Promise(function (res, rej) {
@@ -320,8 +274,6 @@
       setTimeout(function () { b.classList.remove("done"); b.textContent = "Copy"; }, 1800);
     }, function () { b.textContent = "Select and copy"; });
   });
-
-  /* ---------- parallax inside frames ([data-parallax="0.08"] on an element inside an overflow:hidden frame) ---------- */
   H.parallax = function () {
     if (reduce) return;
     var els = Array.prototype.slice.call(document.querySelectorAll("[data-parallax]:not([data-px])"));
@@ -347,8 +299,6 @@
     window.addEventListener("resize", tick);
     tick();
   };
-
-  /* ---------- loupe: cursor-following magnifier over research figures ([data-loupe] frame containing one img) ---------- */
   H.loupe = function (scope) {
     if (!fine || still || prerender) return;
     (scope || document).querySelectorAll("[data-loupe]:not([data-lp])").forEach(function (host) {
@@ -363,7 +313,6 @@
         var nw = img.naturalWidth || +img.getAttribute("width"), nh = img.naturalHeight || +img.getAttribute("height");
         fit = getComputedStyle(img).objectFit;
         var r = img.getBoundingClientRect(), s;
-        /* displayed image rectangle (object-fit aware), relative to host */
         if (fit === "contain") s = Math.min(r.width / nw, r.height / nh); else s = Math.max(r.width / nw, r.height / nh);
         var dw = nw * s, dh = nh * s;
         var pos = (getComputedStyle(img).objectPosition || "50% 50%").split(" ");
@@ -386,8 +335,6 @@
       window.addEventListener("scroll", function () { box = null; }, { passive: true });
     });
   };
-
-  /* ---------- lightbox (keyboard, swipe) ---------- */
   var lb = null, lbItems = [], lbI = 0, lbTrigger = null;
   function lbBuild() {
     lb = document.createElement("dialog"); lb.className = "lb"; lb.setAttribute("aria-label", "Photo viewer");
@@ -429,7 +376,6 @@
     }
     if (reduce || !lb.open) set();
     else { im.classList.add("out"); setTimeout(set, 180); }
-    /* preload neighbours */
     [lbI + 1, lbI - 1].forEach(function (k) { var p = lbItems[(k + n) % n]; if (p) { var pi = new Image(); pi.src = H.url(p.src); } });
   }
   H.lightbox = function (items, i, trigger) {
@@ -439,7 +385,6 @@
     if (!lb.open) { lb.showModal(); root.classList.add("lock"); }
     lb.querySelector(".lb-close").focus({ preventScroll: true });
   };
-
   document.addEventListener("DOMContentLoaded", function () {
     if (still) document.querySelectorAll("img[loading=lazy]").forEach(function (i) { i.loading = "eager"; });
     H.reveal(); H.parallax(); H.loupe(); H.videos();

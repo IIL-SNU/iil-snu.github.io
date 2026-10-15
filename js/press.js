@@ -1,6 +1,3 @@
-/* Press coverage and journal features (data/press.js), shared by publications.html (English) and ko.html (Korean).
-   Each story is one group: date, title, a one-line description, the paper it is about, and the articles about it.
-   The first few articles are listed; the rest open from a <details> element so the full list stays in the static HTML. */
 (function () {
   "use strict";
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
@@ -19,15 +16,18 @@
     if (!m) return y;
     return lang === "ko" ? y + "년 " + m + "월" : MON[m - 1] + " " + y;
   }
-  function day(d) { return String(d).replace(/-/g, "."); }
-
-  function item(it) {
+  function day(d, lang) {
+    if (lang === "ko") return String(d).replace(/-/g, ".");
+    var p = String(d).split("-"), m = +p[1], dd = +p[2];
+    if (!m) return p[0];
+    return MON[m - 1] + (dd ? " " + dd + "," : "") + " " + p[0];
+  }
+  function item(it, lang) {
     return '<li><a class="pr-a" href="' + esc(it.url) + '" target="_blank" rel="noopener"' + (it.lang ? ' lang="' + esc(it.lang) + '"' : "") + ">" +
       '<span class="pr-o">' + esc(it.outlet) + "</span>" +
       '<span class="pr-it">' + esc(it.title) + "</span>" +
-      '<span class="pr-id">' + esc(day(it.date)) + "</span></a></li>";
+      '<span class="pr-id">' + esc(day(it.date, lang)) + "</span></a></li>";
   }
-
   function group(g, lang, T, k) {
     var c = g[lang] || g.en, its = g.items || [];
     var first = its.slice(0, SHOW), rest = its.slice(SHOW);
@@ -36,12 +36,11 @@
       '<div class="pr-b"><h4 class="pr-t">' + esc(c.t) + "</h4>" +
       '<p class="pr-x">' + esc(c.d) + "</p>" +
       (g.paper ? '<p class="pr-p"><a class="ul" href="' + esc(g.paper.url) + '" target="_blank" rel="noopener" lang="en">' + esc(g.paper.label) + "</a></p>" : "") +
-      '<ul class="pr-items">' + first.map(item).join("") + "</ul>" +
+      '<ul class="pr-items">' + first.map(function (it) { return item(it, lang); }).join("") + "</ul>" +
       (rest.length ? '<details class="pr-more"><summary data-more="' + esc(T.more(rest.length)) + '" data-less="' + esc(T.less) + '"><span>' + esc(T.more(rest.length)) + '</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>' +
-        '<ul class="pr-items">' + rest.map(item).join("") + "</ul></details>" : "") +
+        '<ul class="pr-items">' + rest.map(function (it) { return item(it, lang); }).join("") + "</ul></details>" : "") +
       "</div></li>";
   }
-
   function journal(list, lang) {
     return '<ul class="pr-j" data-stagger>' + list.map(function (j, i) {
       return '<li data-rv data-k="' + (i % 4) + '"><a class="pr-jc" href="' + esc(j.url) + '" target="_blank" rel="noopener">' +
@@ -50,7 +49,6 @@
         '<span class="pr-jp" lang="en">' + esc(j.paper) + "</span></a></li>";
     }).join("") + "</ul>";
   }
-
   H.press = function (el, lang) {
     if (!el) return;
     var T = TXT[lang] || TXT.en, P = (IIL.press || []).slice(), JF = IIL.journalFeatures || { lab: [], before: [] };

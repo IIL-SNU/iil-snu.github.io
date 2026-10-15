@@ -128,3 +128,14 @@
 .course:hover { background: var(--sky-lite); }
 .term { background: var(--lav-lite); box-shadow: none; }
 #courses + .site-footer, .res-sec:last-of-type + .site-footer { margin-top: 0; }
+
+/* 2026-10-16: text panel in place of a figure (Digital staining literature database); icon chips and text contrast on the tool cards */
+.r-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: var(--lav-lite); color: var(--steel); }
+.r-panel svg { width: 56px; height: 56px; }
+.r-panel-t { font-size: 12.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--navy); }
+.tool.k0 .t-ic { background: var(--sky-lite); box-shadow: 0 0 0 1px var(--line); }
+.tool.k1 .t-desc, .tool.k1 .t-name { color: var(--navy); }
+.tool.k1 .t-desc { opacity: .92; }
+/* featured dataset (WiderCam): the white figure panel sits on the white section, so the card needs a full outline (not only corner arcs) */
+.dataset.feat { box-shadow: 0 0 0 1px color-mix(in srgb, var(--navy) 22%, transparent); }
+.dataset.feat .r-fig.mat-white { border-bottom: 0; }

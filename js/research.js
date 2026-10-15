@@ -1,41 +1,29 @@
-/* Research: four parallel themes (no sequence numbers, no arrows or connectors between them; PI 2026-10-15),
-   one compact section per theme (short summary, project list, lead figure and two key images), compare slider
-   as the Virtual Staining lead, project sheet dialog (deep link research.html#<project-slug>) with one short paragraph,
-   up to two figures and references. */
 (function () {
   "use strict";
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
-
   var PLAIN = {
-    fp: "Fourier ptychography illuminates a sample from many angles and combines the low-resolution images into one wide-field, high-resolution image that also contains quantitative phase. We build smartphone, single-shot and polarization-resolved versions of the method, and use them for virtual staining of tissue slides.",
+    fp: "Fourier ptychography (FP) illuminates a sample from many angles and combines the low-resolution images computationally into one wide-field, high-resolution image with quantitative phase. We have built smartphone, single-shot and polarization-resolved FP microscopes and use them for virtual staining of tissue slides.",
     vs: "We image unstained tissue slides with Fourier ptychographic microscopes and train neural networks to turn the measured phase into the appearance of chemically stained slides. Work with pathologists at Severance Hospital covers faded-slide restoration, faster scanning and stains other than H&E.",
     lensless: "A lensless camera replaces the lens with a thin phase mask above the image sensor and recovers the image computationally. We design and fabricate the masks and develop reconstruction networks for polarization, hyperspectral, eye-tracking and privacy-preserving imaging.",
     speckle: "Rolling-shutter speckle imaging measures blood flow from a single camera frame by using the row-by-row readout of a standard CMOS sensor. Applications include cerebral blood-flow mapping, pulse waveforms at the fingertip and real-time analysis with neural networks.",
-    hbi: "Microscopes and projectors coupled so that people can interact in real time with living, light-responsive microorganisms, used in museum exhibits, installations, games and artworks. This is a past area of work."
+    hbi: "Systems that couple a microscope and a projector so that people can interact in real time with living, light-responsive microorganisms, used in museum exhibits, installations, games and artworks. This is a past area of work."
   };
-  /* lead figure per theme (Virtual Staining uses the compare slider instead) and two key images.
-     PI 2026-10-15: Computational Microscopy leads with the lab's smartphone FP microscope rendering (the Tilia smartphone-FP
-     result moved to the 2021 ACS Photonics news card); Lensless Cameras leads with a video of lensless image reconstruction
-     from the lab's own data (raw sensor image beside the reconstructed image), replacing the photo of camera modules. */
   var LEAD = {
-    fp: { f: "smartphone-fp-render.png", ratio: "1010 / 770" },
-    lensless: { f: "lensless-raw-to-reconstruction-hand-poster.jpg", video: "assets/research2/video/lensless-raw-to-reconstruction-hand.mp4", ratio: "1280 / 476", labels: ["Raw sensor image", "Reconstruction"] },
+    fp: { f: "pupil-multiplexing-fp-render.png", ratio: "1600 / 1175", tight: true },
+    lensless: { f: "uv-imprint-real-scene-reconstructions.jpg", ratio: "1063 / 486" },
     speckle: { f: "rssi-raw-to-flow-map-wipe-poster.jpg", video: "assets/research2/video/rssi-raw-to-flow-map.mp4", ratio: "16 / 9" },
-    hbi: { f: "remember-installation.jpg", ratio: "4 / 3", photo: true }
+    hbi: { f: "remember-installation-touch.jpg", ratio: "692 / 540", photo: true }
   };
   Object.keys(LEAD).forEach(function (k) { LEAD[k].fig = H.mrGet(LEAD[k].f); });
   var KEYS = {
     fp: ["live-cells-brightfield-vs-phase.jpg", "tissue-phase-3d-surface.jpg"],
     vs: ["virtual-he-whole-slide.jpg", "virtual-ihc-vs-chemical-ihc.jpg"],
-    lensless: ["phase-mask-and-camera-prototype-strip.jpg"],
+    lensless: ["phase-mask-and-camera-prototype-strip-clean.jpg"],
     speckle: ["rssi-physics-network-comparison.jpg", "speckle-eye-movement-setup.png"],
     hbi: []
   };
-  /* index thumbnails: a different figure from the lead, so nothing repeats on the page */
-  /* hbi has no index thumbnail: its only Euglena photograph is the Home tile, and its lead is the ReMember installation */
-  var IDX = { fp: "lily-root-birefringence-detail-b.jpg", lensless: "measured-psf-voronoi.jpg", speckle: "rssi-mouse-setup-speckle-whitelight.jpg" };
+  var IDX = { fp: "lily-root-birefringence-detail-b.jpg", lensless: "measured-psf-voronoi.jpg", speckle: "rssi-raw-speckle-closeup.jpg", hbi: "remember-installation-stones.jpg" };
   H.claimElsewhere();
-  /* four themes; sub-areas (Virtual Staining under Computational Microscopy, H.PARENT in site.js) render inside their theme */
   var themes = H.themes();
   var all = [];
   themes.forEach(function (t) {
@@ -44,7 +32,6 @@
   });
   function withSubs(t) { return [t].concat(H.subthemes(t.key)); }
   function sheetTitle(t) { return H.PARENT[t.key] ? H.themeTitle(t.key) + ": " + H.SUBTITLE[t.key] : t.title; }
-
   function span(t, own) {
     var ys = [], ps = [];
     (own ? [t] : withSubs(t)).forEach(function (x) { ps = ps.concat(x.projects || []); });
@@ -58,9 +45,6 @@
     return '<figcaption class="caption">' + esc(f.caption || "") + (f.credit ? ' <span class="credit">' + esc(f.credit) + "</span>" : "") + "</figcaption>";
   }
   var LOUPE_TIP = '<span class="loupe-tip" aria-hidden="true"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.6"/></svg>Magnify</span>';
-
-  /* PI 2026-10-15: one comparison only (phase to H&E); the faded-slide re-staining pair is no longer shown, and its two
-     images are claimed so that no project sheet shows them either */
   var PAIRS = [
     { k: "ph", tab: "Phase to H&E", fa: "phase-roi-glands.jpg", fb: "virtual-he-roi-glands.jpg", la: "Quantitative phase", lb: "Virtual H&E", ar: "1600 / 1310" }
   ];
@@ -70,17 +54,13 @@
     p.a = A.src; p.b = B.src; p.aa = A.alt; p.ab = B.alt; p.cap = A.caption + " " + B.caption; p.credit = B.credit;
     H.claim(p.a); H.claim(p.b);
   });
-  /* figures shown as paper figures in the news on the Home page are not repeated in project sheets */
   var NEWSFIG = {};
   (IIL.newsPaperFigs || []).forEach(function (n) { NEWSFIG[H.key(n.src)] = 1; });
-  /* provenance: only images produced by the lab. Collaborator (Duke) and pre-lab (Caltech, Stanford) figures, and figures that show
-     third-party dataset images, are not shown. */
   var NOT_LAB = /tensorial-tomographic-fp|starcam|fp-hardware-family|chipscale-|faded-slide-virtual-restaining-concept|unet-lensless-reconstruction-comparison|parallel-dcs|\/hbi\/microaquarium-installation/;
   function projFigs(p) {
     var m = H.mr({ project: p.slug, sort: true });
     return m.length ? m : (p.figures || []).filter(function (f) { return !NOT_LAB.test(f.src); });
   }
-
   document.getElementById("r-count").textContent = themes.length + " themes, " + all.length + " projects";
   document.getElementById("r-index").innerHTML = themes.map(function (t, i) {
     var f = H.mrGet(IDX[t.key] || "") || {}, src = f.src;
@@ -88,7 +68,6 @@
     return '<li data-rv><a class="ix hover-host" data-th="' + esc(t.key) + '" href="#' + esc(t.key) + '"><span class="media zoom ix-img' + (src ? "" : " ix-none") + '">' + (src ? H.img(H.thumb(src, 400), "", {}) : "") + "</span>" +
       '<span class="ix-t"><span class="ix-dot" aria-hidden="true"></span><span class="ix-n">' + esc(t.title) + "</span></span></a></li>";
   }).join("");
-
   var KEYLIST = {};
   function keyFigs(t) {
     var list = (KEYS[t.key] || []).map(function (n) { return H.mrGet(n); }).filter(function (f) { return f && H.claim(f.src); });
@@ -106,7 +85,7 @@
     var L = LEAD[t.key] || { ratio: "3 / 2" }, f = L.fig || t.keyFigure;
     H.claim(f.src); if (L.video) H.claim(L.video);
     var lead = L.video ? H.video(L.video, f.src, f.alt) : H.img(f.src, f.alt, { sizes: "(max-width: 900px) 100vw, 800px" });
-    return '<figure class="t-fig"><div class="media' + (L.video ? " has-vid" : "") + (/\.png$/.test(f.src) ? " contain mat-white" : "") + '" data-clip' + (L.loupe ? ' data-loupe="' + L.loupe + '"' : "") +
+    return '<figure class="t-fig"><div class="media' + (L.video ? " has-vid" : "") + (/\.png$/.test(f.src) ? " contain mat-white" : "") + (L.tight ? " tight" : "") + '" data-clip' + (L.loupe ? ' data-loupe="' + L.loupe + '"' : "") +
       ' style="aspect-ratio:' + L.ratio + '">' + lead + H.vidLabels(L.labels) + (L.loupe ? LOUPE_TIP : "") + "</div>" + cap(f) + "</figure>";
   }
   function projRows(t) {
@@ -117,7 +96,6 @@
         '<span class="p-go" aria-hidden="true">&#8594;</span></button></li>';
     }).join("");
   }
-  /* sub-area block inside a theme section (anchor = its data key, e.g. research.html#vs) */
   function subBlock(s) {
     var name = H.SUBTITLE[s.key] || s.title, page = H.themePage[s.key];
     return '<div class="t-subsec" id="' + esc(s.key) + '" aria-labelledby="h-' + esc(s.key) + '">' +
@@ -137,14 +115,10 @@
       (H.themePage[t.key] ? '<p class="t-page" data-rv><a class="btn" href="' + H.themePage[t.key] + '">' + esc(t.title) + ": papers, code and projects " + H.arrow + "</a></p>" : "") + "</div>" +
       '<div class="t-media">' + media + "</div></div>" + H.subthemes(t.key).map(subBlock).join("") + "</div></section>";
   }).join("");
-
-  /* key images open the lightbox */
   document.getElementById("themes").addEventListener("click", function (e) {
     var b = e.target.closest(".k-it"); if (!b) return;
     H.lightbox(KEYLIST[b.getAttribute("data-k")], +b.getAttribute("data-i"), b);
   });
-
-  /* ---------------- compare slider (Virtual Staining lead) ---------------- */
   function cmpInner(p) {
     return H.img(p.a, p.aa, { cls: "cmp-a", sizes: "(max-width: 900px) 100vw, 800px" }) +
       '<div class="cmp-b">' + H.img(p.b, p.ab, { sizes: "(max-width: 900px) 100vw, 800px" }) + "</div>";
@@ -171,7 +145,6 @@
     cmp.addEventListener("pointerup", function () { drag = false; cmp.classList.remove("drag"); });
     cmp.addEventListener("pointercancel", function () { drag = false; cmp.classList.remove("drag"); });
     range.addEventListener("input", function () { setX(+range.value); });
-    /* a short sweep on first view hints that the image can be compared */
     if (!H.reduce && "IntersectionObserver" in window) {
       var cio = new IntersectionObserver(function (es) {
         if (!es[0].isIntersecting) return; cio.disconnect();
@@ -197,9 +170,6 @@
       var live = document.getElementById("live"); if (live) live.textContent = "Showing " + p.tab;
     });
   }
-
-  /* ---------------- project sheet ---------------- */
-  /* one short paragraph: the first sentences of the project text, about 250 to 440 characters */
   function sentences(s) {
     var out = [], cur = "";
     String(s || "").split(/(?<=[.!?])\s+/).forEach(function (x) {
@@ -217,11 +187,8 @@
     }
     return t || p.oneLiner || "";
   }
-  /* up to two figures that are not already shown on this page or in the news */
   function sheetFigs(p) {
-    var c = projFigs(p).filter(function (f) { return f.kind !== "animation" && !H.isUsed(f.src); });
-    var fresh = c.filter(function (f) { return !NEWSFIG[H.key(f.src)]; });
-    return (fresh.length ? fresh : c).slice(0, 2);
+    return projFigs(p).filter(function (f) { return f.kind !== "animation" && !H.isUsed(f.src) && !NEWSFIG[H.key(f.src)]; }).slice(0, 2);
   }
   var dlg = document.getElementById("proj"), art = document.getElementById("p-art"), lastTrigger = null, current = null;
   function figure(f, eager) {
@@ -278,7 +245,6 @@
     if (indexOf(h) >= 0) open(h, false);
     else if (dlg.open) { current = null; dlg.close(); }
   });
-
   H.reveal(); H.loupe(); H.videos();
   var h0 = decodeURIComponent(location.hash.slice(1));
   if (h0) {

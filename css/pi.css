@@ -137,3 +137,5 @@
 .pi-ph { width: clamp(220px, 22vw, 300px); aspect-ratio: 720 / 817; border-radius: calc(var(--r) + 6px); }
 .pi-ph img { object-position: 50% 0; }
 @media (max-width: 760px) { .pi-ph { width: min(70vw, 260px); } }
+/* 2026-10-16: the Contact section's solid "Curriculum vitae" button inherited the steel link-arrow color of .ps-more, so its ↗ vanished on the steel fill */
+.ct-btns .btn.solid .arr { color: inherit; }

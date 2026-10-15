@@ -1,10 +1,3 @@
-/* Research theme page (computational-microscopy.html, lensless-cameras.html, speckle-imaging.html, interactive-biology.html).
-   <body data-theme="fp|lensless|speckle|hbi">. Four themes: Virtual Staining (data key "vs") is a sub-area of Computational
-   Microscopy and renders as its own section on that page (#virtual-staining), see H.PARENT in site.js.
-   Each theme or sub-area opens with one plain sentence that names the laboratory, the PI and the topic, with DOI-linked
-   representative papers (data/pubs.js), then the summary, code and data (data/resources.js), key results
-   (data/research_*.js), lab figures that no other page shows (data/media_research.js) and the projects; the page ends with
-   the theme's publications. Nothing here adds facts that are not in the data files. */
 (function () {
   "use strict";
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
@@ -14,8 +7,6 @@
   var subs = H.subthemes(KEY);
   var byId = {};
   (IIL.pubs || []).forEach(function (p) { byId[p.id] = p; });
-
-  /* "Lee, K.C., Chae, H., & Lee, S.A." -> "K. C. Lee et al." */
   function person(a) {
     var m = String(a).replace(/\*/g, "").trim().match(/^([^,]+),\s*(.+)$/);
     if (!m) return a;
@@ -27,7 +18,7 @@
     return person(list[0] || s) + (list.length > 2 ? " et al." : "");
   }
   function doiUrl(p) { return p.doi ? "https://doi.org/" + p.doi : p.url; }
-  function label(p) { return firstAuthors(p.authors) + ", " + p.venue.replace(/\s*\(.*\)$/, "").replace(/\s+\d{4}$/, "") + " " + p.year; }
+  function label(p) { return firstAuthors(p.authors) + ", " + (p.venueShort || p.venue).replace(/\s*\(.*\)$/, "").replace(/\s+\d{4}$/, "") + " " + p.year; }
   function cite(ids) {
     return "(" + ids.map(function (id) {
       var p = byId[id]; if (!p) return "";
@@ -35,28 +26,26 @@
     }).filter(Boolean).join("; ") + ")";
   }
   function fact(k, fallback) { return esc(FACT[k] || fallback).replace(/\{([^}]+)\}/g, function (m, ids) { return cite(ids.split(";")); }); }
-
-  /* fact sentences: {id;id} becomes a parenthetical citation with DOI links */
   var FACT = {
-    fp: "The Imaging Intelligence Laboratory led by Seung Ah Lee at Seoul National University develops computational microscopes based on Fourier ptychographic microscopy (FPM) for wide-field, high-resolution and quantitative phase imaging, including a smartphone FPM {lee2021smartphonebased}, FPM that uses an OLED display as the light source {lee2024highresolution}, single-shot FPM for quantitative phase video {yoon2025singleshot} and polarization-resolved (vectorial) FPM for birefringence imaging {chae2026pupil}. The same microscopes are used for virtual staining of unstained tissue slides {chae2024restoring}.",
-    vs: "Within computational microscopy, Seung Ah Lee's laboratory develops phase-to-stain virtual staining for digital pathology: Fourier ptychographic microscopes measure the quantitative phase of unstained tissue slides, and neural networks convert it into images of chemically stained slides. Published work covers the restoration of faded H&E slides {chae2024restoring} and fast virtual staining with learned illumination {lee2026semisupervised}.",
-    lensless: "Seung Ah Lee's Imaging Intelligence Laboratory at Seoul National University develops lensless cameras in which a thin phase mask replaces the lens: phase masks with designed point-spread functions fabricated in one grayscale-lithography exposure {lee2023design}, phase masks imprinted directly on an image sensor {lee2022fabrication}, snapshot polarization and hyperspectral lensless cameras {baek2022lensless;kim2023apertureencoded} and physics-guided reconstruction networks {bae2026integrated}.",
-    speckle: "Seung Ah Lee's Imaging Intelligence Laboratory at Seoul National University develops dynamic speckle imaging of blood flow: rolling-shutter speckle imaging (RSSI), which measures blood flow from a single frame of a standard CMOS image sensor {yi2022singleshot}, together with a spatiotemporal speckle-correlation model {yi2024improvements}, rolling-shutter speckle plethysmography for pulse waveforms at the fingertip {lee2024rolling} and physics-guided neural networks for real-time analysis {byun2026physicsguided}.",
-    hbi: "Seung Ah Lee and her laboratory developed interactive biology (human-biology interaction) systems in which a microscope and a projector let people interact in real time with living, light-responsive Euglena cells {lee2015trap}, including an immersive installation {lee2020microaquarium} and a review of the field of micro-HBI {lee2022microhbi}. This is a past area of work."
+    fp: "Seung Ah Lee's Imaging Intelligence Laboratory at Seoul National University develops Fourier ptychographic microscopes (FPM) for wide-field, high-resolution quantitative phase imaging: a smartphone FPM {lee2021smartphonebased}, FPM with an OLED display as the light source {lee2024highresolution}, single-shot FPM {yoon2025singleshot} and polarization-resolved FPM {chae2026pupil}, also used for virtual staining {chae2024restoring}.",
+    vs: "Seung Ah Lee's laboratory develops virtual staining for digital pathology: neural networks convert the quantitative phase of unstained tissue slides, measured by FPM, into images of stained slides {chae2024restoring;lee2026semisupervised}.",
+    lensless: "Seung Ah Lee's Imaging Intelligence Laboratory at Seoul National University develops lensless cameras: phase masks made by grayscale lithography {lee2023design} or directly on the image sensor {lee2022fabrication}, polarization and hyperspectral lensless cameras {baek2022lensless;kim2023apertureencoded} and physics-guided reconstruction {bae2026integrated}.",
+    speckle: "Seung Ah Lee's Imaging Intelligence Laboratory at Seoul National University develops rolling-shutter speckle imaging (RSSI), which measures blood flow from a single frame of a standard CMOS sensor {yi2022singleshot;yi2024improvements}, with applications to fingertip pulse waveforms {lee2024rolling} and real-time analysis by physics-guided neural networks {byun2026physicsguided}.",
+    hbi: "Seung Ah Lee and her laboratory developed interactive biology systems in which people interact in real time with light-responsive Euglena cells through a microscope and a projector {lee2015trap;lee2020microaquarium}, and reviewed the field of micro-HBI {lee2022microhbi}."
   };
-  /* figures that no other page shows (data/media_research.js; phase-to-he-and-ihc-split was the Home tile of the former
-     Virtual Staining theme). Themes without such figures show none. */
-  var FIGS = H.FIG_THEME; /* site.js: figures that no other page shows */
-  /* topics in data/pubs.js, and the laboratory's patents (IIL.patents) for each theme */
+  var FIGS = {
+    fp: H.FIG_THEME.fp, vs: H.FIG_THEME.vs,
+    lensless: ["uv-imprint-integrated-camera-prototype-clean.jpg", "phase-mask-height-map-3d.jpg", "polarization-camera-pipeline.png"],
+    speckle: ["rssi-flow-phantom-linearity.jpg", "rsspg-cold-pressor.jpg"],
+    hbi: ["microaquarium-installation.jpg", "remember-installation-pet-photos.jpg"]
+  };
   var TOPICS = { fp: ["fp", "microscopy", "vs"], lensless: ["lensless"], speckle: ["speckle"], hbi: ["hbi"] };
   var PATENTS = { fp: ["US11880965B2"], lensless: ["US12108134B2", "US12062190B2"] };
   var SUBID = { vs: "virtual-staining" };
   var SKIP_FACT = /^Museum-ready$/;
-
   function $(id) { return document.getElementById(id); }
   function lnk(u, txt) { return '<a class="ul" href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(txt) + "</a>"; }
   function host(u) { return String(u).replace(/^https?:\/\//, "").replace(/\/$/, ""); }
-
   function resources(k) {
     var code = (IIL.code || []).filter(function (c) { return c.topic === k; });
     var data = (IIL.datasets || []).filter(function (d) { return d.topic === k; });
@@ -75,7 +64,6 @@
     var facts = (x.facts || []).filter(function (f) { return !SKIP_FACT.test(f.value); });
     return figs.map(function (f) {
       var png = /\.png$/.test(f.src);
-      /* looping video with its poster (H.video: muted, pauses offscreen, poster only with reduced motion) */
       if (f.video) return '<figure class="t-fig th-fig"><div class="media has-vid" style="aspect-ratio:' + (f.w || 16) + " / " + (f.h || 9) + '">' +
         H.video(f.video, f.src, f.alt) + H.vidLabels(f.labels) + "</div>" +
         '<figcaption class="caption">' + esc(f.caption) + ' <span class="credit">' + esc(f.credit) + "</span></figcaption></figure>";
@@ -87,8 +75,6 @@
         return "<div><dt>" + esc(f.value) + "</dt><dd>" + esc(f.label) + ' <span class="credit">' + esc(f.ref) + "</span></dd></div>";
       }).join("") + "</dl></div>" : "");
   }
-
-  /* projects: the same short paragraph as the project sheets on research.html */
   function sentences(s) {
     var out = [], cur = "";
     String(s || "").split(/(?<=[.!?])\s+/).forEach(function (x) {
@@ -116,16 +102,12 @@
         '<p class="th-more"><a class="ul" href="research.html#' + esc(p.slug) + '">View on the research page</a> ' + H.arrow + "</p></article>";
     }).join("");
   }
-
-  /* ---------- main theme ---------- */
   $("th-fact").innerHTML = fact(KEY, t.summary);
   $("th-summary").innerHTML = '<p class="lede">' + esc(t.summary) + "</p>";
   $("th-res").innerHTML = resources(KEY);
   $("th-media").innerHTML = media(t);
   $("th-proj").innerHTML = projects(t);
   $("th-pcount").textContent = (t.projects || []).length + " projects";
-
-  /* ---------- sub-areas (Virtual staining on the Computational Microscopy page) ---------- */
   $("th-subs").innerHTML = subs.map(function (s) {
     var id = SUBID[s.key] || s.key, name = H.SUBTITLE[s.key] || s.title;
     return '<section class="theme th-body th-sub" id="' + id + '" data-th="' + esc(KEY) + '" aria-labelledby="h-' + id + '"><div class="wrap">' +
@@ -137,8 +119,6 @@
       '<div class="sec-top th-subp"><h3 class="h2" data-rv>' + esc(name) + ' projects</h3><p class="small">' + (s.projects || []).length + " projects</p></div>" +
       '<div class="th-plist">' + projects(s) + "</div></div></section>";
   }).join("");
-
-  /* ---------- publications of the theme (data/pubs.js) ---------- */
   var tp = TOPICS[KEY] || [KEY];
   var pubs = (IIL.pubs || []).filter(function (p) { return (p.topics || []).some(function (x) { return tp.indexOf(x) >= 0; }); })
     .sort(function (a, b) { return b.year - a.year; });
@@ -151,7 +131,6 @@
       (p.era === "pre" ? ' <span class="tag plain">Before IIL</span>' : "") + "</p></li>";
   }).join("");
   $("th-pubcount").textContent = pubs.length + " publications";
-
   H.reveal(); H.loupe(); H.videos();
   var h0 = decodeURIComponent(location.hash.slice(1));
   if (h0) { var el = document.getElementById(h0); if (el) requestAnimationFrame(function () { el.scrollIntoView(); }); }

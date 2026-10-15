@@ -6,9 +6,9 @@
 
 ## Principal investigator
 
-Seung Ah Lee is an Associate Professor at Seoul National University working on optical imaging systems and computational imaging: microscopes, cameras and optical metrology and inspection instruments designed jointly with optics and AI-based image reconstruction. She received her B.S. in Electrical Engineering and M.S. in Electrical and Computer Engineering from Seoul National University and her Ph.D. in Electrical Engineering from Caltech, and was a faculty member in Electrical and Electronic Engineering at Yonsei University (2018–2025).
+Seung Ah Lee is an Associate Professor of Mechanical Engineering at Seoul National University. She works on computational imaging: microscopes, cameras, and optical metrology and inspection systems whose optics and AI-based image reconstruction are designed together. She received her B.S. in Electrical Engineering and M.S. in Electrical and Computer Engineering from Seoul National University and her Ph.D. in Electrical Engineering from Caltech, and was a faculty member in Electrical and Electronic Engineering at Yonsei University (2018–2025).
 
-이승아 교수는 서울대학교에서 광학 이미징 시스템과 계산 이미징(computational imaging)을 연구합니다. 현미경, 카메라, 광학 계측·검사 장비를 개발하면서 광학계와 AI 영상 복원 알고리즘을 동시에 설계합니다. 서울대학교에서 전기공학 학사와 전기컴퓨터공학 석사 학위를, 미국 Caltech에서 전기공학 박사 학위를 받았습니다. 2018년부터 2025년까지 연세대학교 전기전자공학부 교수로 재직했습니다.
+이승아 교수는 서울대학교 기계공학부 부교수로, 광학 이미징 시스템과 계산 이미징(computational imaging)을 연구합니다. 현미경, 카메라, 광학 계측·검사 장비를 개발하며 광학계와 AI 영상 복원 알고리즘을 함께 설계합니다. 서울대학교에서 전기공학 학사와 전기컴퓨터공학 석사 학위를, 미국 칼텍(Caltech)에서 전기공학 박사 학위를 받았습니다. 2018년부터 2025년까지 연세대학교 전기전자공학부 교수로 재직했습니다.
 
 - Profile: https://iilab.io/pi.html
 - Google Scholar: https://scholar.google.com/citations?user=dlRF9NAAAAAJ
@@ -18,7 +18,7 @@ Seung Ah Lee is an Associate Professor at Seoul National University working on o
 
 ### [Computational Microscopy](https://iilab.io/computational-microscopy.html)
 
-A conventional microscope forces a trade-off: zoom in for detail and you lose the big picture, and transparent cells barely show up at all. Fourier ptychography sidesteps both limits. We light a sample from many angles with an LED array or a display screen, record a series of low-resolution images through an inexpensive, low-magnification lens, and let an algorithm stitch them together in Fourier space. The result is a wide-field, high-resolution image that also recovers the optical phase, revealing unstained cells and tissue in quantitative detail. We push this idea toward smaller, faster and richer instruments: smartphone microscopes, single-shot video-rate imaging and polarization-resolved maps of birefringence.
+A conventional microscope trades field of view for resolution, and unstained cells give little contrast. Fourier ptychography (FP) illuminates the sample from many angles and combines the low-resolution images computationally into a wide-field, high-resolution image with quantitative phase. The illumination comes from an LED array or a display screen, and the images are recorded through an inexpensive low-magnification objective. We have built smartphone, single-shot and polarization-resolved FP microscopes.
 
 - Lee, K.C., Lee, K., Jung, J., Lee, S.H., Kim, D., & Lee, S.A. (2021). A Smartphone-Based Fourier Ptychographic Microscope Using the Display Screen for Illumination. ACS Photonics. https://doi.org/10.1021/acsphotonics.1c00350
 - Lee, K., Lee, K.C., Jung, J., Chae, H., & Lee, S.A. (2024). High-resolution display screen as programmable illumination for Fourier ptychography. Optics and Lasers in Engineering. https://doi.org/10.1016/j.optlaseng.2024.108121
@@ -38,9 +38,9 @@ Pathologists read tissue through chemical stains such as hematoxylin and eosin (
 - Data: FPVS example FPM data, https://github.com/IIL-SNU/FPVS/tree/main/data
 - Data: Digital staining literature database, https://doi.org/10.1186/s43074-023-00113-4
 
-### [Lensless Cameras & Learned Optics](https://iilab.io/lensless-cameras.html)
+### [Lensless Cameras](https://iilab.io/lensless-cameras.html)
 
-A conventional camera needs a stack of precisely shaped lenses, and that stack sets a floor on its size, weight and cost. A lensless camera replaces it with a thin patterned mask sitting just above a bare image sensor. The mask scrambles incoming light into a pattern that looks nothing like the scene, and a computer unscrambles it. We work on both halves of this partnership. On the optics side, we design masks that produce any light pattern we choose and fabricate them in a single lithography step, even directly on the sensor. On the computing side, we build physics-aware neural networks that recover sharp images quickly. The result is millimetre-thin cameras that can also see polarization, color spectra and fast eye movements, and can keep what they see private.
+A conventional camera needs a stack of lenses, which sets a lower limit on its size, weight and cost. A lensless camera replaces the lenses with a thin patterned mask just above a bare image sensor. The mask encodes the scene into a pattern on the sensor, and the image is reconstructed computationally. We design and fabricate the masks and develop the reconstruction algorithms: masks with designed point-spread functions are made in a single lithography step, also directly on the sensor, and physics-guided neural networks reconstruct the images. Applications include polarization, hyperspectral and eye-tracking cameras, and privacy-preserving imaging.
 
 - Lee, K.C., Bae, J., Baek, N., Jung, J., Park, W., & Lee, S.A. (2023). Design and single-shot fabrication of lensless cameras with arbitrary point spread functions. Optica. https://doi.org/10.1364/OPTICA.466072
 - Lee, Y., Chae, H., Lee, K.C., Baek, N., Kim, T., Jung, J., & Lee, S.A. (2022). Fabrication of Integrated Lensless Cameras via UV-Imprint Lithography. IEEE Photonics Journal. https://doi.org/10.1109/JPHOT.2022.3157373
@@ -53,7 +53,7 @@ A conventional camera needs a stack of precisely shaped lenses, and that stack s
 
 ### [Dynamic Speckle Imaging](https://iilab.io/speckle-imaging.html)
 
-When laser light enters living tissue, moving red blood cells make the resulting speckle pattern flicker, and how fast it flickers reveals how fast blood flows. Measuring that directly usually takes cameras running at more than ten thousand frames per second. We turned an ordinary rolling-shutter image sensor, which reads out its rows microseconds apart, into that high-speed camera: with elongated speckles and the right physical model, one snapshot reveals both the flow speed and how much of the tissue is moving. Building on this rolling-shutter speckle imaging (RSSI), we map cerebral blood flow, record pulse waveforms from a fingertip, and use physics-guided neural networks for real-time analysis, a path toward low-cost, contrast-free monitoring of circulation.
+When laser light enters living tissue, moving red blood cells make the speckle pattern fluctuate, at a rate set by the flow speed. Measuring the fluctuation directly usually requires cameras running at more than ten thousand frames per second. Rolling-shutter speckle imaging (RSSI) uses the row-by-row exposure of CMOS sensors, in which successive rows are exposed microseconds apart, so that a single frame records the speckle dynamics. With elongated speckles and a physical model, one frame gives both the flow speed and the fraction of moving scatterers. Applications include cerebral blood-flow mapping, pulse waveforms at the fingertip and real-time analysis with physics-guided neural networks.
 
 - Yi, C., Jung, J., Im, J., Lee, K.C., Chung, E., & Lee, S.A. (2022). Single-shot temporal speckle correlation imaging using rolling shutter image sensors. Optica. https://doi.org/10.1364/OPTICA.465361
 - Yi, C., Byun, S., Lee, Y., & Lee, S.A. (2024). Improvements and validation of a spatiotemporal speckle correlation model for rolling shutter speckle imaging. Biomedical Optics Express. https://doi.org/10.1364/BOE.514497
@@ -64,7 +64,7 @@ When laser light enters living tissue, moving red blood cells make the resulting
 
 ### [Interactive Biology](https://iilab.io/interactive-biology.html)
 
-Microscopic life is all around us, yet almost nobody gets to interact with it. Human-biology interaction (HBI) asks how people might play, create and learn with real living cells rather than simulations. Our systems couple a microscope to a projector: drawings on a touchscreen or hand gestures become patterns of light, and light-sensitive Euglena cells respond in real time. These platforms have become museum exhibits, immersive installations, biotic games and collaborative artworks, and they informed a review that maps the emerging field of micro-HBI. Kept here as a legacy theme, this work grew from the same expertise in optics and microscopy that drives our imaging research, and it continues to shape how we share science with the public.
+Human-biology interaction (HBI) studies how people can play, create and learn with living cells rather than simulations. Our systems couple a microscope to a projector: drawings on a touchscreen or hand gestures become patterns of light, and light-sensitive Euglena cells respond in real time. These platforms were used in museum exhibits, immersive installations, biotic games and artworks, and informed a review of the field of micro-HBI. This is a past area of work.
 
 - Lee, S.A., Bumbacher, E., Chung, A.M., Cira, N., Walker, B., Park, J.Y., Starr, B., Blikstein, P., & Riedel-Kruse, I.H. (2015). Trap it! A playful human-biology interaction for a museum installation. Proceedings of the 33rd Annual ACM Conference on Human Factors in Computing Systems (CHI). https://doi.org/10.1145/2702123.2702220
 - Lee, K., Jung, J., & Lee, S.A. (2020). MicroAquarium: An Immersive and Interactive Installation with Living Microorganisms. Extended Abstracts of the 2020 CHI Conference on Human Factors in Computing Systems. https://doi.org/10.1145/3334480.3383164

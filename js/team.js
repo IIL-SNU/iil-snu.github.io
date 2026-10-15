@@ -1,19 +1,10 @@
-/* Team page (from concept C, grouped by role only).
-   Circular portraits in three role groups (faculty and researchers, graduate students, undergraduate interns).
-   Hover or focus a portrait for a caption card beside it (below it on narrow screens), never over the face.
-   Each card shows the person's email address (mailto link and Copy button); the page head gives the general contact.
-   The PI's portrait links to pi.html. Below: alumni list, photo mosaic with lightbox, open positions band. */
 (function () {
   "use strict";
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
   var pi = IIL.pi || {}, members = IIL.members || [];
   var reduce = H.reduce;
   var qs = new URLSearchParams(location.search);
-
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-
-  /* ---------- people ---------- */
-  /* email address from links.email ("mailto:..."), shown as text with a Copy button in each caption card */
   function mail(l) { return String((l || {}).email || "").replace(/^mailto:/i, "").trim(); }
   var people = [{ id: "pi", isPI: true, name: pi.name, role: pi.role || "Group Leader", group: "pi", photo: pi.photo, interests: pi.interests || [], web: "", email: (pi.contact || {}).email || "" }]
     .concat(members.map(function (m) {
@@ -21,16 +12,13 @@
     }));
   var byId = {};
   people.forEach(function (p) { byId[p.id] = p; });
-
   var GROUPS = [
     { k: "lead", name: "Faculty and researchers", test: function (p) { return p.isPI || p.group === "faculty" || p.group === "postdoc"; } },
     { k: "grad", name: "Graduate students", test: function (p) { return p.group === "grad"; } },
     { k: "intern", name: "Undergraduate interns", test: function (p) { return p.group === "intern"; } }
   ];
-
   var GLOBE = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM1.5 8h13M8 1.5c2 2.2 2 10.8 0 13M8 1.5c-2 2.2-2 10.8 0 13" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
   var PERSON = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5.4" r="2.9" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M2.6 14.2c.6-2.9 2.8-4.5 5.4-4.5s4.8 1.6 5.4 4.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
-
   function emailRow(p) {
     if (!p.email) return "";
     return '<p class="cd-em"><a class="ul" href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a><button class="copy" type="button" data-copy="' + esc(p.email) + '" aria-label="Copy email address of ' + esc(p.name) + '">Copy</button></p>';
@@ -49,7 +37,6 @@
       emailRow(p) +
       (p.web ? '<p class="cd-lk"><a class="lk" href="' + esc(p.web) + '" target="_blank" rel="noopener" aria-label="Homepage of ' + esc(p.name) + '">' + GLOBE + "<span>Homepage</span></a></p>" : "");
   }
-
   function node(p) {
     var li = document.createElement("li");
     li.className = "nd" + (p.isPI ? " pi" : "");
@@ -64,10 +51,8 @@
     p.li = li; p.btn = li.querySelector(".nd-b");
     return li;
   }
-
-  /* ---------- render groups ---------- */
   var ros = document.getElementById("roster");
-  ros.innerHTML = ""; /* the deployed page holds a prerendered copy; render afresh so handlers attach to live nodes */
+  ros.innerHTML = "";
   GROUPS.forEach(function (g, gi) {
     var ps = people.filter(g.test);
     if (!ps.length) return;
@@ -80,8 +65,6 @@
     ros.appendChild(sec);
     g.ul = ul;
   });
-
-  /* ---------- caption cards ---------- */
   var active = null, pinned = null, leaveT = 0;
   function placeCard(p) {
     var li = p.li, cd = li.querySelector(".cd");
@@ -141,8 +124,6 @@
   });
   var rt = 0;
   window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { if (active) placeCard(active); }, 120); });
-
-  /* ---------- entrance: each group's portraits fade and settle in turn ---------- */
   document.getElementById("t-count").textContent = people.length + " people";
   if (!reduce && "IntersectionObserver" in window) {
     var lists = GROUPS.map(function (g) { return g.ul; }).filter(Boolean);
@@ -159,8 +140,6 @@
   }
   var demo = qs.get("demo");
   if (demo && byId[demo]) setTimeout(function () { var p = byId[demo]; activate(p); pinned = p; p.li.classList.add("pin"); }, H.still ? 300 : 1200);
-
-  /* ---------- alumni ---------- */
   function homepage(p) { var l = p.links || {}; return l.web || l.webOld || ""; }
   var al = IIL.alumni || [];
   document.getElementById("a-count").textContent = al.length + " alumni";
@@ -170,12 +149,10 @@
       : '<span class="al-n">' + esc(a.name) + "</span>";
     var em = mail(a.links);
     return '<li data-rv>' + nm +
-      '<span class="al-r">' + esc([a.role, a.degree].filter(Boolean).join(", ")) + "</span>" +
+      '<span class="al-r">' + esc([[a.role, a.years].filter(Boolean).join(", "), a.degree].filter(Boolean).join(". ")) + "</span>" +
       '<span class="al-now">' + (a.now ? esc(a.now) : "") + "</span>" +
       (em ? '<a class="al-em" href="mailto:' + esc(em) + '">' + esc(em) + "</a>" : "") + "</li>";
   }).join("");
-
-  /* ---------- gallery mosaic + lightbox ---------- */
   var seen = {}, gal = [];
   H.newsMedia(); var homeKeys = H._nmKeys || {};
   (IIL.gallery || []).concat((IIL.gallery2 || []).filter(function (g) { return g.quality == null || g.quality >= 3; })).forEach(function (g) {
@@ -186,7 +163,6 @@
     gal.push(g);
   });
   gal.sort(function (a, b) { return String(b.date || "").slice(0, 7).localeCompare(String(a.date || "").slice(0, 7)) || ((b.quality || 3) - (a.quality || 3)); });
-  /* the 2025 group photo (assets/lab/lab_group_snu) is shown on the Home page, so it is not repeated here */
   var FIRST = window.matchMedia("(max-width: 640px)").matches ? 10 : 22;
   document.getElementById("g-count").textContent = gal.length + " photos";
   var gEl = document.getElementById("mosaic");
@@ -210,8 +186,6 @@
     var b = e.target.closest(".mo-b"); if (!b) return;
     H.lightbox(gal, +b.getAttribute("data-i"), b);
   });
-
-  /* ---------- open positions (compact band) ---------- */
   var h = IIL.hiring || {};
   document.getElementById("join-box").innerHTML =
     '<div class="jb-h"><h2 class="h3" id="h-join">' + esc(h.headline || "Open positions") + '</h2><p class="small">Optics, microscopy, computational imaging and related fields. Backgrounds in ME, EE, CS or Physics.</p></div>' +
@@ -220,7 +194,6 @@
         (p.link ? '<a class="jb-a ul" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + esc(p.linkText || "More") + " " + H.ext + "</a>" : "") + "</li>";
     }).join("") + "</ul>" +
     '<p class="jb-m">Email a resume to <a class="ul" href="mailto:' + esc(h.email) + '">' + esc(h.email) + '</a><button class="copy" type="button" data-copy="' + esc(h.email) + '" aria-label="Copy email address">Copy</button></p>';
-
   H.reveal();
   if (location.hash === "#join") requestAnimationFrame(function () { var j = document.getElementById("join"); if (j) j.scrollIntoView(); });
 })();

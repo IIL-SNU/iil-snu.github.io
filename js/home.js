@@ -1,19 +1,7 @@
-/* Home: hero with a small computed speckle pattern, theme tiles (no numbering or arrows between them), image-led news rail with filters, principal investigator, team teaser. */
 (function () {
   "use strict";
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
-  /* four themes (Virtual Staining is part of Computational Microscopy: H.PARENT in site.js) */
   var themes = H.themes();
-
-  /* ---------------- hero: computed laser speckle with the laboratory mark (PI 2026-10-15) ----------------
-     Fully developed laser speckle behind an elliptical aperture (as in rolling-shutter speckle imaging), computed once with a
-     512 x 512 FFT. Outside the shapes of the iil mark (letters and the two stars) the speckle is completely still; inside them
-     the field is a moving combination of four further speckle realisations (unit-norm weights, so the statistics stay those of
-     developed speckle), so the grains decorrelate there the way they do over flowing blood and the mark appears only through
-     motion: no colour, tint or outline (PI 2026-10-15), one palette everywhere. The two fields are mixed with a soft mask
-     rasterised from the mark: E = cos(pi m / 2) E_static + sin(pi m / 2) E_dynamic(t). Only pixels inside the mask are
-     recomputed per frame. Pauses offscreen, on the pause button and with reduced motion (one
-     still frame); nothing is added to the DOM. */
   (function viz() {
     var host = document.getElementById("viz"), cv = document.getElementById("viz-c"), pp = document.getElementById("viz-pp");
     if (!host || !cv || !cv.getContext) return;
@@ -37,14 +25,10 @@
       for (var i2 = 0; i2 < N; i2++) { var j2 = off + i2 * stride; re[j2] = bufR[i2]; im[j2] = bufI[i2]; }
     }
     function fft2() { for (var r2 = 0; r2 < N; r2++) fft1(r2 * N, 1); for (var c2 = 0; c2 < N; c2++) fft1(c2, N); }
-    /* seeded random numbers so every visitor sees the same pattern */
     var seed = 20261015; function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
     function fq(i) { return i < N / 2 ? i : i - N; }
-    /* elliptical aperture in the pupil, long axis across the sensor rows: grains elongated along the columns
-       (grain size in CSS pixels as before: aperture radii scale with N / 256 relative to the canvas, here kept at 54 x 17) */
     var pupil = [];
     for (var y6 = 0; y6 < N; y6++) for (var x6 = 0; x6 < N; x6++) { var u = fq(x6) / 54, v = fq(y6) / 17; if (u * u + v * v <= 1) pupil.push(y6 * N + x6); }
-    /* one speckle realisation into re/im, normalised to unit mean intensity */
     function speckle() {
       re.fill(0); im.fill(0);
       for (var i = 0; i < pupil.length; i++) { var ph = rnd() * 2 * Math.PI; re[pupil[i]] = Math.cos(ph); im[pupil[i]] = Math.sin(ph); }
@@ -52,7 +36,6 @@
       var s = 0; for (var j = 0; j < NN; j++) s += re[j] * re[j] + im[j] * im[j];
       var g = 1 / Math.sqrt(s / NN); for (var j2 = 0; j2 < NN; j2++) { re[j2] *= g; im[j2] *= g; }
     }
-    /* the mark: letter shapes (two bars, the dot, the L) and the two stars, same paths as the inline logo (viewBox 0 26 712 516) */
     var BARS = ["M74 238h86a12 12 0 0 1 12 12v263a12 12 0 0 1-12 12H74a12 12 0 0 1-12-12V250a12 12 0 0 1 12-12Z",
       "M288 238h86a12 12 0 0 1 12 12v263a12 12 0 0 1-12 12h-86a12 12 0 0 1-12-12V250a12 12 0 0 1 12-12Z",
       "M331 78a67 67 0 1 1 0 134a67 67 0 1 1 0-134Z",
@@ -69,7 +52,6 @@
         place(mc); mc.fillStyle = "#fff"; BARS.concat(STARS).forEach(function (d) { mc.fill(new Path2D(d)); });
         var md = mc.getImageData(0, 0, N, N).data;
         for (var i7 = 0; i7 < NN; i7++) m[i7] = md[i7 * 4 + 3] / 255;
-        /* soft edge: two passes of a 5-pixel box blur in each direction */
         var tmp = new Float32Array(NN);
         for (var pass = 0; pass < 2; pass++) {
           for (var yy = 0; yy < N; yy++) for (var xx = 0; xx < N; xx++) { var sm = 0; for (var d1 = -2; d1 <= 2; d1++) { var xq = Math.min(N - 1, Math.max(0, xx + d1)); sm += m[yy * N + xq]; } tmp[yy * N + xx] = sm / 5; }
@@ -77,7 +59,6 @@
         }
       }
     }
-    /* palette ramp: white mist, sky, lavender, steel, navy (bright light = deep ink) */
     var STOPS = [[0, [255, 255, 255]], [.28, [228, 238, 248]], [.55, [174, 203, 231]], [.8, [127, 152, 189]], [1, [29, 48, 87]]];
     var LUT = new Uint8ClampedArray(256 * 3);
     for (var l = 0; l < 256; l++) {
@@ -85,7 +66,6 @@
       var A = STOPS[z - 1], B = STOPS[z], w = (t0 - A[0]) / (B[0] - A[0] || 1);
       for (var ch = 0; ch < 3; ch++) LUT[l * 3 + ch] = A[1][ch] + (B[1][ch] - A[1][ch]) * w;
     }
-    /* soft round envelope: the pattern fades out towards the edge like an illuminated spot */
     var env = new Float32Array(NN);
     for (var y7 = 0; y7 < N; y7++) for (var x7 = 0; x7 < N; x7++) { var rr = Math.hypot(x7 - N / 2 + .5, y7 - N / 2 + .5) / (N * .39); env[y7 * N + x7] = Math.exp(-Math.pow(rr, 6)); }
     var img = ctx.createImageData(N, N), px = img.data, G = 1.25;
@@ -93,7 +73,6 @@
       var q = ((1 - Math.exp(-Iv / G)) * env[i] * 255) | 0, o = i * 4;
       px[o] = LUT[q * 3]; px[o + 1] = LUT[q * 3 + 1]; px[o + 2] = LUT[q * 3 + 2]; px[o + 3] = 255;
     }
-    /* static field (whole canvas), then four dynamic realisations kept only at the mask pixels */
     speckle();
     var idx = [];
     for (var i8 = 0; i8 < NN; i8++) { if (m[i8] > .004 && env[i8] > .002) idx.push(i8); else paint(i8, re[i8] * re[i8] + im[i8] * im[i8]); }
@@ -110,7 +89,6 @@
       DR.push(dr); DI.push(di);
     }
     re = im = null;
-    /* unit 4-vector of weights: the dynamic field E_dynamic = sum w_k E_k keeps developed-speckle statistics at every time */
     function frame(time) {
       var a = Math.PI / 4 + .35 * Math.sin(.21 * time), bb = time, c2 = 1.37 * time + 1;
       var w1 = Math.cos(a) * Math.cos(bb), w2 = Math.cos(a) * Math.sin(bb), w3 = Math.sin(a) * Math.cos(c2), w4 = Math.sin(a) * Math.sin(c2);
@@ -144,13 +122,7 @@
     });
     go();
   })();
-
-  /* ---------------- theme tiles ---------------- */
-  /* one figure per theme (H.FIG_HOME in site.js); research figures stay small on this page. The themes are parallel areas,
-     not steps: tiles carry no sequence numbers and no arrows (PI 2026-10-15). */
   var TILE = {
-    /* PI 2026-10-15: the row of FP microscopes built in the lab, too wide for the tile, pans slowly left and right (CSS, .pan-x in
-       index.css; still and centred with reduced motion); the lensless tile is a 10 s movie of a fabricated Turing-pattern mask */
     fp: { pan: true, sub: "Fourier ptychography, phase and polarization imaging, virtual staining" },
     lensless: { video: "assets/research2/video/turing-mask-zoom.mp4", pos: "50% 50%", sub: "Phase masks and learned reconstruction" },
     speckle: { video: "assets/research2/video/rssi-in-vivo-time-lapse.mp4", pos: "50% 50%", sub: "Blood-flow imaging with rolling-shutter speckle" },
@@ -164,16 +136,13 @@
     var c = TILE[t.key] || { src: t.keyFigure.src, sub: "" };
     var f = H.findFig(c.src) || {};
     var alt = c.alt || f.alt || "", cap = c.cap || f.caption || "", credit = c.credit || f.credit || "";
+    var title = t.key === "lensless" ? "Lensless Cameras" : t.title;
     return '<li data-rv style="--i:' + (i % 3) + '"><a class="tile hover-host" data-th="' + esc(t.key) + '" href="research.html#' + esc(t.key) + '">' +
       '<div class="media zoom wash ' + (c.mat || "") + '">' + (c.video ? H.video(c.video, c.src, alt) : c.pan ? H.img(c.src, alt, { cls: "pan-x" }) : H.img(c.src, alt, { style: "object-position:" + c.pos, sizes: "(max-width: 560px) 100vw, (max-width: 980px) 50vw, 25vw" })) +
       '<p class="w-cap">' + esc(cap) + (credit ? '<span class="credit">' + esc(credit) + "</span>" : "") + "</p></div>" +
-      '<div class="t-row"><span class="t-dot" aria-hidden="true"></span><h3 class="h3">' + esc(t.title) + "</h3></div>" +
+      '<div class="t-row"><span class="t-dot" aria-hidden="true"></span><h3 class="h3">' + esc(title) + "</h3></div>" +
       '<p class="t-sub">' + esc(c.sub) + "</p></a></li>";
   }).join("");
-
-  /* ---------------- news rail ---------------- */
-  /* one lab-made image per item at most, never repeated (H.newsMedia in site.js): lab photo, paper figure, event photo or
-     verified logo; otherwise a typographic panel */
   var KIND = { paper: "Paper", talk: "Talk", award: "Award", funding: "Grant", event: "Event", lab: "Lab", people: "People", service: "Service" };
   var ORDER = ["award", "paper", "funding", "talk", "event", "lab", "people", "service"];
   var FILTERS = [["all", "All"], ["paper", "Papers"], ["talk", "Talks"], ["award", "Awards"], ["funding", "Grants"], ["event", "Events"]];
@@ -236,7 +205,6 @@
   }
   document.getElementById("rail-prev").addEventListener("click", function () { step(-1); });
   document.getElementById("rail-next").addEventListener("click", function () { step(1); });
-  /* drag to scroll with the mouse */
   var dx0 = null, sl0 = 0, moved = false;
   rail.addEventListener("pointerdown", function (e) { if (e.pointerType !== "mouse" || e.button) return; dx0 = e.clientX; sl0 = rail.scrollLeft; moved = false; });
   window.addEventListener("pointermove", function (e) {
@@ -246,17 +214,21 @@
   window.addEventListener("pointerup", function () { dx0 = null; rail.classList.remove("drag"); });
   rail.addEventListener("click", function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
   renderRail();
-
-  /* ---------------- principal investigator: the standard intro (data/identity.js) ---------------- */
-  var piIntro = document.getElementById("pi-intro");
-  if (piIntro && IIL.identity) piIntro.textContent = IIL.identity.piIntro;
-
-  /* ---------------- team teaser ---------------- */
   var mem = IIL.members || [];
-  document.getElementById("team-line").innerHTML = mem.length + ' members: research professors, postdoctoral researchers, graduate students and undergraduate interns, with <a class="ul" href="pi.html">Prof. Seung Ah Lee</a>.';
+  var ROLES = [["Research Professor", "a research professor", "research professors"], ["Postdoctoral Fellow", "a postdoctoral fellow", "postdoctoral fellows"],
+    ["Visiting Faculty", "a visiting faculty member", "visiting faculty members"]];
+  var parts = ['<a class="ul" href="pi.html">Prof. Seung Ah Lee</a>'];
+  ROLES.forEach(function (r) {
+    var n = mem.filter(function (m) { return m.role === r[0]; }).length;
+    if (n) parts.push(n === 1 ? r[1] : n + " " + r[2]);
+  });
+  if (mem.some(function (m) { return m.group === "grad"; })) parts.push("graduate students");
+  var interns = mem.some(function (m) { return m.group === "intern"; });
+  var total = mem.length + (IIL.pi ? 1 : 0);
+  document.getElementById("team-line").innerHTML = total + " people: " + parts.join(", ") + (interns ? " and undergraduate interns." : ".");
   document.getElementById("faces").innerHTML = [IIL.pi].concat(mem).filter(Boolean).map(function (m) {
-    return '<li><img src="' + H.base + esc(H.face(m.photo, true)) + '" alt="' + esc(m.name) + '" width="46" height="46" loading="lazy" decoding="async"><span class="nm" aria-hidden="true">' + esc(m.name) + "</span></li>";
+    var img = '<img src="' + H.base + esc(H.face(m.photo, true)) + '" alt="' + esc(m === IIL.pi ? "Prof. " + m.name + ", profile" : m.name) + '" width="46" height="46" loading="lazy" decoding="async">';
+    return "<li>" + (m === IIL.pi ? '<a class="f-pi" href="pi.html">' + img + "</a>" : img) + '<span class="nm" aria-hidden="true">' + esc(m.name) + "</span></li>";
   }).join("");
-
   H.reveal(); H.parallax(); H.videos();
 })();
