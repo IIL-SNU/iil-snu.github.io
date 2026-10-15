@@ -2,7 +2,7 @@
 
 > The Imaging Intelligence Laboratory in the Department of Mechanical Engineering at Seoul National University develops optical imaging instruments and the algorithms that reconstruct their images. Current work includes Fourier ptychographic and polarization microscopes that measure quantitative phase and birefringence, virtual staining of unstained tissue slides, lensless cameras with fabricated phase masks, and rolling-shutter speckle imaging of blood flow. The laboratory is led by Prof. Seung Ah Lee. Korean name: 지능형 이미징 연구실 (이승아 교수). Earlier work: interactive biology. Formerly the Optical Imaging Systems Laboratory (OISL), Yonsei University (2018–2025).
 
-서울대학교 기계공학부 지능형 이미징 연구실은 광학 영상 장비와, 그 장비로 얻은 영상을 복원하는 알고리즘을 개발합니다. 현미경 분야에서는 푸리에 타이코그래피 현미경과 무염색 조직의 가상 염색을 다룹니다. 카메라 분야에서는 위상 마스크를 쓴 렌즈리스 카메라와, 동적 스페클 이미징으로 혈류를 측정하는 기술을 개발합니다. 연구실 책임자는 이승아 교수입니다.
+서울대학교 기계공학부 지능형 이미징 연구실은 광학 영상 장비와 영상 복원 알고리즘을 개발합니다. 현미경 분야에서는 푸리에 타이코그래피 현미경과 무염색 조직의 가상 염색을 다룹니다. 카메라 분야에서는 위상 마스크를 쓴 렌즈리스 카메라와, 동적 스페클 이미징으로 혈류를 측정하는 기술을 개발합니다. 연구실 책임자는 이승아 교수입니다.
 
 ## Principal investigator
 
