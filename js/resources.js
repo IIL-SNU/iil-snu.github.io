@@ -3,17 +3,19 @@
 (function () {
   "use strict";
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
-  var TOPIC = { lensless: "Lensless cameras", vs: "Virtual staining", speckle: "Speckle imaging", fp: "Fourier ptychography" };
+  /* four research themes: virtual staining belongs to computational microscopy (H.PARENT in site.js) */
+  var TOPIC = { lensless: "Lensless cameras", vs: "Computational microscopy", speckle: "Speckle imaging", fp: "Computational microscopy" };
   /* research figure shown on each repository card */
   var R = "assets/research2/";
   var FIG = {
-    IFIN: { src: R + "lensless/ifin-mask-height-and-psfs.jpg", contain: true },
+    IFIN: { src: R + "lensless/lensless-camera-schematic.png", contain: true },
     "GAPC-ASM": { src: R + "lensless/gapc-asm-aperture-geometry.jpg", contain: true },
     FPVS: { src: R + "vs/fpvs-reconstructed-amplitude.jpg" },
     RSSI: { src: R + "speckle/rs-speckle-simulation-and-fitting.jpg", contain: true },
     FP_ADMM: { src: R + "fp/fp-superresolved-usaf.jpg" },
     Smartphone_FPM: { src: R + "fp/smartphone-fp-pipeline-app.png", contain: true },
-    WiderCam: { src: R + "lensless/ifin-lensless-camera-prototype.jpg" },
+    /* the WiderCam camera photo (ifin-lensless-camera-prototype) is the Home lensless tile; here its mask and PSFs */
+    WiderCam: { src: R + "lensless/ifin-mask-height-and-psfs.jpg", contain: true },
     "Smartphone FPM example images": { src: R + "fp/smartphone-fp-color-pap-smear.jpg" },
     "RSSI in vivo mouse brain speckle images": { src: R + "speckle/rssi-raw-frame-dataset-crop.jpg" },
     "FPVS example FPM data": { src: R + "fp/fpvs-raw-led-images-montage.jpg" },
@@ -37,8 +39,8 @@
   var code = IIL.code || [];
   document.getElementById("c-count").textContent = code.length + " repositories";
   document.getElementById("repos").innerHTML = code.map(function (r) {
-    return '<li data-rv><article class="repo hover-host" data-th="' + esc(r.topic || "") + '">' + media(r.name) +
-      '<div class="r-body"><p class="r-top"><span class="r-ic">' + CODE_I + '</span><span class="tag" data-th="' + esc(r.topic || "") + '">' + esc(TOPIC[r.topic] || r.topic || "") + "</span></p>" +
+    return '<li data-rv><article class="repo hover-host" data-th="' + esc(H.mainKey(r.topic || "")) + '">' + media(r.name) +
+      '<div class="r-body"><p class="r-top"><span class="r-ic">' + CODE_I + '</span><span class="tag" data-th="' + esc(H.mainKey(r.topic || "")) + '">' + esc(TOPIC[r.topic] || r.topic || "") + "</span></p>" +
       '<h3 class="r-name"><a href="' + esc(r.url) + '" target="_blank" rel="noopener"><span class="ul-t">' + esc(r.name) + "</span> " + H.ext + "</a></h3>" +
       '<p class="r-desc">' + esc(r.desc) + "</p>" +
       (r.paper ? '<p class="r-paper"><span class="meta">Paper</span>' + esc(r.paper) + "</p>" : "") +
@@ -53,7 +55,7 @@
   document.getElementById("data").innerHTML = '<p class="small d-count">' + ds.length + " datasets</p>" + ds.map(function (d, i) {
     var f = FIG[d.name] || {}, fig = H.findFig(f.src || "") || {};
     return '<article class="dataset hover-host' + (i === 0 ? " feat" : "") + '" data-rv>' + media(d.name) +
-      '<div class="d-body"><span class="tag" data-th="' + esc(d.topic || "") + '">' + esc(TOPIC[d.topic] || d.topic || "") + '</span><h3 class="h2 d-name">' + esc(d.name) + "</h3>" +
+      '<div class="d-body"><span class="tag" data-th="' + esc(H.mainKey(d.topic || "")) + '">' + esc(TOPIC[d.topic] || d.topic || "") + '</span><h3 class="h2 d-name">' + esc(d.name) + "</h3>" +
       '<p class="d-desc">' + esc(d.desc) + "</p>" +
       '<dl class="d-facts">' + dRow("Size", esc(d.size)) + dRow("Format", esc(d.format)) + dRow("Paper", esc(d.paper)) +
         dRow("Code", d.code ? lnk(d.code, host(d.code)) : "") + dRow("Project page", d.page ? lnk(d.page, host(d.page)) : "") + "</dl>" +

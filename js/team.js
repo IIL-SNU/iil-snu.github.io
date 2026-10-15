@@ -58,6 +58,7 @@
 
   /* ---------- render groups ---------- */
   var ros = document.getElementById("roster");
+  ros.innerHTML = ""; /* the deployed page holds a prerendered copy; render afresh so handlers attach to live nodes */
   GROUPS.forEach(function (g, gi) {
     var ps = people.filter(g.test);
     if (!ps.length) return;
@@ -174,7 +175,7 @@
     gal.push(g);
   });
   gal.sort(function (a, b) { return String(b.date || "").slice(0, 7).localeCompare(String(a.date || "").slice(0, 7)) || ((b.quality || 3) - (a.quality || 3)); });
-  gal.unshift({ src: "assets/lab/lab_group_snu.jpg", sm: "assets/lab/lab_group_snu-1200.jpg", caption: "The group in the new laboratory at Seoul National University, Bldg. 302", date: "2025", alt: "Group photo of the laboratory members in the new laboratory at Seoul National University, 2025." });
+  /* the 2025 group photo (assets/lab/lab_group_snu) is shown on the Home page, so it is not repeated here */
   var FIRST = window.matchMedia("(max-width: 640px)").matches ? 10 : 22;
   document.getElementById("g-count").textContent = gal.length + " photos";
   var gEl = document.getElementById("mosaic");

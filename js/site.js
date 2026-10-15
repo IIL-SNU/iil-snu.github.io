@@ -7,11 +7,14 @@
   /* ?still renders the final state without motion (for static screenshots). */
   var still = /[?&]still\b/.test(location.search);
   if (still) { root.classList.add("still"); reduce = true; }
+  /* ?prerender (used only by _dev/build_deploy.py): render the content without motion so the static snapshot is clean */
+  var prerender = /[?&]prerender\b/.test(location.search);
+  if (prerender) reduce = true;
   var fine = !!(window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches);
   var BASE = "";
 
   var H = (window.H1 = {});
-  H.base = BASE; H.reduce = reduce; H.still = still; H.fine = fine;
+  H.base = BASE; H.reduce = reduce; H.still = still; H.fine = fine; H.prerender = prerender;
   H.esc = function (s) {
     return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   };
@@ -137,6 +140,7 @@
     return '<video class="vid' + (o.cls ? " " + o.cls : "") + '" muted loop playsinline preload="none" poster="' + H.esc(H.url(poster)) + '" width="' + d[0] + '" height="' + d[1] + '" aria-label="' + H.esc(label || "") + '" data-src="' + H.esc(H.url(src)) + '"></video>';
   };
   H.videos = function (scope) {
+    if (prerender) return;
     var vs = (scope || document).querySelectorAll("video.vid[data-src]:not([data-on])");
     vs.forEach(function (v) {
       v.setAttribute("data-on", "1");
@@ -163,6 +167,34 @@
     if (!m) return H.esc(d);
     return m[2] ? (short ? MON : MONTHS)[+m[2] - 1] + " " + m[1] : m[1];
   };
+  /* ---------- research themes: four themes; Virtual Staining (data key "vs") is a sub-area of Computational Microscopy ("fp").
+     The data files keep five entries (data/research_*.js); pages group them through these helpers. ---------- */
+  H.PARENT = { vs: "fp" };
+  H.SUBTITLE = { vs: "Virtual staining" };
+  H.mainKey = function (k) { return H.PARENT[k] || k; };
+  function byOrder(a, b) { return a.order - b.order; }
+  H.allThemes = function () { return ((window.IIL && IIL.research) || []).slice().sort(byOrder); };
+  H.themes = function () { return H.allThemes().filter(function (t) { return !H.PARENT[t.key]; }); };
+  H.subthemes = function (k) { return H.allThemes().filter(function (t) { return H.PARENT[t.key] === k; }); };
+  H.themeData = function (k) { var a = H.allThemes(); for (var i = 0; i < a.length; i++) if (a[i].key === k) return a[i]; return null; };
+  /* display title of the main theme a data key belongs to ("vs" -> "Computational Microscopy") */
+  H.themeTitle = function (k) { var t = H.themeData(H.mainKey(k)); return t ? t.title : ""; };
+  /* research figures placed on pages other than research.html (one image, one place): the Home theme tiles, the theme pages
+     and two Resources cards. research.js claims them first, so its project sheets never repeat them. */
+  H.FIG_HOME = { fp: "live-cells-fp-phase-wide.jpg", lensless: "ifin-lensless-camera-prototype.jpg",
+    speckle: "rssi-in-vivo-time-lapse-poster.jpg", hbi: "assets/research/hbi/euglpollock-exhibition.jpg" };
+  H.FIG_THEME = { fp: ["fp-forward-model-schematic.png", "fp-high-res-he-glands.jpg"], vs: ["phase-to-he-and-ihc-split.jpg"],
+    lensless: ["assets/research/lensless/uv-imprint-integrated-camera-prototype.jpg", "phase-mask-height-map-3d.jpg"] };
+  /* Resources cards, the Publications figure of the UV-imprint paper, and live-cells-fp-phase-full-fov (the uncropped field of the Home tile, kept off the project sheets) */
+  H.FIG_OTHER = ["lensless-camera-schematic.png", "ifin-mask-height-and-psfs.jpg", "live-cells-fp-phase-full-fov.jpg", "uv-imprint-concept-and-process.png"];
+  H.claimElsewhere = function () {
+    var all = [];
+    Object.keys(H.FIG_HOME).forEach(function (k) { all.push(H.FIG_HOME[k]); });
+    Object.keys(H.FIG_THEME).forEach(function (k) { all = all.concat(H.FIG_THEME[k]); });
+    all.concat(H.FIG_OTHER).forEach(function (n) { H.claim(n); });
+  };
+  /* one crawlable page per research theme (research.html stays the overview) */
+  H.themePage = { fp: "computational-microscopy.html", vs: "computational-microscopy.html#virtual-staining", lensless: "lensless-cameras.html", speckle: "speckle-imaging.html", hbi: "interactive-biology.html" };
   H.pad = function (n) { return (n < 10 ? "0" : "") + n; };
   H.arrow = '<span class="arr" aria-hidden="true">&#8594;</span>';
   H.ext = '<span class="arr" aria-hidden="true">&#8599;</span>';
@@ -193,6 +225,7 @@
     } catch (err) { io = null; root.classList.remove("rv-on"); }
   }
   H.reveal = function (scope) {
+    if (prerender) return;
     scope = scope || document;
     scope.querySelectorAll("[data-stagger]").forEach(function (g) {
       var i = 0;
@@ -205,6 +238,7 @@
     els.forEach(function (el) { io.observe(el); });
   };
   function safety() {
+    if (prerender) return;
     var h = window.innerHeight;
     document.querySelectorAll("[data-rv]:not(.rv-in), [data-clip]:not(.rv-in)").forEach(function (el) {
       var r = el.getBoundingClientRect();
@@ -307,7 +341,7 @@
 
   /* ---------- loupe: cursor-following magnifier over research figures ([data-loupe] frame containing one img) ---------- */
   H.loupe = function (scope) {
-    if (!fine || still) return;
+    if (!fine || still || prerender) return;
     (scope || document).querySelectorAll("[data-loupe]:not([data-lp])").forEach(function (host) {
       host.setAttribute("data-lp", "");
       var img = host.querySelector("img"); if (!img) return;

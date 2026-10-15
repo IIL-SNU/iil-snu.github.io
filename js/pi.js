@@ -15,7 +15,10 @@
     '<a class="btn" href="#contact-pi">Contact</a>';
 
   /* ---------- biography ---------- */
-  var bio = (pi.bio || []).slice();
+  /* first paragraph: the standard PI intro (data/identity.js), the same text as on the home page and in the meta data;
+     then the career sentence and the research paragraph of data/team.js */
+  var ID = IIL.identity || {};
+  var bio = ID.piIntro ? [ID.piIntro, ID.piCareer].concat((pi.bio || []).slice(1)) : (pi.bio || []).slice();
   /* third paragraph: service and teaching, from the CV (Academic and Professional Services; Teaching) and data/teaching.js */
   bio.push("Her professional service includes General Chair of the Computational Optical Sensing and Imaging (COSI) conference at the Optica Imaging Congress (2024, 2025), Conference Co-chair at SPIE Photonics West (2024–2026) and Director of International Affairs of the Optical Society of Korea. At Seoul National University she teaches Optical Physics and Design to undergraduate students and Computational Optical Imaging to graduate students.");
   $("bio-c").innerHTML = bio.map(function (p, i) { return '<p data-rv style="--i:' + i + '">' + esc(p) + "</p>"; }).join("");

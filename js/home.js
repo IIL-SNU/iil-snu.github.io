@@ -1,123 +1,30 @@
-/* Home: hero carousel of research figures, theme tiles, image-led news rail with filters, team teaser. */
+/* Home: hero with a lab photograph, theme tiles, image-led news rail with filters, principal investigator, team teaser. */
 (function () {
   "use strict";
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
-  var themes = (IIL.research || []).slice().sort(function (a, b) { return a.order - b.order; });
-  function theme(k) { for (var i = 0; i < themes.length; i++) if (themes[i].key === k) return themes[i]; return null; }
+  /* four themes (Virtual Staining is part of Computational Microscopy: H.PARENT in site.js) */
+  var themes = H.themes();
 
-  /* ---------------- hero carousel ---------------- */
-  /* hero-kind figures from data/media_research.js, varied across themes; lensless phase masks feature prominently */
-  var SLIDES = [
-    ["rssi-raw-speckle-closeup.jpg", "50% 50%"],
-    ["fabricated-phase-masks-on-glass-slide.jpg", "50% 50%"],
-    ["fpvs-reconstructed-phase.jpg", "50% 50%"],
-    ["lily-root-full-fov-vs-polarization-camera.jpg", "30% 50%"],
-    ["learned-illumination-virtual-he.jpg", "50% 50%"],
-    ["phase-mask-against-light.jpg", "50% 35%"],
-    ["faded-slide-restained-zoom.jpg", "50% 50%"],
-    ["measured-psf-caustic-wide.jpg", "50% 50%"]
-  ].map(function (x) {
-    var f = H.mrGet(x[0]) || {}; var t = theme(f.theme);
-    return { src: f.src, pos: x[1], alt: f.alt, cap: f.caption, credit: f.credit, theme: t ? t.title : "" };
-  }).filter(function (s) { return s.src; });
-  var stage = document.getElementById("stage"), wrap = document.getElementById("slides");
-  var capCard = stage.querySelector(".cap-card"), bars = document.getElementById("s-bars");
-  var playBtn = document.getElementById("s-play");
-  var N = SLIDES.length, cur = 0, DUR = 7000;
-  wrap.innerHTML = SLIDES.map(function (s, i) {
-    return '<figure class="slide' + (i === 0 ? " on" : "") + '" aria-roledescription="slide" aria-label="' + (i + 1) + " of " + N + '"' + (i ? ' aria-hidden="true"' : "") + '><div class="sv">' +
-      H.img(s.src, s.alt, { eager: i === 0, style: "object-position:" + s.pos, sizes: "(max-width: 980px) 100vw, 64vw" }) + "</div></figure>";
-  }).join("");
-  bars.innerHTML = SLIDES.map(function (s, i) {
-    return '<button type="button" tabindex="-1" aria-label="Show figure ' + (i + 1) + '"' + (i === 0 ? ' class="on"' : "") + "><i></i></button>";
-  }).join("");
-  bars.removeAttribute("aria-hidden");
-  document.getElementById("s-total").textContent = H.pad(N);
-  var slides = wrap.querySelectorAll(".slide"), barEls = bars.querySelectorAll("button");
-  stage.setAttribute("tabindex", "0");
-
-  function setCap(i) {
-    var s = SLIDES[i];
-    document.getElementById("s-n").textContent = H.pad(i + 1);
-    document.getElementById("s-theme").textContent = s.theme;
-    document.getElementById("s-cap").textContent = s.cap;
-    document.getElementById("s-credit").textContent = s.credit;
-  }
-  function go(i) {
-    i = (i + N) % N;
-    if (i === cur) return;
-    slides[cur].classList.remove("on"); slides[cur].setAttribute("aria-hidden", "true");
-    slides[i].classList.add("on"); slides[i].removeAttribute("aria-hidden");
-    barEls.forEach(function (b, k) { b.classList.toggle("done", k < i); b.classList.remove("on"); b.querySelector("i").style.transform = k < i ? "scaleX(1)" : "scaleX(0)"; });
-    barEls[i].classList.add("on");
-    if (H.reduce) setCap(i);
-    else { capCard.classList.add("swap"); setTimeout(function () { setCap(i); capCard.classList.remove("swap"); }, 380); }
-    cur = i; elapsed = 0;
-  }
-  setCap(0);
-
-  /* autoplay with a rAF clock: holds while hovered or focused, while the tab is hidden, or when paused */
-  var elapsed = 0, last = 0, hold = false, paused = H.reduce, raf = 0;
-  function frame(t) {
-    raf = requestAnimationFrame(frame);
-    var dt = last ? Math.min(t - last, 100) : 0; last = t;
-    if (paused || hold || document.hidden) return;
-    elapsed += dt;
-    var p = Math.min(elapsed / DUR, 1);
-    barEls[cur].querySelector("i").style.transform = "scaleX(" + p.toFixed(4) + ")";
-    if (p >= 1) go(cur + 1);
-  }
-  function setPaused(v) {
-    paused = v; playBtn.setAttribute("aria-pressed", String(v));
-    playBtn.setAttribute("aria-label", v ? "Play slideshow" : "Pause slideshow");
-    stage.classList.toggle("paused", v);
-  }
-  setPaused(paused);
-  if (!H.still) raf = requestAnimationFrame(frame);
-  else barEls[0].querySelector("i").style.transform = "scaleX(.35)";
-  playBtn.addEventListener("click", function () { setPaused(!paused); });
-  document.getElementById("s-prev").addEventListener("click", function () { go(cur - 1); });
-  document.getElementById("s-next").addEventListener("click", function () { go(cur + 1); });
-  bars.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) go(Array.prototype.indexOf.call(barEls, b)); });
-  stage.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") hold = true; });
-  stage.addEventListener("pointerleave", function () { hold = false; slides.forEach(function (s) { s.style.removeProperty("--px"); s.style.removeProperty("--py"); }); });
-  stage.addEventListener("keydown", function (e) {
-    if (e.target !== stage) return;
-    if (e.key === "ArrowRight") { e.preventDefault(); go(cur + 1); }
-    else if (e.key === "ArrowLeft") { e.preventDefault(); go(cur - 1); }
-  });
-  /* pointer parallax: the figure drifts slightly against the cursor */
-  if (H.fine && !H.reduce) {
-    var pr = 0, mx = 0, my = 0;
-    stage.addEventListener("pointermove", function (e) {
-      var r = stage.getBoundingClientRect();
-      mx = ((e.clientX - r.left) / r.width - .5) * -18; my = ((e.clientY - r.top) / r.height - .5) * -14;
-      if (!pr) pr = requestAnimationFrame(function () { pr = 0; slides[cur].style.setProperty("--px", mx.toFixed(1) + "px"); slides[cur].style.setProperty("--py", my.toFixed(1) + "px"); });
-    });
-  }
-  /* swipe */
-  var sx = null, sy = 0;
-  stage.addEventListener("pointerdown", function (e) { if (e.pointerType !== "mouse") { sx = e.clientX; sy = e.clientY; } });
-  stage.addEventListener("pointerup", function (e) {
-    if (sx == null) return; var dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
-  });
+  /* ---------------- hero: a lab photograph (index.html); the former research-figure carousel was removed at the PI's request ---------------- */
 
   /* ---------------- theme tiles ---------------- */
+  /* one figure per theme (H.FIG_HOME in site.js); research figures stay small on this page */
   var TILE = {
-    fp: { f: "siemens-star-orientation-map.jpg", pos: "50% 50%", sub: "Fourier ptychography, phase and polarization imaging" },
-    vs: { f: "phase-to-he-and-ihc-split.jpg", pos: "50% 50%", sub: "Label-free histology from phase images" },
-    lensless: { f: "lensless-camera-module-with-coin.jpg", pos: "50% 55%", sub: "Phase masks and learned reconstruction" },
-    speckle: { f: "rssi-in-vivo-time-lapse-poster.jpg", video: "assets/research2/video/rssi-in-vivo-time-lapse.mp4", pos: "50% 50%", sub: "Blood-flow imaging with rolling-shutter speckle" },
-    hbi: { f: "remember-installation.jpg", pos: "50% 50%", sub: "Interactive experiments with living microorganisms (past work)" }
+    fp: { pos: "50% 50%", sub: "Fourier ptychography, phase and polarization imaging, virtual staining" },
+    lensless: { pos: "50% 50%", sub: "Phase masks and learned reconstruction" },
+    speckle: { video: "assets/research2/video/rssi-in-vivo-time-lapse.mp4", pos: "50% 50%", sub: "Blood-flow imaging with rolling-shutter speckle" },
+    hbi: { pos: "50% 50%", sub: "Interactive experiments with living microorganisms (past work)" }
   };
-  Object.keys(TILE).forEach(function (k) { var f = H.mrGet(TILE[k].f) || {}; TILE[k].src = f.src; TILE[k].alt = f.alt; TILE[k].cap = f.caption; TILE[k].credit = f.credit; });
+  Object.keys(TILE).forEach(function (k) {
+    var n = H.FIG_HOME[k], f = (/^assets\//.test(n) ? H.findFig(n) : H.mrGet(n)) || {};
+    TILE[k].src = f.src || n; TILE[k].alt = f.alt; TILE[k].cap = f.caption; TILE[k].credit = f.credit;
+  });
   document.getElementById("tiles").innerHTML = themes.map(function (t, i) {
     var c = TILE[t.key] || { src: t.keyFigure.src, sub: "" };
     var f = H.findFig(c.src) || {};
     var alt = c.alt || f.alt || "", cap = c.cap || f.caption || "", credit = c.credit || f.credit || "";
     return '<li data-rv style="--i:' + (i % 3) + '"><a class="tile hover-host" data-th="' + esc(t.key) + '" href="research.html#' + esc(t.key) + '">' +
-      '<div class="media zoom wash ' + (c.mat || "") + '">' + (c.video ? H.video(c.video, c.src, alt) : H.img(c.src, alt, { style: "object-position:" + c.pos, sizes: i < 2 ? "(max-width: 980px) 50vw, 56vw" : "(max-width: 980px) 50vw, 33vw" })) +
+      '<div class="media zoom wash ' + (c.mat || "") + '">' + (c.video ? H.video(c.video, c.src, alt) : H.img(c.src, alt, { style: "object-position:" + c.pos, sizes: "(max-width: 560px) 100vw, (max-width: 980px) 50vw, 25vw" })) +
       '<p class="w-cap">' + esc(cap) + (credit ? '<span class="credit">' + esc(credit) + "</span>" : "") + "</p></div>" +
       '<div class="t-row"><span class="meta">' + H.pad(i + 1) + '</span><h3 class="h3">' + esc(t.title) + "</h3>" + H.arrow + "</div>" +
       '<p class="t-sub">' + esc(c.sub) + "</p></a></li>";
@@ -198,6 +105,10 @@
   window.addEventListener("pointerup", function () { dx0 = null; rail.classList.remove("drag"); });
   rail.addEventListener("click", function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
   renderRail();
+
+  /* ---------------- principal investigator: the standard intro (data/identity.js) ---------------- */
+  var piIntro = document.getElementById("pi-intro");
+  if (piIntro && IIL.identity) piIntro.textContent = IIL.identity.piIntro;
 
   /* ---------------- team teaser ---------------- */
   var mem = IIL.members || [];

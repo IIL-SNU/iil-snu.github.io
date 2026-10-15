@@ -6,7 +6,7 @@
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
 
   var PLAIN = {
-    fp: "Fourier ptychography illuminates a sample from many angles and combines the low-resolution images into one wide-field, high-resolution image that also contains quantitative phase. We build smartphone, single-shot and polarization-resolved versions of the method.",
+    fp: "Fourier ptychography illuminates a sample from many angles and combines the low-resolution images into one wide-field, high-resolution image that also contains quantitative phase. We build smartphone, single-shot and polarization-resolved versions of the method, and use them for virtual staining of tissue slides.",
     vs: "We image unstained tissue slides with Fourier ptychographic microscopes and train neural networks to turn the measured phase into the appearance of chemically stained slides. Work with pathologists at Severance Hospital covers faded-slide restoration, faster scanning and stains other than H&E.",
     lensless: "A lensless camera replaces the lens with a thin phase mask above the image sensor and recovers the image computationally. We design and fabricate the masks and develop reconstruction networks for polarization, hyperspectral, eye-tracking and privacy-preserving imaging.",
     speckle: "Rolling-shutter speckle imaging measures blood flow from a single camera frame by using the row-by-row readout of a standard CMOS sensor. Applications include cerebral blood-flow mapping, pulse waveforms at the fingertip and real-time analysis with neural networks.",
@@ -17,28 +17,37 @@
     fp: { f: "tissue-phase-3d-surface.jpg", ratio: "3 / 2", loupe: 2.2 },
     lensless: { f: "turing-phase-mask-tweezers.jpg", ratio: "3 / 2", loupe: 2.2 },
     speckle: { f: "rssi-raw-to-flow-map-wipe-poster.jpg", video: "assets/research2/video/rssi-raw-to-flow-map.mp4", ratio: "16 / 9" },
-    hbi: { f: "microaquarium-installation.jpg", ratio: "1280 / 608", photo: true }
+    hbi: { f: "remember-installation.jpg", ratio: "4 / 3", photo: true }
   };
   Object.keys(LEAD).forEach(function (k) { LEAD[k].fig = H.mrGet(LEAD[k].f); });
   var KEYS = {
     fp: ["live-cells-brightfield-vs-phase.jpg", "smartphone-fp-color-tilia.jpg"],
     vs: ["virtual-he-whole-slide.jpg", "virtual-ihc-vs-chemical-ihc.jpg"],
-    lensless: ["grayscale-lithography-uv-exposure.jpg", "microlens-mask-height-map.jpg"],
+    lensless: ["phase-mask-and-camera-prototype-strip.jpg"],
     speckle: ["rssi-physics-network-comparison.jpg", "speckle-eye-movement-setup.png"],
     hbi: []
   };
   /* index thumbnails: a different figure from the lead, so nothing repeats on the page */
-  var IDX = { fp: "live-cells-fp-phase-wide.jpg", vs: "virtual-he-roi.jpg", lensless: "lensless-modules-next-to-paper-clip.jpg", speckle: "rssi-mouse-setup-speckle-whitelight.jpg", hbi: "euglpollock-exhibition.jpg" };
-  var themes = (IIL.research || []).slice().sort(function (a, b) { return a.order - b.order; });
+  /* hbi has no index thumbnail: its only Euglena photograph is the Home tile, and its lead is the ReMember installation */
+  var IDX = { fp: "lily-root-birefringence-detail-b.jpg", lensless: "measured-psf-voronoi.jpg", speckle: "rssi-mouse-setup-speckle-whitelight.jpg" };
+  H.claimElsewhere();
+  /* four themes; sub-areas (Virtual Staining under Computational Microscopy, H.PARENT in site.js) render inside their theme */
+  var themes = H.themes();
   var all = [];
-  themes.forEach(function (t) { (t.projects || []).forEach(function (p) { all.push({ p: p, t: t }); }); });
+  themes.forEach(function (t) {
+    (t.projects || []).forEach(function (p) { all.push({ p: p, t: t }); });
+    H.subthemes(t.key).forEach(function (s) { (s.projects || []).forEach(function (p) { all.push({ p: p, t: s }); }); });
+  });
+  function withSubs(t) { return [t].concat(H.subthemes(t.key)); }
+  function sheetTitle(t) { return H.PARENT[t.key] ? H.themeTitle(t.key) + ": " + H.SUBTITLE[t.key] : t.title; }
 
-  function span(t) {
-    var ys = [];
-    (t.projects || []).forEach(function (p) { (String(p.years).match(/\d{4}/g) || []).forEach(function (y) { ys.push(+y); }); });
+  function span(t, own) {
+    var ys = [], ps = [];
+    (own ? [t] : withSubs(t)).forEach(function (x) { ps = ps.concat(x.projects || []); });
+    ps.forEach(function (p) { (String(p.years).match(/\d{4}/g) || []).forEach(function (y) { ys.push(+y); }); });
     if (!ys.length) return "";
     var lo = Math.min.apply(null, ys), hi = Math.max.apply(null, ys);
-    var open = (t.projects || []).some(function (p) { return /[–-]\s*$/.test(p.years); });
+    var open = ps.some(function (p) { return /[–-]\s*$/.test(p.years); });
     return open ? lo + "–" : (lo === hi ? String(lo) : lo + "–" + hi);
   }
   function cap(f) {
@@ -68,9 +77,9 @@
 
   document.getElementById("r-count").textContent = themes.length + " themes, " + all.length + " projects";
   document.getElementById("r-index").innerHTML = themes.map(function (t, i) {
-    var f = H.mrGet(IDX[t.key] || "") || {}, src = f.src || (IDX[t.key] ? "assets/research/hbi/" + IDX[t.key] : t.keyFigure.src);
-    H.claim(src);
-    return '<li data-rv><a class="ix hover-host" data-th="' + esc(t.key) + '" href="#' + esc(t.key) + '"><span class="media zoom ix-img">' + H.img(H.thumb(src, 400), "", {}) + "</span>" +
+    var f = H.mrGet(IDX[t.key] || "") || {}, src = f.src;
+    if (src) H.claim(src);
+    return '<li data-rv><a class="ix hover-host" data-th="' + esc(t.key) + '" href="#' + esc(t.key) + '"><span class="media zoom ix-img' + (src ? "" : " ix-none") + '">' + (src ? H.img(H.thumb(src, 400), "", {}) : "") + "</span>" +
       '<span class="ix-t"><span class="meta">' + H.pad(i + 1) + '</span><span class="ix-n">' + esc(t.title) + "</span></span></a></li>";
   }).join("");
 
@@ -80,9 +89,9 @@
     if (!list.length) return "";
     KEYLIST[t.key] = list;
     return '<ul class="t-keys">' + list.map(function (f, i) {
-      var contain = /\.png$/.test(f.src);
-      return '<li><button type="button" class="k-it hover-host" data-k="' + esc(t.key) + '" data-i="' + i + '" aria-label="View figure: ' + esc(f.caption) + '">' +
-        '<span class="media zoom' + (contain ? " contain mat-white" : "") + '">' + H.img(H.thumb(f.src, 800), f.alt, { sizes: "(max-width: 900px) 50vw, 380px" }) + "</span></button>" +
+      var contain = /\.png$/.test(f.src), wide = f.w && f.h && f.w / f.h > 2.2;
+      return '<li' + (wide ? ' class="k-wide"' : "") + '><button type="button" class="k-it hover-host" data-k="' + esc(t.key) + '" data-i="' + i + '" aria-label="View figure: ' + esc(f.caption) + '">' +
+        '<span class="media zoom' + (contain ? " contain mat-white" : "") + '"' + (wide ? ' style="aspect-ratio:' + f.w + " / " + f.h + '"' : "") + ">" + H.img(wide ? f.src : H.thumb(f.src, 800), f.alt, { sizes: wide ? "(max-width: 900px) 100vw, 780px" : "(max-width: 900px) 50vw, 380px" }) + "</span></button>" +
         '<p class="k-cap">' + esc(f.caption) + ' <span class="credit">' + esc(f.credit) + "</span></p></li>";
     }).join("") + "</ul>";
   }
@@ -94,19 +103,33 @@
     return '<figure class="t-fig"><div class="media' + (L.video ? " has-vid" : "") + '" data-clip' + (L.loupe ? ' data-loupe="' + L.loupe + '"' : "") +
       ' style="aspect-ratio:' + L.ratio + '">' + lead + (L.loupe ? LOUPE_TIP : "") + "</div>" + cap(f) + "</figure>";
   }
-  document.getElementById("themes").innerHTML = themes.map(function (t, i) {
-    var media = leadFig(t) + keyFigs(t);
-    var projects = (t.projects || []).map(function (p) {
+  function projRows(t) {
+    return (t.projects || []).map(function (p) {
       return '<li data-rv><button class="p-row hover-host" type="button" data-slug="' + esc(p.slug) + '" aria-haspopup="dialog">' +
         '<span class="p-t"><span class="ul-t">' + esc(p.title) + "</span>" + (p.oneLiner ? '<span class="p-one">' + esc(p.oneLiner) + "</span>" : "") + "</span>" +
         '<span class="p-y">' + esc(p.years) + (p.status === "ongoing" ? ", ongoing" : "") + "</span>" +
         '<span class="p-go" aria-hidden="true">&#8594;</span></button></li>';
     }).join("");
+  }
+  /* sub-area block inside a theme section (anchor = its data key, e.g. research.html#vs) */
+  function subBlock(s) {
+    var name = H.SUBTITLE[s.key] || s.title, page = H.themePage[s.key];
+    return '<div class="t-subsec" id="' + esc(s.key) + '" aria-labelledby="h-' + esc(s.key) + '">' +
+      '<header class="t-subh"><h3 class="h2" id="h-' + esc(s.key) + '" data-rv>' + esc(name) + '</h3><span class="meta t-y" data-rv>' + span(s, true) + "</span></header>" +
+      '<div class="t-grid"><div class="t-text"><p class="lede" data-rv>' + esc(PLAIN[s.key] || s.summary) + "</p>" +
+      '<h4 class="meta t-ph" data-rv>Projects <span class="n">' + (s.projects || []).length + '</span></h4><ul class="p-list" data-stagger>' + projRows(s) + "</ul>" +
+      (page ? '<p class="t-page" data-rv><a class="btn" href="' + page + '">' + esc(name) + ": papers, code and projects " + H.arrow + "</a></p>" : "") + "</div>" +
+      '<div class="t-media">' + leadFig(s) + keyFigs(s) + "</div></div></div>";
+  }
+  document.getElementById("themes").innerHTML = themes.map(function (t, i) {
+    var media = leadFig(t) + keyFigs(t);
+    var projects = projRows(t);
     return '<section class="theme' + (t.key === "hbi" ? " past" : "") + '" data-th="' + esc(t.key) + '" id="' + esc(t.key) + '" aria-labelledby="h-' + esc(t.key) + '"><div class="wrap">' +
       '<header class="t-head"><span class="meta t-n" data-rv>' + H.pad(i + 1) + '</span><h2 class="h1" id="h-' + esc(t.key) + '" data-rv>' + esc(t.title) + '</h2><span class="meta t-y" data-rv>' + span(t) + (t.key === "hbi" ? ", past work" : "") + "</span></header>" +
       '<div class="t-grid"><div class="t-text"><p class="lede" data-rv>' + esc(PLAIN[t.key] || t.summary) + "</p>" +
-      '<h3 class="meta t-ph" data-rv>Projects <span class="n">' + (t.projects || []).length + '</span></h3><ul class="p-list" data-stagger>' + projects + "</ul></div>" +
-      '<div class="t-media">' + media + "</div></div></div></section>";
+      '<h3 class="meta t-ph" data-rv>Projects <span class="n">' + (t.projects || []).length + '</span></h3><ul class="p-list" data-stagger>' + projects + "</ul>" +
+      (H.themePage[t.key] ? '<p class="t-page" data-rv><a class="btn" href="' + H.themePage[t.key] + '">' + esc(t.title) + ": papers, code and projects " + H.arrow + "</a></p>" : "") + "</div>" +
+      '<div class="t-media">' + media + "</div></div>" + H.subthemes(t.key).map(subBlock).join("") + "</div></section>";
   }).join("");
 
   /* key images open the lightbox */
@@ -201,7 +224,7 @@
   }
   function render(i) {
     var e = all[i], p = e.p, t = e.t, figs = sheetFigs(p);
-    document.getElementById("p-theme").textContent = t.title;
+    document.getElementById("p-theme").textContent = sheetTitle(t);
     var prev = all[(i - 1 + all.length) % all.length], next = all[(i + 1) % all.length];
     var refs = (p.refs || []).map(function (r) {
       return "<li>" + (r.url ? '<a class="ul" href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.label) + "</a>" : esc(r.label)) + "</li>";

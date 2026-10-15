@@ -112,3 +112,15 @@
   .p-y { order: 3; width: 100%; }
   .pv-figs { grid-template-columns: 1fr; }
 }
+.t-page { margin-top: 24px; }
+.t-page .btn { white-space: normal; height: auto; min-height: 44px; padding: 10px 20px; line-height: 1.35; }
+
+/* four themes; sub-area block (Virtual Staining inside Computational Microscopy) */
+.r-index { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.t-subsec { margin-top: clamp(44px, 5vw, 76px); padding-top: clamp(32px, 4vw, 52px); border-top: 1px solid var(--line-2); }
+.t-subh { display: flex; align-items: baseline; gap: 20px; margin-bottom: clamp(18px, 2.2vw, 28px); }
+.t-subh .t-y { margin-left: auto; white-space: nowrap; }
+@media (max-width: 1100px) { .r-index { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .t-subh { flex-wrap: wrap; gap: 4px 14px; } }
+.t-keys .k-wide { grid-column: 1 / -1; }
+.ix-img.ix-none { background: var(--th); }

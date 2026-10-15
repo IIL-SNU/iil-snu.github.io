@@ -267,7 +267,8 @@ dialog { color: var(--navy); }
 /* theme colour assignment: fp sky, vs blush, lensless lavender, speckle steel, hbi navy */
 [data-th] { --th: var(--sky); --th-ink: var(--navy); --th-soft: var(--sky-lite); --th-acc: var(--steel); }
 [data-th="fp"], [data-th="micro"] { --th: var(--sky); --th-ink: var(--navy); --th-soft: var(--sky-lite); --th-acc: var(--steel); }
-[data-th="vs"] { --th: var(--blush); --th-ink: var(--navy); --th-soft: var(--blush-lite); --th-acc: var(--steel); }
+/* virtual staining is part of computational microscopy: same colour as fp */
+[data-th="vs"] { --th: var(--sky); --th-ink: var(--navy); --th-soft: var(--sky-lite); --th-acc: var(--steel); }
 [data-th="lensless"] { --th: var(--lavender); --th-ink: var(--navy); --th-soft: var(--lav-lite); --th-acc: var(--navy); }
 [data-th="speckle"] { --th: var(--steel); --th-ink: var(--white); --th-soft: var(--steel-lite); --th-acc: var(--steel); }
 [data-th="hbi"] { --th: var(--navy); --th-ink: var(--white); --th-soft: color-mix(in srgb, var(--navy) 10%, var(--white)); --th-acc: var(--navy); }
@@ -298,3 +299,10 @@ body .site-footer { background: linear-gradient(180deg, var(--navy) 0%, var(--na
 body .site-footer .f-bottom { border-top-color: color-mix(in srgb, var(--lavender) 35%, transparent); }
 body .site-footer { margin-top: 0; }
 body .chip .n { color: color-mix(in srgb, var(--navy) 70%, var(--white)); }
+
+/* ---------- language switch (EN / KO) ---------- */
+.nav .lang { display: inline-flex; align-items: center; gap: 2px; margin-left: 10px; padding-left: 12px; border-left: 1px solid var(--line-2); font-size: 12.5px; font-weight: 600; letter-spacing: .06em; }
+.nav .lang > * { padding: 6px 8px; border-radius: 999px; font-size: 12.5px; }
+.nav .lang .on { color: var(--navy); }
+.nav .lang a { color: var(--ink-3); }
+.nav .lang a:hover { color: var(--navy); background: var(--sky-soft); }

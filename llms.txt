@@ -1,0 +1,80 @@
+# Imaging Intelligence Laboratory (IIL), Seoul National University
+
+> Research laboratory at Seoul National University led by Prof. Seung Ah Lee (이승아). Korean name: 지능형이미징연구실. Works on optical imaging systems and computational imaging: computational microscopy (Fourier ptychographic microscopy, quantitative phase and polarization imaging, virtual staining for digital pathology), lensless cameras and rolling-shutter speckle imaging of blood flow. Earlier work: interactive biology. Formerly the Optical Imaging Systems Laboratory (OISL), Yonsei University (2018–2025).
+
+## Principal investigator
+
+Seung Ah Lee is an Associate Professor at Seoul National University working on optical imaging systems and computational imaging: microscopes, cameras and optical metrology and inspection instruments designed jointly with optics and AI-based image reconstruction. She received her B.S. in Electrical Engineering and M.S. in Electrical and Computer Engineering from Seoul National University and her Ph.D. in Electrical Engineering from Caltech, and was a faculty member in Electrical and Electronic Engineering at Yonsei University (2018–2025).
+
+이승아 교수는 서울대학교에서 광학 이미징 시스템과 계산 이미징(computational imaging)을 연구한다. 현미경, 카메라, 광학 계측·검사 장비를 광학 설계와 AI 영상 복원으로 함께 설계한다. 서울대 전기공학 학사, 전기컴퓨터공학 석사, Caltech 전기공학 박사이며, 연세대 전기전자공학부 교수(2018–2025)를 거쳤다.
+
+- Profile: https://iilab.io/pi.html
+- Google Scholar: https://scholar.google.com/citations?user=dlRF9NAAAAAJ
+- Contact: seungahlee@snu.ac.kr, +82-2-880-7153, Department of Mechanical Engineering, Seoul National University, 1 Gwanak-ro, Gwanak-gu, Seoul 08826, Korea
+
+## Research themes
+
+### [Computational Microscopy](https://iilab.io/computational-microscopy.html)
+
+A conventional microscope forces a trade-off: zoom in for detail and you lose the big picture, and transparent cells barely show up at all. Fourier ptychography sidesteps both limits. We light a sample from many angles with an LED array or a display screen, record a series of low-resolution images through an inexpensive, low-magnification lens, and let an algorithm stitch them together in Fourier space. The result is a wide-field, high-resolution image that also recovers the optical phase, revealing unstained cells and tissue in quantitative detail. We push this idea toward smaller, faster and richer instruments: smartphone microscopes, single-shot video-rate imaging and polarization-resolved maps of birefringence.
+
+- Lee, K.C., Lee, K., Jung, J., Lee, S.H., Kim, D., & Lee, S.A. (2021). A Smartphone-Based Fourier Ptychographic Microscope Using the Display Screen for Illumination. ACS Photonics. https://doi.org/10.1021/acsphotonics.1c00350
+- Lee, K., Lee, K.C., Jung, J., Chae, H., & Lee, S.A. (2024). High-resolution display screen as programmable illumination for Fourier ptychography. Optics and Lasers in Engineering. https://doi.org/10.1016/j.optlaseng.2024.108121
+- Yoon, H., Chae, H., Lee, K.C., Lee, K., & Lee, S.A. (2025). Single-shot Fourier ptychography using polarization-encoded illumination. Applied Physics Letters. https://doi.org/10.1063/5.0248101
+- Chae, H., Lee, K., Kang, Y.G., Yoon, H., Lee, K.C., & Lee, S.A. (2026). Pupil Plane Multiplexing for Vectorial Fourier Ptychography. Laser & Photonics Reviews. https://doi.org/10.1002/lpor.202502183
+- Code: https://github.com/IIL-SNU/FP_ADMM (Regularized (ADMM) Fourier ptychography reconstruction.)
+- Code: https://github.com/IIL-SNU/Smartphone_FPM (A smartphone-based Fourier ptychographic microscope using the display screen for illumination.)
+- Data: Smartphone FPM example images, https://drive.google.com/drive/folders/1tvjrqGT0v9ROgk3SlGM1GNMT-ugx-2vw
+
+### [Computational Microscopy: Virtual Staining (sub-area)](https://iilab.io/computational-microscopy.html#virtual-staining)
+
+Pathologists read tissue through chemical stains such as hematoxylin and eosin (H&E). Staining is slow, consumes tissue and reagents, varies from lab to lab, and fades over the years. Unstained tissue is nearly transparent, but it still delays light by an amount set by its local density and thickness. Our Fourier ptychographic microscopes measure this optical phase quantitatively across whole slides, and deep neural networks learn to translate it into the colors of a stained slide. We use this to restore faded archival slides digitally, to co-design illumination and networks so that a slide region is scanned in seconds, and to explore stains beyond H&E, working with pathologists at Severance Hospital.
+
+- Chae, H., Kim, J., Jeon, J., Lee, K., Lee, K.C., Choi, J.U., Kang, S., Choi, S., Bang, G., Lee, J.H., Park, E., Cho, N.H., & Lee, S.A. (2024). Restoring H&E stain in faded slides via phase-to-color virtual staining in near-infrared. APL Photonics. https://doi.org/10.1063/5.0226277
+- Lee, K.C., Chae, H., Kim, J., Kreiss, L., Kim, H., Kang, Y.G., Zhou, K.C., Chaware, A., Kim, K., Xu, S., Kang, S., Bang, G., Cho, N.H., Hwang, D., Horstmeyer, R., & Lee, S.A. (2026). Semi-supervised virtual staining using learned-illumination Fourier ptychography for high-speed label-free histopathology. Journal of Physics: Photonics. https://doi.org/10.1088/2515-7647/ae270f
+- Code: https://github.com/IIL-SNU/FPVS (Fourier ptychographic virtual staining.)
+- Data: FPVS example FPM data, https://github.com/IIL-SNU/FPVS/tree/main/data
+- Data: Digital staining literature database, https://doi.org/10.1186/s43074-023-00113-4
+
+### [Lensless Cameras & Learned Optics](https://iilab.io/lensless-cameras.html)
+
+A conventional camera needs a stack of precisely shaped lenses, and that stack sets a floor on its size, weight and cost. A lensless camera replaces it with a thin patterned mask sitting just above a bare image sensor. The mask scrambles incoming light into a pattern that looks nothing like the scene, and a computer unscrambles it. We work on both halves of this partnership. On the optics side, we design masks that produce any light pattern we choose and fabricate them in a single lithography step, even directly on the sensor. On the computing side, we build physics-aware neural networks that recover sharp images quickly. The result is millimetre-thin cameras that can also see polarization, color spectra and fast eye movements, and can keep what they see private.
+
+- Lee, K.C., Bae, J., Baek, N., Jung, J., Park, W., & Lee, S.A. (2023). Design and single-shot fabrication of lensless cameras with arbitrary point spread functions. Optica. https://doi.org/10.1364/OPTICA.466072
+- Lee, Y., Chae, H., Lee, K.C., Baek, N., Kim, T., Jung, J., & Lee, S.A. (2022). Fabrication of Integrated Lensless Cameras via UV-Imprint Lithography. IEEE Photonics Journal. https://doi.org/10.1109/JPHOT.2022.3157373
+- Baek, N., Lee, Y., Kim, T., Jung, J., & Lee, S.A. (2022). Lensless polarization camera for single-shot full-Stokes imaging. APL Photonics. https://doi.org/10.1063/5.0120465
+- Kim, T., Lee, K.C., Baek, N., Chae, H., & Lee, S.A. (2023). Aperture-encoded snapshot hyperspectral imaging with a lensless camera. APL Photonics. https://doi.org/10.1063/5.0150797
+- Bae, D., Jung, J., Kang, Y.G., Lee, K.C., Kim, T., Kim, J., Byun, S., Park, J., & Lee, S.A. (2026). Integrated Forward–Inverse Network for Lensless Image Reconstruction. Computer Vision – ECCV 2026 (Lecture Notes in Computer Science). https://doi.org/10.1007/978-3-032-37517-9_35
+- Code: https://github.com/IIL-SNU/IFIN (Official implementation and project page for IFIN (Integrated Forward–Inverse Network for lensless image reconstruction), ECCV 2026.)
+- Code: https://github.com/IIL-SNU/GAPC-ASM (Demo code of geometry-aware phase-compensation based angular spectrum method.)
+- Data: WiderCam, https://iilab.io/WiderCam
+
+### [Speckle Imaging](https://iilab.io/speckle-imaging.html)
+
+When laser light enters living tissue, moving red blood cells make the resulting speckle pattern flicker, and how fast it flickers reveals how fast blood flows. Measuring that directly usually takes cameras running at more than ten thousand frames per second. We turned an ordinary rolling-shutter image sensor, which reads out its rows microseconds apart, into that high-speed camera: with elongated speckles and the right physical model, one snapshot reveals both the flow speed and how much of the tissue is moving. Building on this rolling-shutter speckle imaging (RSSI), we map cerebral blood flow, record pulse waveforms from a fingertip, and use physics-guided neural networks for real-time analysis, a path toward low-cost, contrast-free monitoring of circulation.
+
+- Yi, C., Jung, J., Im, J., Lee, K.C., Chung, E., & Lee, S.A. (2022). Single-shot temporal speckle correlation imaging using rolling shutter image sensors. Optica. https://doi.org/10.1364/OPTICA.465361
+- Yi, C., Byun, S., Lee, Y., & Lee, S.A. (2024). Improvements and validation of a spatiotemporal speckle correlation model for rolling shutter speckle imaging. Biomedical Optics Express. https://doi.org/10.1364/BOE.514497
+- Lee, Y., Byun, S., Yi, C., Jung, J., & Lee, S.A. (2024). Rolling shutter speckle plethysmography for quantitative cardiovascular monitoring. Biomedical Optics Express. https://doi.org/10.1364/BOE.511755
+- Byun, S., Yi, C., Bae, D., Kang, Y.G., Kim, J., Chang, H., & Lee, S.A. (2026). Physics-guided neural network for single-shot real-time dynamic speckle imaging. Journal of Physics: Photonics. https://doi.org/10.1088/2515-7647/ae99ba
+- Code: https://github.com/IIL-SNU/RSSI (Single-shot temporal speckle correlation imaging using rolling shutter image sensors.)
+- Data: RSSI in vivo mouse brain speckle images, https://github.com/IIL-SNU/RSSI/tree/main/data
+
+### [Interactive Biology](https://iilab.io/interactive-biology.html)
+
+Microscopic life is all around us, yet almost nobody gets to interact with it. Human-biology interaction (HBI) asks how people might play, create and learn with real living cells rather than simulations. Our systems couple a microscope to a projector: drawings on a touchscreen or hand gestures become patterns of light, and light-sensitive Euglena cells respond in real time. These platforms have become museum exhibits, immersive installations, biotic games and collaborative artworks, and they informed a review that maps the emerging field of micro-HBI. Kept here as a legacy theme, this work grew from the same expertise in optics and microscopy that drives our imaging research, and it continues to shape how we share science with the public.
+
+- Lee, S.A., Bumbacher, E., Chung, A.M., Cira, N., Walker, B., Park, J.Y., Starr, B., Blikstein, P., & Riedel-Kruse, I.H. (2015). Trap it! A playful human-biology interaction for a museum installation. Proceedings of the 33rd Annual ACM Conference on Human Factors in Computing Systems (CHI). https://doi.org/10.1145/2702123.2702220
+- Lee, K., Jung, J., & Lee, S.A. (2020). MicroAquarium: An Immersive and Interactive Installation with Living Microorganisms. Extended Abstracts of the 2020 CHI Conference on Human Factors in Computing Systems. https://doi.org/10.1145/3334480.3383164
+- Lee, S.A., & Riedel-Kruse, I.H. (2022). Micro-HBI: Human-Biology Interaction With Living Cells, Viruses, and Molecules. Frontiers in Computer Science. https://doi.org/10.3389/fcomp.2022.849887
+
+## Pages
+
+- [Home](https://iilab.io/): overview, recent news
+- [Research](https://iilab.io/research.html): four themes (computational microscopy with virtual staining, lensless cameras, speckle imaging, interactive biology) and their projects
+- [Team](https://iilab.io/team.html): members, alumni, open positions
+- [Publications](https://iilab.io/publications.html): 53 papers with DOIs, 22 patents
+- [Resources](https://iilab.io/resources.html): code, datasets, hardware designs, courses
+- [Seung Ah Lee](https://iilab.io/pi.html): biography, education, appointments, service, honors
+- [한국어](https://iilab.io/ko.html): 연구 분야별 소개와 연락처
+- Code: https://github.com/IIL-SNU
