@@ -2,7 +2,7 @@
 
 > The Imaging Intelligence Laboratory at Seoul National University develops computational imaging systems in which the optics record encoded measurements and algorithms reconstruct the image, allowing it to measure what standard microscopes and cameras cannot. Its work spans computational microscopy and computational photography, including quantitative phase, polarization, and spectral imaging, imaging with scattered light, and other unconventional imaging systems. Using AI-based reconstruction and analysis, the laboratory applies these systems to bioimaging, in vivo imaging, and metrology and inspection. It is part of the Department of Mechanical Engineering and is led by Prof. Seung Ah Lee. Korean name: 지능형 이미징 연구실 (이승아 교수). Earlier work: interactive biology. Formerly the Optical Imaging Systems Laboratory (OISL), Yonsei University (2018–2025).
 
-서울대학교 기계공학부 지능형 이미징 연구실은 광학계가 정보를 부호화해 기록하고 알고리즘이 이를 영상으로 복원하는 계산 이미징 시스템을 개발해, 일반 현미경과 카메라로는 측정할 수 없던 정보를 얻습니다. 계산 현미경과 계산 사진 분야에서 정량 위상 영상, 편광 영상, 분광 영상, 산란광을 이용한 영상, 그 밖의 새로운 방식의 영상 시스템을 연구합니다. AI 기반 영상 복원과 분석을 더해 바이오 이미징, 생체 내(in vivo) 영상, 계측·검사 분야에 적용합니다. 연구실 책임자는 이승아 교수입니다.
+서울대학교 기계공학부 지능형 이미징 연구실은 계산 이미징 시스템을 개발합니다. 광학계로 정보를 부호화해 기록하고 알고리즘으로 영상을 복원해, 일반 현미경과 카메라로는 측정할 수 없던 정보를 얻습니다. 계산 현미경과 계산 사진 분야에서 정량 위상 영상, 편광 영상, 분광 영상, 산란광을 이용한 영상, 그 밖의 새로운 방식의 영상 시스템을 연구합니다. AI 기반 영상 복원과 분석을 더해 바이오 이미징, 생체 내(in vivo) 영상, 계측·검사 분야에 적용합니다.
 
 ## Principal investigator
 
