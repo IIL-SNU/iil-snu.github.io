@@ -106,16 +106,6 @@ IIL.pi = {
       "years": "2025"
     },
     {
-      "role": "Lead Guest Editor",
-      "venue": "Optics Express / Applied Optics feature issue on COSI",
-      "years": "2024"
-    },
-    {
-      "role": "Subcommittee Chair",
-      "venue": "CLEO Pacific Rim 2024 — Optical Sensing, Imaging and Display",
-      "years": "2024"
-    },
-    {
       "role": "Program Chair",
       "venue": "COSI, Optica Imaging Congress",
       "years": "2023"
@@ -141,14 +131,6 @@ IIL.pi = {
     {
       "year": "2018",
       "title": "Microsoft Research Asia Collaborative Research Award"
-    },
-    {
-      "year": "2010",
-      "title": "First Place, Idea to Product Global Competition (with Guoan Zheng and Samuel Yang)"
-    },
-    {
-      "year": "2009",
-      "title": "Distinguished Dissertation Award (M.S.), Dept. of Electrical Engineering, Seoul National University"
     }
   ],
   "contact": {

@@ -49,20 +49,16 @@
   }));
 
   /* ---------- professional service (CV, Academic and Professional Services) ---------- */
+  /* PI 2026-10-15: no guest-editor roles, no subcommittee chairs, no reviewer list; conferences grouped by meeting, not by role */
   var SERVICE = [
     { h: "Editorial", items: [
       ["Associate Editor", "Optics Express (Optica Publishing Group)", "2024–"],
-      ["Associate Editor", "Advanced Imaging", "2024–"],
-      ["Lead Guest Editor", "Optics Express and Applied Optics, feature issue on Computational Optical Sensing and Imaging", "2024"],
-      ["Guest Editor", "Optics Express and Applied Optics, feature issue on Computational Optical Sensing and Imaging", "2023, 2025"],
-      ["Guest Editor", "JOSA A, feature issue on quantitative phase imaging", "2024"]
+      ["Associate Editor", "Advanced Imaging", "2024–"]
     ] },
     { h: "Conference organization", items: [
-      ["General Chair", "Computational Optical Sensing and Imaging (COSI), Optica Imaging Congress", "2024, 2025"],
-      ["Conference Co-chair", "Computational Optical Imaging and Artificial Intelligence in Biomedical Sciences, SPIE Photonics West", "2024–2026"],
-      ["Technical Program Chair", "SPIE–OSK Advanced Biophotonics Conference", "2025"],
-      ["Subcommittee Chair", "Optical Sensing, Imaging and Display, CLEO Pacific Rim", "2024"],
-      ["Program Chair", "Computational Optical Sensing and Imaging (COSI), Optica Imaging Congress", "2023"]
+      ["Optica Imaging Congress", "Computational Optical Sensing and Imaging (COSI): General Chair (2024, 2025), Program Chair (2023)", "2023–2025"],
+      ["SPIE Photonics West", "Computational Optical Imaging and Artificial Intelligence in Biomedical Sciences: Conference Co-chair", "2024–2026"],
+      ["SPIE–OSK Advanced Biophotonics Conference", "Technical Program Chair", "2025"]
     ] },
     { h: "Societies and advisory roles", items: [
       ["Director of International Affairs", "Optical Society of Korea", "2024–"],
@@ -72,14 +68,12 @@
     ] }
   ];
   var TPC = ["CLEO 2024", "IEEE International Conference on Computational Photography 2023", "IEEE/IEIE ICEIC 2023, 2024", "OSK Advanced Biophotonics Conference 2022–2024", "IEEE/IEIE ICCE-Asia 2020, 2021"];
-  var REVIEW = ["Nature", "Light: Science & Applications", "Advanced Photonics", "Laser & Photonics Reviews", "Optica", "Optics Express", "Biomedical Optics Express", "Optics Letters", "Applied Optics", "Nanophotonics", "Journal of Biomedical Optics", "Lab on a Chip", "Biosensors and Bioelectronics", "ACM CHI", "IEEE ICCP"];
   $("svc-c").innerHTML = SERVICE.map(function (g) {
     return '<div class="sv-g"><h3 class="meta" data-rv>' + esc(g.h) + '</h3><ul class="sv" data-stagger>' + g.items.map(function (it) {
       return '<li data-rv><p class="sv-r">' + esc(it[0]) + '</p><p class="sv-v">' + esc(it[1]) + '</p><p class="sv-y">' + esc(it[2]) + "</p></li>";
     }).join("") + "</ul></div>";
   }).join("") +
-    '<div class="sv-g"><h3 class="meta" data-rv>Technical program committees</h3><p class="sv-txt" data-rv>' + TPC.map(esc).join("; ") + "</p></div>" +
-    '<div class="sv-g"><h3 class="meta" data-rv>Reviewer</h3><p class="sv-txt" data-rv>' + REVIEW.map(esc).join(", ") + "</p></div>";
+    '<div class="sv-g"><h3 class="meta" data-rv>Technical program committees</h3><p class="sv-txt" data-rv>' + TPC.map(esc).join("; ") + "</p></div>";
 
   /* ---------- honors (CV, Recognitions; Frontiers award from the CV publication list) ---------- */
   var HONORS = [
@@ -88,9 +82,7 @@
     ["2023", "Teaching Excellence Award, Yonsei University"],
     ["2023", "LG Electronics Target Lab"],
     ["2022", "Outstanding Article Award, Frontiers in Computer Science, for “Micro-HBI: Human-Biology Interaction With Living Cells, Viruses, and Molecules”"],
-    ["2018", "Microsoft Research Asia Collaborative Research Award"],
-    ["2010", "First Place, Idea to Product Global Competition (with Guoan Zheng and Samuel Yang)"],
-    ["2009", "Distinguished Dissertation Award (M.S.), Department of Electrical Engineering, Seoul National University"]
+    ["2018", "Microsoft Research Asia Collaborative Research Award"]
   ];
   $("hon-c").innerHTML = '<ol class="hon" data-stagger>' + HONORS.map(function (h) {
     return '<li data-rv><span class="hon-y">' + esc(h[0]) + '</span><span class="hon-t">' + esc(h[1]) + "</span></li>";
