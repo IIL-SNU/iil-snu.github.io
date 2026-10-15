@@ -1,6 +1,7 @@
 /* Team page (from concept C, grouped by role only).
    Circular portraits in three role groups (faculty and researchers, graduate students, undergraduate interns).
    Hover or focus a portrait for a caption card beside it (below it on narrow screens), never over the face.
+   Each card shows the person's email address (mailto link and Copy button); the page head gives the general contact.
    The PI's portrait links to pi.html. Below: alumni list, photo mosaic with lightbox, open positions band. */
 (function () {
   "use strict";
@@ -12,9 +13,11 @@
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
   /* ---------- people ---------- */
-  var people = [{ id: "pi", isPI: true, name: pi.name, role: pi.role || "Group Leader", group: "pi", photo: pi.photo, interests: pi.interests || [], web: "" }]
+  /* email address from links.email ("mailto:..."), shown as text with a Copy button in each caption card */
+  function mail(l) { return String((l || {}).email || "").replace(/^mailto:/i, "").trim(); }
+  var people = [{ id: "pi", isPI: true, name: pi.name, role: pi.role || "Group Leader", group: "pi", photo: pi.photo, interests: pi.interests || [], web: "", email: (pi.contact || {}).email || "" }]
     .concat(members.map(function (m) {
-      return { id: m.slug, name: m.name, role: m.role, group: m.group, photo: m.photo, interests: m.interests || [], web: (m.links || {}).web || "" };
+      return { id: m.slug, name: m.name, role: m.role, group: m.group, photo: m.photo, interests: m.interests || [], web: (m.links || {}).web || "", email: mail(m.links) };
     }));
   var byId = {};
   people.forEach(function (p) { byId[p.id] = p; });
@@ -28,16 +31,22 @@
   var GLOBE = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM1.5 8h13M8 1.5c2 2.2 2 10.8 0 13M8 1.5c-2 2.2-2 10.8 0 13" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
   var PERSON = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5.4" r="2.9" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M2.6 14.2c.6-2.9 2.8-4.5 5.4-4.5s4.8 1.6 5.4 4.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
 
+  function emailRow(p) {
+    if (!p.email) return "";
+    return '<p class="cd-em"><a class="ul" href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a><button class="copy" type="button" data-copy="' + esc(p.email) + '" aria-label="Copy email address of ' + esc(p.name) + '">Copy</button></p>';
+  }
   function card(p) {
     if (p.isPI) {
       return '<p class="cd-n">' + esc(p.name) + (pi.nameKo ? ' <span lang="ko">' + esc(pi.nameKo) + "</span>" : "") + "</p>" +
         '<p class="cd-r">' + esc(pi.title) + ", " + esc(pi.dept) + "</p>" +
         (p.interests.length ? '<p class="cd-k">Research interests</p><p class="cd-i">' + p.interests.map(esc).join(", ") + "</p>" : "") +
+        emailRow(p) +
         '<p class="cd-lk"><a class="lk" href="pi.html">' + PERSON + "<span>Profile</span></a></p>";
     }
     return '<p class="cd-n">' + esc(p.name) + "</p>" +
       '<p class="cd-r">' + esc(p.role) + "</p>" +
       (p.interests.length ? '<p class="cd-k">Research interests</p><p class="cd-i">' + p.interests.map(esc).join(", ") + "</p>" : "") +
+      emailRow(p) +
       (p.web ? '<p class="cd-lk"><a class="lk" href="' + esc(p.web) + '" target="_blank" rel="noopener" aria-label="Homepage of ' + esc(p.name) + '">' + GLOBE + "<span>Homepage</span></a></p>" : "");
   }
 
@@ -159,9 +168,11 @@
     var u = homepage(a);
     var nm = u ? '<a class="al-n" href="' + esc(u) + '" target="_blank" rel="noopener" aria-label="' + esc(a.name) + ', homepage"><span class="ul-t">' + esc(a.name) + "</span> " + H.ext + "</a>"
       : '<span class="al-n">' + esc(a.name) + "</span>";
+    var em = mail(a.links);
     return '<li data-rv>' + nm +
       '<span class="al-r">' + esc([a.role, a.degree].filter(Boolean).join(", ")) + "</span>" +
-      '<span class="al-now">' + (a.now ? esc(a.now) : "") + "</span></li>";
+      '<span class="al-now">' + (a.now ? esc(a.now) : "") + "</span>" +
+      (em ? '<a class="al-em" href="mailto:' + esc(em) + '">' + esc(em) + "</a>" : "") + "</li>";
   }).join("");
 
   /* ---------- gallery mosaic + lightbox ---------- */

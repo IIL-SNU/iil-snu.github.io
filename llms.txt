@@ -1,6 +1,8 @@
 # Imaging Intelligence Laboratory (IIL), Seoul National University
 
-> Research laboratory at Seoul National University led by Prof. Seung Ah Lee (이승아). Korean name: 지능형이미징연구실. Works on optical imaging systems and computational imaging: computational microscopy (Fourier ptychographic microscopy, quantitative phase and polarization imaging, virtual staining for digital pathology), lensless cameras and rolling-shutter speckle imaging of blood flow. Earlier work: interactive biology. Formerly the Optical Imaging Systems Laboratory (OISL), Yonsei University (2018–2025).
+> The Imaging Intelligence Laboratory in the Department of Mechanical Engineering at Seoul National University develops optical imaging instruments and the algorithms that reconstruct their images. Current work includes Fourier ptychographic and polarization microscopes that measure quantitative phase and birefringence, virtual staining of unstained tissue slides, lensless cameras with fabricated phase masks, and rolling-shutter speckle imaging of blood flow. The laboratory is led by Prof. Seung Ah Lee. Korean name: 지능형이미징연구실 (이승아 교수). Earlier work: interactive biology. Formerly the Optical Imaging Systems Laboratory (OISL), Yonsei University (2018–2025).
+
+서울대학교 기계공학부 지능형이미징연구실은 광학 영상 장비와, 그 장비로 얻은 영상을 복원하는 알고리즘을 개발한다. 정량 위상과 복굴절을 측정하는 푸리에 타이코그래피 현미경과 편광 현미경, 무염색 조직 슬라이드의 가상 염색, 위상 마스크를 직접 제작해 만든 렌즈리스 카메라, 롤링셔터 스페클 혈류 영상을 연구하고 있다. 연구책임자는 이승아 교수이다.
 
 ## Principal investigator
 

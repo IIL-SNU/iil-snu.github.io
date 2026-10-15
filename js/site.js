@@ -181,11 +181,13 @@
   H.themeTitle = function (k) { var t = H.themeData(H.mainKey(k)); return t ? t.title : ""; };
   /* research figures placed on pages other than research.html (one image, one place): the Home theme tiles, the theme pages
      and two Resources cards. research.js claims them first, so its project sheets never repeat them. */
-  H.FIG_HOME = { fp: "live-cells-fp-phase-wide.jpg", lensless: "ifin-lensless-camera-prototype.jpg",
+  /* PI 2026-10-15: Computational Microscopy shows the lab's smartphone FP microscope (instrument photo), Lensless Cameras the
+     Optica 2023 camera module (phase mask and aperture on a board-level sensor), not a bench setup */
+  H.FIG_HOME = { fp: "smartphone-fp-microscope-photo.jpg", lensless: "lensless-camera-module-with-coin.jpg",
     speckle: "rssi-in-vivo-time-lapse-poster.jpg", hbi: "assets/research/hbi/euglpollock-exhibition.jpg" };
   H.FIG_THEME = { fp: ["fp-forward-model-schematic.png", "fp-high-res-he-glands.jpg"], vs: ["phase-to-he-and-ihc-split.jpg"],
     lensless: ["assets/research/lensless/uv-imprint-integrated-camera-prototype.jpg", "phase-mask-height-map-3d.jpg"] };
-  /* Resources cards, the Publications figure of the UV-imprint paper, and live-cells-fp-phase-full-fov (the uncropped field of the Home tile, kept off the project sheets) */
+  /* Resources cards, the Publications figure of the UV-imprint paper, and live-cells-fp-phase-full-fov (the uncropped field of live-cells-fp-phase-wide, kept off the project sheets so the two never appear together) */
   H.FIG_OTHER = ["lensless-camera-schematic.png", "ifin-mask-height-and-psfs.jpg", "live-cells-fp-phase-full-fov.jpg", "uv-imprint-concept-and-process.png"];
   H.claimElsewhere = function () {
     var all = [];

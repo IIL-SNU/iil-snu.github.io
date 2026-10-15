@@ -166,6 +166,10 @@ IIL.pi = {
     "calendarEmbed": "https://calendar.google.com/calendar/embed?src=seungahlee.yonsei%40gmail.com&mode=month"
   }
 };
+/* Graduate students are listed in the order of their first admission to the laboratory as graduate students, counting from the
+   Yonsei (OISL) era (PI request 2026-10-15): Jaewoo Jung, Taeyoung Kim, Hyesuk Chae, Sangjun Byun, Jongho Kim, Joonsik Park,
+   Donggeon Bae, Hyo Jun Ahn, Hyeonyong Lee, Hojin Chang. The array order is the display order everywhere (Team, Home, JSON-LD);
+   it is explicit and not derived from "since". */
 IIL.members = [
   {
     "slug": "nick-durr",
@@ -335,6 +339,26 @@ IIL.members = [
     "office": "Bldg. 302 Rm. 411A"
   },
   {
+    "slug": "jongho-kim",
+    "name": "Jongho Kim",
+    "role": "MS/PhD Student",
+    "group": "grad",
+    "since": 2024,
+    "photo": "assets/people/jongho-kim.jpg",
+    "education": [
+      "B.S. in Electrical and Electronic Engineering, Yonsei University (2024)"
+    ],
+    "prior": [],
+    "interests": [
+      "Deep Learning",
+      "Computational Imaging"
+    ],
+    "links": {
+      "email": "mailto:zzhonge@snu.ac.kr"
+    },
+    "office": "Bldg. 302 Rm. 411A"
+  },
+  {
     "slug": "joonsik-park",
     "name": "Joonsik Park",
     "role": "MS/PhD Student",
@@ -351,28 +375,6 @@ IIL.members = [
     ],
     "links": {
       "email": "mailto:battlepjs@yonsei.ac.kr"
-    },
-    "office": "Bldg. 302 Rm. 411A"
-  },
-  {
-    "slug": "hyeonyong-lee",
-    "name": "Hyeonyong Lee",
-    "role": "MS Student",
-    "group": "grad",
-    "since": 2024,
-    "photo": "assets/people/hyeonyong-lee.jpg",
-    "education": [
-      "B.S. in Physics, Inha University (2018)"
-    ],
-    "prior": [
-      "Engineer, LG Innotek (2018–)"
-    ],
-    "interests": [
-      "Computational Imaging",
-      "Lensless Imaging"
-    ],
-    "links": {
-      "email": "mailto:wibistar@yonsei.ac.kr"
     },
     "office": "Bldg. 302 Rm. 411A"
   },
@@ -421,22 +423,24 @@ IIL.members = [
     "office": "Bldg. 302 Rm. 411A"
   },
   {
-    "slug": "jongho-kim",
-    "name": "Jongho Kim",
-    "role": "MS/PhD Student",
+    "slug": "hyeonyong-lee",
+    "name": "Hyeonyong Lee",
+    "role": "MS Student",
     "group": "grad",
     "since": 2024,
-    "photo": "assets/people/jongho-kim.jpg",
+    "photo": "assets/people/hyeonyong-lee.jpg",
     "education": [
-      "B.S. in Electrical and Electronic Engineering, Yonsei University (2024)"
+      "B.S. in Physics, Inha University (2018)"
     ],
-    "prior": [],
+    "prior": [
+      "Engineer, LG Innotek (2018–)"
+    ],
     "interests": [
-      "Deep Learning",
-      "Computational Imaging"
+      "Computational Imaging",
+      "Lensless Imaging"
     ],
     "links": {
-      "email": "mailto:zzhonge@snu.ac.kr"
+      "email": "mailto:wibistar@yonsei.ac.kr"
     },
     "office": "Bldg. 302 Rm. 411A"
   },

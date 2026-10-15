@@ -14,7 +14,7 @@
     RSSI: { src: R + "speckle/rs-speckle-simulation-and-fitting.jpg", contain: true },
     FP_ADMM: { src: R + "fp/fp-superresolved-usaf.jpg" },
     Smartphone_FPM: { src: R + "fp/smartphone-fp-pipeline-app.png", contain: true },
-    /* the WiderCam camera photo (ifin-lensless-camera-prototype) is the Home lensless tile; here its mask and PSFs */
+    /* the WiderCam camera photo (ifin-lensless-camera-prototype) is not shown (PI 2026-10-15: a bench setup); here its mask and PSFs */
     WiderCam: { src: R + "lensless/ifin-mask-height-and-psfs.jpg", contain: true },
     "Smartphone FPM example images": { src: R + "fp/smartphone-fp-color-pap-smear.jpg" },
     "RSSI in vivo mouse brain speckle images": { src: R + "speckle/rssi-raw-frame-dataset-crop.jpg" },

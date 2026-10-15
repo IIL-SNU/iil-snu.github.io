@@ -2,13 +2,14 @@
    One figure from the paper named by pubId (data/pubs.js), lab data only. Priority in a news card: lab photo, then this
    paper figure, then a gallery event photo, then a verified logo, then text. A figure is not shown elsewhere on the site,
    except where "source" says REUSE (no unused lab figure of that paper exists).
-   Items without an entry (no lab figure of the paper, or the paper is not identifiable): 9 (Advanced Imaging commentary),
-   58 (micro-HBI review; its figure montage includes pre-lab Stanford work), 64, 77, 92 (paper awards; the awarded paper is
-   not named), 81 (conference presentations, no single paper), 100 and 102 (Riedel-Kruse lab work, not lab-generated). */
+   Items without an entry (no lab figure of the paper, or the paper is not identifiable): 10 (Advanced Imaging commentary),
+   59 (micro-HBI review; its figure montage includes pre-lab Stanford work), 65, 78, 93 (paper awards; the awarded paper is
+   not named), 82 (conference presentations, no single paper), 101 and 103 (Riedel-Kruse lab work, not lab-generated).
+   Indices shifted by +1 on 2026-10-15 when the QPI Symposium item was added at the top of IIL.news. */
 window.IIL = window.IIL || {};
 IIL.newsPaperFigs = [
  {
-  "i": 0,
+  "i": 1,
   "date": "2026-10",
   "match": "SJ's paper on a <a href=\"https://doi.org/10.1088/2515-7647/a",
   "pubId": "byun2026physicsguided",
@@ -19,7 +20,7 @@ IIL.newsPaperFigs = [
   "source": "assets/research/speckle (lab figure from the paper)"
  },
  {
-  "i": 7,
+  "i": 8,
   "date": "2026-06",
   "match": "DG's IFIN <a href=\"https://iilab.io/IFIN/\">paper</a> is acce",
   "pubId": "bae2026integrated",
@@ -30,7 +31,7 @@ IIL.newsPaperFigs = [
   "source": "research_lensless.js figure (lab figure from the paper)"
  },
  {
-  "i": 8,
+  "i": 9,
   "date": "2026-04",
   "match": "YG's GAPC-ASM <a href=\"https://doi.org/10.1364/OE.586512\">pa",
   "pubId": "kang2026geometryaware",
@@ -41,7 +42,7 @@ IIL.newsPaperFigs = [
   "source": "research_lensless.js figure (lab figure from the paper); already the news figure before v6"
  },
  {
-  "i": 13,
+  "i": 14,
   "date": "2025-12",
   "match": "HS and KC's recent papers on FP are accepted.",
   "pubId": "chae2026pupil",
@@ -52,7 +53,7 @@ IIL.newsPaperFigs = [
   "source": "media_research.js (KSPE 2025 talk deck, slide 16); one of the two papers in this item (the other is lee2026semisupervised)"
  },
  {
-  "i": 23,
+  "i": 24,
   "date": "2025-03",
   "match": "Our single-shot FP <a href=\"https://pubs.aip.org/aip/apl/art",
   "pubId": "yoon2025singleshot",
@@ -63,7 +64,7 @@ IIL.newsPaperFigs = [
   "source": "_build/figs2/micro/A3_singleshot_FP_phase_75fps_frame0.png (OBC 2026 talk deck, slide 7, phase video cited to the paper), cropped and contrast-stretched"
  },
  {
-  "i": 26,
+  "i": 27,
   "date": "2024-10",
   "match": "HS's <a href=\"https://pubs.aip.org/aip/app/article/9/10/1061",
   "pubId": "chae2024restoring",
@@ -74,7 +75,7 @@ IIL.newsPaperFigs = [
   "source": "media_research.js (_build/figs/faded_A_overview_restained_bladder_WSI.png); was the Virtual Staining lead on the Research page before v6"
  },
  {
-  "i": 29,
+  "i": 30,
   "date": "2024-07",
   "match": "KC's <a href=\"https://opg.optica.org/oe/fulltext.cfm?uri=oe-",
   "pubId": "lee2024anisotropic",
@@ -85,7 +86,7 @@ IIL.newsPaperFigs = [
   "source": "KSPE 2025 talk deck (~/Downloads/[정밀공학회] ...pptx) slide 11, image77.gif frames 2 and 3, slide cites the paper"
  },
  {
-  "i": 38,
+  "i": 39,
   "date": "2024-02",
   "match": "TY's <a href=\"https://www.spiedigitallibrary.org/conference-",
   "pubId": null,
@@ -96,7 +97,7 @@ IIL.newsPaperFigs = [
   "source": "media_research.js (_build/figs2/other/B3_03); the SPIE proceedings paper is not listed in pubs.js"
  },
  {
-  "i": 39,
+  "i": 40,
   "date": "2024-02",
   "match": "KW's <a href=\"https://www.sciencedirect.com/science/article/",
   "pubId": "lee2024highresolution",
@@ -107,7 +108,7 @@ IIL.newsPaperFigs = [
   "source": "_build/figs2/micro/A5_display_FP_USAF_results.png (OBC 2026 talk deck, slide 6, cited to the paper)"
  },
  {
-  "i": 40,
+  "i": 41,
   "date": "2024-02",
   "match": "YJ and SJ's <a href=\"https://opg.optica.org/boe/fulltext.cfm",
   "pubId": "lee2024rolling",
@@ -118,7 +119,7 @@ IIL.newsPaperFigs = [
   "source": "media_research.js (_build/figs2/other/B1_09)"
  },
  {
-  "i": 41,
+  "i": 42,
   "date": "2024-02",
   "match": "CY's <a href=\"https://opg.optica.org/boe/fulltext.cfm?uri=bo",
   "pubId": "yi2024improvements",
@@ -129,7 +130,7 @@ IIL.newsPaperFigs = [
   "source": "media_research.js (ALPS 2025 talk deck, slide 16)"
  },
  {
-  "i": 53,
+  "i": 54,
   "date": "2023-07",
   "match": "HS, KC, CY, and YJ gave oral presentations at the Optica Ima",
   "pubId": "lee2024rolling",
@@ -140,7 +141,7 @@ IIL.newsPaperFigs = [
   "source": "media_research.js (_build/figs2/other/B1_10); YJ's 2023 Optica Imaging Congress paper is the conference version of this work"
  },
  {
-  "i": 54,
+  "i": 55,
   "date": "2023-06",
   "match": "TY's paper on lensless HSI is published in <a href=\"https://",
   "pubId": "kim2023apertureencoded",
@@ -151,7 +152,7 @@ IIL.newsPaperFigs = [
   "source": "research_lensless.js figure (lab figure from the paper); already the news figure before v6"
  },
  {
-  "i": 61,
+  "i": 62,
   "date": "2023-01",
   "match": "KC's paper is featured as a cover article for the January is",
   "pubId": "lee2023design",
@@ -162,7 +163,7 @@ IIL.newsPaperFigs = [
   "source": "existing site file (lab-made cover art); already the news figure before v6"
  },
  {
-  "i": 64,
+  "i": 65,
   "date": "2022-11",
   "match": "KC's paper on the design and fabrication of phase masks is a",
   "pubId": "lee2023design",
@@ -173,7 +174,7 @@ IIL.newsPaperFigs = [
   "source": "media_research.js (Nov 2025 lensless seminar deck, slide 14)"
  },
  {
-  "i": 70,
+  "i": 71,
   "date": "2022-10",
   "match": "NK's paper on a lensless polarization camera is accepted for",
   "pubId": "baek2022lensless",
@@ -184,7 +185,7 @@ IIL.newsPaperFigs = [
   "source": "media_research.js (ETME 2025 talk deck, slide 27)"
  },
  {
-  "i": 71,
+  "i": 72,
   "date": "2022-10",
   "match": "CY's paper on rolling shutter speckle imaging is accepted fo",
   "pubId": "yi2022singleshot",
@@ -195,7 +196,7 @@ IIL.newsPaperFigs = [
   "source": "media_research.js (_build/figs2/other/B1_03; hidden on the Research page)"
  },
  {
-  "i": 77,
+  "i": 78,
   "date": "2022-03",
   "match": "YJ and HS's <a href=\"https://ieeexplore.ieee.org/document/97",
   "pubId": "lee2022fabrication",
@@ -206,7 +207,7 @@ IIL.newsPaperFigs = [
   "source": "media_research.js (ETME 2025 talk deck, slide 5)"
  },
  {
-  "i": 86,
+  "i": 87,
   "date": "2021-05",
   "match": "CY and NK's paper is accepted for ACM SIGGRAPH 2021.",
   "pubId": "yi2021remember",
@@ -217,18 +218,18 @@ IIL.newsPaperFigs = [
   "source": "media_research.js; REUSE: also shown on the Publications page (the only other lab figure of this paper is the installation photo on the Home theme tile)"
  },
  {
-  "i": 87,
+  "i": 88,
   "date": "2021-04",
   "match": "KC's <a href=\"https://pubs.acs.org/doi/10.1021/acsphotonics.",
   "pubId": "lee2021smartphonebased",
-  "src": "assets/research2/fp/smartphone-fp-microscope-photo.jpg",
-  "caption": "Smartphone FP microscope: a 3D-printed optics module on a phone whose OLED screen provides the programmable illumination.",
+  "src": "assets/research2/fp/smartphone-fp-color-tilia.jpg",
+  "caption": "Color FP reconstruction of a Tilia stem section from the smartphone microscope, with zoomed regions.",
   "credit": "K. C. Lee et al., ACS Photonics 2021",
   "fit": "contain",
-  "source": "media_research.js (_build/figs2/micro/A5_smartphone_FP_microscope_photo.png)"
+  "source": "media_research.js (_build/figs2/micro/A5_smartphone_FP_color_tilia.png); 2026-10-15: the microscope photo moved to the Home Computational Microscopy tile"
  },
  {
-  "i": 99,
+  "i": 100,
   "date": "2020-02",
   "match": "KW and JW's work on interactive biology is accepted for the ",
   "pubId": "lee2020microaquarium",

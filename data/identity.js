@@ -11,6 +11,11 @@ IIL.identity = {
   formerly: "Optical Imaging Systems Laboratory (OISL), Yonsei University (2018–2025)",
   univ: "Seoul National University",
   univKo: "서울대학교",
+  /* lab description (Home hero, ko.html lede, JSON-LD ResearchOrganization.description, llms.txt); rewritten 2026-10-15 at the PI's request:
+     plain and concrete, no slogans. The Home hero (index.html) and ko.html carry the same content in their static HTML, the Home hero in the first person
+     because it sits under the lab name. */
+  labIntro: "The Imaging Intelligence Laboratory in the Department of Mechanical Engineering at Seoul National University develops optical imaging instruments and the algorithms that reconstruct their images. Current work includes Fourier ptychographic and polarization microscopes that measure quantitative phase and birefringence, virtual staining of unstained tissue slides, lensless cameras with fabricated phase masks, and rolling-shutter speckle imaging of blood flow. The laboratory is led by Prof. Seung Ah Lee.",
+  labIntroKo: "서울대학교 기계공학부 지능형이미징연구실은 광학 영상 장비와, 그 장비로 얻은 영상을 복원하는 알고리즘을 개발한다. 정량 위상과 복굴절을 측정하는 푸리에 타이코그래피 현미경과 편광 현미경, 무염색 조직 슬라이드의 가상 염색, 위상 마스크를 직접 제작해 만든 렌즈리스 카메라, 롤링셔터 스페클 혈류 영상을 연구하고 있다. 연구책임자는 이승아 교수이다.",
   pi: "Seung Ah Lee",
   piKo: "이승아",
   piIntro: "Seung Ah Lee is an Associate Professor at Seoul National University working on optical imaging systems and computational imaging: microscopes, cameras and optical metrology and inspection instruments designed jointly with optics and AI-based image reconstruction. She received her B.S. in Electrical Engineering and M.S. in Electrical and Computer Engineering from Seoul National University and her Ph.D. in Electrical Engineering from Caltech, and was a faculty member in Electrical and Electronic Engineering at Yonsei University (2018–2025).",

@@ -1,10 +1,22 @@
 // Official logos for IIL.news items (verified 2026-10-04). i = index in IIL.news; match = first 60 chars of the item html.
 // Each file is the organisation's own file, downloaded unmodified from sourceUrl (official site, or the Wayback Machine copy of the
 // official site for the date of the item) and compared with the header of the page in verifiedAgainst. bg = card the file needs.
+// Indices shifted by +1 on 2026-10-15 (QPI Symposium item added at the top of IIL.news).
 window.IIL = window.IIL || {};
 IIL.newsLogos = [
  {
-  "i": 1,
+  "i": 0,
+  "date": "2026-11",
+  "match": "SA is co-chairing the <a href=\"https://bmol.kaist.ac.kr/qpi-",
+  "entity": "6th Quantitative Phase Imaging Symposium",
+  "logo": "Official symposium poster (the event has no separate logo); resized to 720 px JPEG, otherwise unmodified",
+  "src": "assets/news/logos_verified/qpi-symposium-2026-poster.jpg",
+  "sourceUrl": "https://bmol.kaist.ac.kr/qpi-symposium/assets/img/qpi-symposium-poster.png",
+  "verifiedAgainst": "https://bmol.kaist.ac.kr/qpi-symposium/ (official symposium site, page updated 2026-09-24; checked 2026-10-15)",
+  "bg": "dark"
+ },
+ {
+  "i": 2,
   "date": "2026-09",
   "match": "SA gave a keynote talk, “Learning to Teach with AI,” at the ",
   "entity": "HKUST (RSE workshop host)",
@@ -15,7 +27,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 2,
+  "i": 3,
   "date": "2026-09",
   "match": "IIL introduced its research on computational optical imaging",
   "entity": "Seoul National University",
@@ -26,7 +38,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 3,
+  "i": 4,
   "date": "2026-07",
   "match": "SA gave an invited talk, “Design and Implementation of Task-",
   "entity": "IEEE ICCP 2026",
@@ -37,7 +49,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 4,
+  "i": 5,
   "date": "2026-07",
   "match": "SA gave an invited talk on physics-guided learning and learn",
   "entity": "Optica Imaging Congress 2026",
@@ -48,7 +60,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 5,
+  "i": 6,
   "date": "2026-07",
   "match": "SA gave an invited talk, “High-Speed Virtual Staining Using ",
   "entity": "OSK OPC 2026",
@@ -59,7 +71,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 6,
+  "i": 7,
   "date": "2026-07",
   "match": "SA leads the new SNU–Caltech Innovation Research Center for ",
   "entity": "NRF",
@@ -70,7 +82,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 7,
+  "i": 8,
   "date": "2026-06",
   "match": "DG's IFIN <a href=\"https://iilab.io/IFIN/\">paper</a> is acce",
   "entity": "ECCV 2026",
@@ -81,7 +93,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 8,
+  "i": 9,
   "date": "2026-04",
   "match": "YG's GAPC-ASM <a href=\"https://doi.org/10.1364/OE.586512\">pa",
   "entity": "Optics Express (Optica Publishing Group)",
@@ -92,7 +104,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 9,
+  "i": 10,
   "date": "2026-04",
   "match": "SA receives the 2026 Science Day Commendation from the Deput",
   "entity": "Ministry of Science and ICT",
@@ -103,7 +115,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 11,
+  "i": 12,
   "date": "2026",
   "match": "SA receives an NRF Core Research grant (2026–2028).",
   "entity": "NRF",
@@ -114,7 +126,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 12,
+  "i": 13,
   "date": "2026",
   "match": "IIL starts an exploratory research project with COSMAX (2026",
   "entity": "COSMAX",
@@ -125,7 +137,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 14,
+  "i": 15,
   "date": "2025-11",
   "match": "SA gave an invited talk at the KSPE Fall Conference 2025. Sh",
   "entity": "KSPE",
@@ -136,7 +148,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 15,
+  "i": 16,
   "date": "2025-10",
   "match": "IIL was at SPIE ABC 2025 in Jeju. HS wins the Young Investig",
   "entity": "SPIE ABC 2025",
@@ -147,7 +159,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 16,
+  "i": 17,
   "date": "2025-10",
   "match": "SA gave an invited talk at Photonics Asia in Beijing, China.",
   "entity": "SPIE/COS Photonics Asia 2025",
@@ -158,7 +170,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 18,
+  "i": 19,
   "date": "2025-08",
   "match": "SA gave a seminar at Caltech EE.",
   "entity": "Caltech",
@@ -169,7 +181,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 19,
+  "i": 20,
   "date": "2025-07",
   "match": "SA gave an invited talk at the Optica Imaging Congress 3D co",
   "entity": "Optica Imaging Congress 2025",
@@ -180,7 +192,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 20,
+  "i": 21,
   "date": "2025-05",
   "match": "SA gave an invited talk at the 13th Asia-Pacific Laser Sympo",
   "entity": "APLS 2025",
@@ -191,7 +203,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 21,
+  "i": 22,
   "date": "2025-04",
   "match": "Our new lab at SNU is now open. Visit us at <a href=\"https:/",
   "entity": "Seoul National University",
@@ -202,7 +214,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 22,
+  "i": 23,
   "date": "2025-03",
   "match": "NK wins the best oral presentation award at the SPIE PW 2025",
   "entity": "SPIE Photonics West 2025",
@@ -213,7 +225,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 23,
+  "i": 24,
   "date": "2025-03",
   "match": "Our single-shot FP <a href=\"https://pubs.aip.org/aip/apl/art",
   "entity": "Applied Physics Letters",
@@ -224,7 +236,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 24,
+  "i": 25,
   "date": "2025-02",
   "match": "As of March 2025, our lab is moving to the Department of Mec",
   "entity": "Seoul National University",
@@ -235,7 +247,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 25,
+  "i": 26,
   "date": "2024-11",
   "match": "HS and HJA won the best poster awards at OSK ABC 2024.",
   "entity": "OSK (ABC 2024)",
@@ -246,7 +258,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 26,
+  "i": 27,
   "date": "2024-10",
   "match": "HS's <a href=\"https://pubs.aip.org/aip/app/article/9/10/1061",
   "entity": "APL Photonics",
@@ -257,7 +269,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 27,
+  "i": 28,
   "date": "2024-10",
   "match": "SA gave an invited talk at the 2024 KPS Fall Meeting.",
   "entity": "Korean Physical Society",
@@ -268,7 +280,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 28,
+  "i": 29,
   "date": "2024-07",
   "match": "SA is serving as the lead guest editor of the Optics Express",
   "entity": "Optics Express / Applied Optics (Optica Publishing Group)",
@@ -279,7 +291,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 29,
+  "i": 30,
   "date": "2024-07",
   "match": "KC's <a href=\"https://opg.optica.org/oe/fulltext.cfm?uri=oe-",
   "entity": "Optics Express (Optica Publishing Group)",
@@ -290,7 +302,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 31,
+  "i": 32,
   "date": "2024-05",
   "match": "HS wins the 2024 SPIE scholarship.",
   "entity": "SPIE",
@@ -301,7 +313,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 32,
+  "i": 33,
   "date": "2024-04",
   "match": "SA wins the 2023 Yonsei Teaching Excellence Award.",
   "entity": "Yonsei University",
@@ -312,7 +324,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 33,
+  "i": 34,
   "date": "2024-04",
   "match": "SA gave a talk at the Department of Physics at Ajou Universi",
   "entity": "Ajou University",
@@ -323,7 +335,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 34,
+  "i": 35,
   "date": "2024-04",
   "match": "SA gave an invited talk at OPIC BISC in Yokohama, Japan.",
   "entity": "OPIC 2024",
@@ -334,7 +346,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 36,
+  "i": 37,
   "date": "2024-04",
   "match": "SA gave a talk at the Department of Physics at KAIST.",
   "entity": "KAIST",
@@ -345,7 +357,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 37,
+  "i": 38,
   "date": "2024-03",
   "match": "HS wins the best oral presentation award at the SPIE PW 2024",
   "entity": "SPIE Photonics West 2024",
@@ -356,7 +368,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 38,
+  "i": 39,
   "date": "2024-02",
   "match": "TY's <a href=\"https://www.spiedigitallibrary.org/conference-",
   "entity": "SPIE Proceedings",
@@ -367,7 +379,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 40,
+  "i": 41,
   "date": "2024-02",
   "match": "YJ and SJ's <a href=\"https://opg.optica.org/boe/fulltext.cfm",
   "entity": "Biomedical Optics Express (Optica Publishing Group)",
@@ -378,7 +390,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 41,
+  "i": 42,
   "date": "2024-02",
   "match": "CY's <a href=\"https://opg.optica.org/boe/fulltext.cfm?uri=bo",
   "entity": "Biomedical Optics Express (Optica Publishing Group)",
@@ -389,7 +401,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 42,
+  "i": 43,
   "date": "2024-02",
   "match": "SA joins the editorial board of <a href=\"https://opg.optica.",
   "entity": "Optics Express (Optica Publishing Group)",
@@ -400,7 +412,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 43,
+  "i": 44,
   "date": "2024-01",
   "match": "SA will give a keynote presentation at SPIE Photonics West 2",
   "entity": "SPIE Photonics West 2024",
@@ -411,7 +423,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 45,
+  "i": 46,
   "date": "2024",
   "match": "IIL starts a collaborative research project with Meta (2024–",
   "entity": "Meta",
@@ -422,7 +434,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 46,
+  "i": 47,
   "date": "2024",
   "match": "IIL starts a collaborative research project with Samsung Res",
   "entity": "Samsung Research",
@@ -433,7 +445,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 47,
+  "i": 48,
   "date": "2024",
   "match": "IIL starts a collaborative research project with LG Innotek ",
   "entity": "LG Innotek",
@@ -444,7 +456,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 48,
+  "i": 49,
   "date": "2023-12",
   "match": "SA will serve as a TPC co-chair of the CLEO-PR 2024 optical ",
   "entity": "CLEO Pacific Rim 2024",
@@ -455,7 +467,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 50,
+  "i": 51,
   "date": "2023-11",
   "match": "TY wins the Young Investigator Award at the SPIE ABC 2023. C",
   "entity": "SPIE ABC 2023",
@@ -466,7 +478,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 51,
+  "i": 52,
   "date": "2023-09",
   "match": "KC wins the NRF fellowship for next-generation researchers.",
   "entity": "NRF",
@@ -477,7 +489,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 52,
+  "i": 53,
   "date": "2023-08",
   "match": "SA gave an invited talk at the OSK OPC 2023. DG, HS, and NK ",
   "entity": "OSK (OPC 2023)",
@@ -488,7 +500,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 53,
+  "i": 54,
   "date": "2023-07",
   "match": "HS, KC, CY, and YJ gave oral presentations at the Optica Ima",
   "entity": "Optica Imaging Congress 2023",
@@ -499,7 +511,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 54,
+  "i": 55,
   "date": "2023-06",
   "match": "TY's paper on lensless HSI is published in <a href=\"https://",
   "entity": "APL Photonics",
@@ -510,7 +522,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 55,
+  "i": 56,
   "date": "2023-04",
   "match": "SA will serve as a conference chair of the COI conference at",
   "entity": "SPIE Photonics West 2024",
@@ -521,7 +533,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 56,
+  "i": 57,
   "date": "2023-04",
   "match": "SA will serve as a program chair of the COSI conference at t",
   "entity": "Optica Imaging Congress 2023",
@@ -532,7 +544,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 57,
+  "i": 58,
   "date": "2023-04",
   "match": "OISL is selected as a “Target Lab” of LG Electronics.",
   "entity": "LG Electronics",
@@ -543,7 +555,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 58,
+  "i": 59,
   "date": "2023-03",
   "match": "CY's work is featured on the NRF website.",
   "entity": "NRF",
@@ -554,7 +566,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 59,
+  "i": 60,
   "date": "2023-03",
   "match": "SA's micro-HBI mini-review paper wins the Outstanding Articl",
   "entity": "Frontiers in Computer Science",
@@ -565,7 +577,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 60,
+  "i": 61,
   "date": "2023-01",
   "match": "SA gave an invited talk at the SPIE PW 2023 QPI conference.",
   "entity": "SPIE Photonics West 2023",
@@ -576,7 +588,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 61,
+  "i": 62,
   "date": "2023-01",
   "match": "KC's paper is featured as a cover article for the January is",
   "entity": "Optica (journal; Optica Publishing Group)",
@@ -587,7 +599,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 62,
+  "i": 63,
   "date": "2023-01",
   "match": "We were at CES 2023 to present our smartphone FPM.",
   "entity": "CES 2023",
@@ -598,7 +610,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 63,
+  "i": 64,
   "date": "2023",
   "match": "IIL starts a collaborative research project with Sony Resear",
   "entity": "Sony",
@@ -609,7 +621,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 64,
+  "i": 65,
   "date": "2022-11",
   "match": "KC's paper on the design and fabrication of phase masks is a",
   "entity": "Optica (journal; Optica Publishing Group)",
@@ -620,7 +632,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 65,
+  "i": 66,
   "date": "2022-11",
   "match": "KC wins an excellence prize at the 14th Electronics Times Pa",
   "entity": "Electronic Times (etnews)",
@@ -631,7 +643,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 66,
+  "i": 67,
   "date": "2022-11",
   "match": "SA gave an invited talk at the IEEE Photonics Conference in ",
   "entity": "IEEE Photonics Conference 2022",
@@ -642,7 +654,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 67,
+  "i": 68,
   "date": "2022-11",
   "match": "CY wins the best presentation award at the OSK ABC 2022. JW ",
   "entity": "OSK (ABC 2022)",
@@ -653,7 +665,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 71,
+  "i": 72,
   "date": "2022-10",
   "match": "CY's paper on rolling shutter speckle imaging is accepted fo",
   "entity": "Optica (journal; Optica Publishing Group)",
@@ -664,7 +676,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 72,
+  "i": 73,
   "date": "2022-07",
   "match": "Muhyeon wins the best poster award at the OSK OPC 2022.",
   "entity": "OSK OPC 2022",
@@ -675,7 +687,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 73,
+  "i": 74,
   "date": "2022-07",
   "match": "OISL has 5 posters and 1 oral presentation at the OSK OPC 20",
   "entity": "OSK OPC 2022",
@@ -686,7 +698,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 74,
+  "i": 75,
   "date": "2022-07",
   "match": "KW's paper is accepted for oral presentation at the <a href=",
   "entity": "ACM Multimedia 2022",
@@ -697,7 +709,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 75,
+  "i": 76,
   "date": "2022-07",
   "match": "KW and YJ to present at the Optica Imaging and Applied Optic",
   "entity": "Optica Imaging and Applied Optics Congress 2022",
@@ -708,7 +720,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 76,
+  "i": 77,
   "date": "2022-04",
   "match": "IIL starts a project on Fourier ptychography-based organoid ",
   "entity": "Ministry of Science and ICT",
@@ -719,7 +731,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 78,
+  "i": 79,
   "date": "2022-02",
   "match": "KC wins a silver prize at the Samsung <a href=\"https://human",
   "entity": "Samsung (Humantech Paper Award)",
@@ -730,7 +742,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 80,
+  "i": 81,
   "date": "2022",
   "match": "IIL starts a collaborative research project with the Camera ",
   "entity": "Samsung Electronics",
@@ -741,7 +753,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 81,
+  "i": 82,
   "date": "2021-11",
   "match": "CY's interview is featured on the ACM SIGGRAPH <a href=\"http",
   "entity": "ACM SIGGRAPH",
@@ -752,7 +764,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 82,
+  "i": 83,
   "date": "2021-11",
   "match": "OISL has 4 oral and 1 poster accepted for SPIE Photonics Wes",
   "entity": "SPIE Photonics West 2022",
@@ -763,7 +775,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 83,
+  "i": 84,
   "date": "2021-11",
   "match": "SA to give a tutorial at the SPIE Advanced Biophotonics Conf",
   "entity": "SPIE ABC 2021",
@@ -774,7 +786,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 84,
+  "i": 85,
   "date": "2021-07",
   "match": "SA gave an invited talk at the OSA Imaging and Applied Optic",
   "entity": "OSA Imaging and Applied Optics Congress 2021",
@@ -785,7 +797,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 85,
+  "i": 86,
   "date": "2021-07",
   "match": "OISL presented 6 posters at OPC 2021 in Jeju. SA gave an inv",
   "entity": "OSK OPC 2021",
@@ -796,7 +808,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 86,
+  "i": 87,
   "date": "2021-05",
   "match": "CY and NK's paper is accepted for ACM SIGGRAPH 2021.",
   "entity": "SIGGRAPH 2021",
@@ -807,7 +819,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 87,
+  "i": 88,
   "date": "2021-04",
   "match": "KC's <a href=\"https://pubs.acs.org/doi/10.1021/acsphotonics.",
   "entity": "ACS Photonics (ACS Publications)",
@@ -818,7 +830,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 88,
+  "i": 89,
   "date": "2021-04",
   "match": "IIL joins the KHIDI Medical Data AI program with a sub-proje",
   "entity": "KHIDI",
@@ -829,7 +841,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 89,
+  "i": 90,
   "date": "2021-03",
   "match": "SA wins the NRF's Outstanding Young Scientist Grant. The gra",
   "entity": "NRF",
@@ -840,7 +852,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 91,
+  "i": 92,
   "date": "2021-02",
   "match": "KC to present his <a href=\"https://spie.org/photonics-west/p",
   "entity": "SPIE Photonics West 2021",
@@ -851,7 +863,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 92,
+  "i": 93,
   "date": "2021",
   "match": "IIL starts a collaborative research project with the Samsung",
   "entity": "Samsung Electronics",
@@ -862,7 +874,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 93,
+  "i": 94,
   "date": "2020-12",
   "match": "KC and NK won the bronze prize at the Samsung EM Best Paper ",
   "entity": "Samsung Electro-Mechanics",
@@ -873,7 +885,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 94,
+  "i": 95,
   "date": "2020-11",
   "match": "KC wins the best poster award at KSM Annual Fall Conference ",
   "entity": "Korean Society of Microscopy",
@@ -884,7 +896,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 98,
+  "i": 99,
   "date": "2020-06",
   "match": "SA receives an NRF Basic Research grant to develop 3D lensle",
   "entity": "NRF",
@@ -895,7 +907,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 102,
+  "i": 103,
   "date": "2019-12",
   "match": "We win a grant on wearable smart devices, funded by the Kore",
   "entity": "MOTIE",
@@ -906,7 +918,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 103,
+  "i": 104,
   "date": "2019-10",
   "match": "SA's work with the <a href=\"https://riedel-kruse.arizona.edu",
   "entity": "Nature Biotechnology",
@@ -917,7 +929,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 104,
+  "i": 105,
   "date": "2019-09",
   "match": "We are selected for the NRF's Basic Research Laboratory prog",
   "entity": "NRF",
@@ -928,7 +940,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 105,
+  "i": 106,
   "date": "2019-09",
   "match": "We win an Incubation grant from LG Display.",
   "entity": "LG Display",
@@ -939,7 +951,7 @@ IIL.newsLogos = [
   "bg": "dark"
  },
  {
-  "i": 106,
+  "i": 107,
   "date": "2019-06",
   "match": "Our undergrads (JW, TY, NK, and Minhyeok) win the <a href=\"h",
   "entity": "KOFAC",
@@ -950,7 +962,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 107,
+  "i": 108,
   "date": "2019-06",
   "match": "SA receives an NRF Basic Research grant to develop a self-im",
   "entity": "NRF",
@@ -961,7 +973,7 @@ IIL.newsLogos = [
   "bg": "light"
  },
  {
-  "i": 108,
+  "i": 109,
   "date": "2018-12",
   "match": "SA wins a <a href=\"https://www.microsoft.com/en-us/research/",
   "entity": "Microsoft Research Asia",

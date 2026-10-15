@@ -1,4 +1,5 @@
-/* Research: one compact section per theme (short summary, project list, lead figure and two key images), compare slider
+/* Research: four parallel themes (no sequence numbers, no arrows or connectors between them; PI 2026-10-15),
+   one compact section per theme (short summary, project list, lead figure and two key images), compare slider
    as the Virtual Staining lead, project sheet dialog (deep link research.html#<project-slug>) with one short paragraph,
    up to two figures and references. */
 (function () {
@@ -12,16 +13,18 @@
     speckle: "Rolling-shutter speckle imaging measures blood flow from a single camera frame by using the row-by-row readout of a standard CMOS sensor. Applications include cerebral blood-flow mapping, pulse waveforms at the fingertip and real-time analysis with neural networks.",
     hbi: "Microscopes and projectors coupled so that people can interact in real time with living, light-responsive microorganisms, used in museum exhibits, installations, games and artworks. This is a past area of work."
   };
-  /* lead figure per theme (Virtual Staining uses the compare slider instead) and two key images */
+  /* lead figure per theme (Virtual Staining uses the compare slider instead) and two key images.
+     PI 2026-10-15: the leads of the instrument themes show the lab's own hardware (smartphone FP microscope rendering, compact
+     lensless camera modules); the Tilia smartphone-FP result moved to the 2021 ACS Photonics news card. */
   var LEAD = {
-    fp: { f: "tissue-phase-3d-surface.jpg", ratio: "3 / 2", loupe: 2.2 },
-    lensless: { f: "turing-phase-mask-tweezers.jpg", ratio: "3 / 2", loupe: 2.2 },
+    fp: { f: "smartphone-fp-render.png", ratio: "1010 / 770" },
+    lensless: { f: "lensless-modules-next-to-paper-clip.jpg", ratio: "4 / 3", loupe: 2.2 },
     speckle: { f: "rssi-raw-to-flow-map-wipe-poster.jpg", video: "assets/research2/video/rssi-raw-to-flow-map.mp4", ratio: "16 / 9" },
     hbi: { f: "remember-installation.jpg", ratio: "4 / 3", photo: true }
   };
   Object.keys(LEAD).forEach(function (k) { LEAD[k].fig = H.mrGet(LEAD[k].f); });
   var KEYS = {
-    fp: ["live-cells-brightfield-vs-phase.jpg", "smartphone-fp-color-tilia.jpg"],
+    fp: ["live-cells-brightfield-vs-phase.jpg", "tissue-phase-3d-surface.jpg"],
     vs: ["virtual-he-whole-slide.jpg", "virtual-ihc-vs-chemical-ihc.jpg"],
     lensless: ["phase-mask-and-camera-prototype-strip.jpg"],
     speckle: ["rssi-physics-network-comparison.jpg", "speckle-eye-movement-setup.png"],
@@ -80,7 +83,7 @@
     var f = H.mrGet(IDX[t.key] || "") || {}, src = f.src;
     if (src) H.claim(src);
     return '<li data-rv><a class="ix hover-host" data-th="' + esc(t.key) + '" href="#' + esc(t.key) + '"><span class="media zoom ix-img' + (src ? "" : " ix-none") + '">' + (src ? H.img(H.thumb(src, 400), "", {}) : "") + "</span>" +
-      '<span class="ix-t"><span class="meta">' + H.pad(i + 1) + '</span><span class="ix-n">' + esc(t.title) + "</span></span></a></li>";
+      '<span class="ix-t"><span class="ix-dot" aria-hidden="true"></span><span class="ix-n">' + esc(t.title) + "</span></span></a></li>";
   }).join("");
 
   var KEYLIST = {};
@@ -100,7 +103,7 @@
     var L = LEAD[t.key] || { ratio: "3 / 2" }, f = L.fig || t.keyFigure;
     H.claim(f.src); if (L.video) H.claim(L.video);
     var lead = L.video ? H.video(L.video, f.src, f.alt) : H.img(f.src, f.alt, { sizes: "(max-width: 900px) 100vw, 800px" });
-    return '<figure class="t-fig"><div class="media' + (L.video ? " has-vid" : "") + '" data-clip' + (L.loupe ? ' data-loupe="' + L.loupe + '"' : "") +
+    return '<figure class="t-fig"><div class="media' + (L.video ? " has-vid" : "") + (/\.png$/.test(f.src) ? " contain mat-white" : "") + '" data-clip' + (L.loupe ? ' data-loupe="' + L.loupe + '"' : "") +
       ' style="aspect-ratio:' + L.ratio + '">' + lead + (L.loupe ? LOUPE_TIP : "") + "</div>" + cap(f) + "</figure>";
   }
   function projRows(t) {
@@ -125,7 +128,7 @@
     var media = leadFig(t) + keyFigs(t);
     var projects = projRows(t);
     return '<section class="theme' + (t.key === "hbi" ? " past" : "") + '" data-th="' + esc(t.key) + '" id="' + esc(t.key) + '" aria-labelledby="h-' + esc(t.key) + '"><div class="wrap">' +
-      '<header class="t-head"><span class="meta t-n" data-rv>' + H.pad(i + 1) + '</span><h2 class="h1" id="h-' + esc(t.key) + '" data-rv>' + esc(t.title) + '</h2><span class="meta t-y" data-rv>' + span(t) + (t.key === "hbi" ? ", past work" : "") + "</span></header>" +
+      '<header class="t-head"><span class="t-n" aria-hidden="true" data-rv></span><h2 class="h1" id="h-' + esc(t.key) + '" data-rv>' + esc(t.title) + '</h2><span class="meta t-y" data-rv>' + span(t) + (t.key === "hbi" ? ", past work" : "") + "</span></header>" +
       '<div class="t-grid"><div class="t-text"><p class="lede" data-rv>' + esc(PLAIN[t.key] || t.summary) + "</p>" +
       '<h3 class="meta t-ph" data-rv>Projects <span class="n">' + (t.projects || []).length + '</span></h3><ul class="p-list" data-stagger>' + projects + "</ul>" +
       (H.themePage[t.key] ? '<p class="t-page" data-rv><a class="btn" href="' + H.themePage[t.key] + '">' + esc(t.title) + ": papers, code and projects " + H.arrow + "</a></p>" : "") + "</div>" +

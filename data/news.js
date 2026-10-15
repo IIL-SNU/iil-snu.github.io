@@ -1,6 +1,16 @@
 window.IIL = window.IIL || {};
 IIL.news = [
  {
+  "date": "2026-11",
+  "html": "SA is co-chairing the <a href=\"https://bmol.kaist.ac.kr/qpi-symposium/\">6th Quantitative Phase Imaging Symposium</a>, 20 November 2026, at The Chinese University of Hong Kong. Seoul National University co-organizes the symposium with CUHK, KAIST and the IEEE Photonics Society Hong Kong Chapter. Poster abstracts are due 30 October.",
+  "tags": [
+   "event",
+   "service"
+  ],
+  "source": "gmail",
+  "note": "Official site https://bmol.kaist.ac.kr/qpi-symposium/ (chairs: YongKeun Park, KAIST, chair; Seung Ah Lee, SNU, Renjie Zhou, CUHK (local host), Yongsoo Yang, KAIST, co-chairs; co-organizers CUHK, KAIST, SNU, IEEE Photonics Society Hong Kong Chapter). Venue CUHK Ho Sin-Hang Engineering Building Rm 603. Public invitation email 2026-09-24. Added 2026-10-15."
+ },
+ {
   "date": "2026-10",
   "html": "SJ's paper on a <a href=\"https://doi.org/10.1088/2515-7647/ae99ba\">physics-guided neural network for single-shot real-time dynamic speckle imaging</a> is published in Journal of Physics: Photonics.",
   "tags": [

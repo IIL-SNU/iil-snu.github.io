@@ -199,12 +199,26 @@
 .pi-links { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; }
 @media (max-width: 900px) { .pi-grid { grid-template-columns: 1fr; gap: 14px; } }
 
-/* ---------- calmer hero (PI 2026-10-15): lab photograph at a modest size, no research-figure carousel ---------- */
-.hero { padding: clamp(28px, 4vw, 64px) 0 clamp(40px, 5vw, 80px); }
-.hero-grid { height: auto; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); align-items: center; }
+/* ---------- hero (PI 2026-10-15): text first, a small computed speckle pattern beside it; no photograph, no carousel ---------- */
+.hero { padding: clamp(36px, 5vw, 84px) 0 clamp(44px, 5.5vw, 88px); }
+.hero-grid { height: auto; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: center; }
 .hero-text { justify-content: center; padding: 0; }
-.hero-photo .media { aspect-ratio: 4 / 3; max-height: 520px; border-radius: calc(var(--r) + 6px); }
-.hero-photo .caption { margin-top: 10px; }
+.hero-lede { max-width: 54ch; }
+.hero-viz { justify-self: end; width: min(100%, 400px); margin: 0; }
+.viz { position: relative; aspect-ratio: 1 / 1; border-radius: 50%; isolation: isolate; background: var(--white); }
+.viz[data-mode="psf"] { background: var(--navy); border-radius: calc(var(--r) + 6px); overflow: hidden; }
+.viz canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; image-rendering: auto; }
+.viz-pp { position: absolute; right: 4px; bottom: 4px; z-index: 2; width: 34px; height: 34px; background: color-mix(in srgb, var(--white) 86%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: var(--navy); box-shadow: 0 0 0 1px color-mix(in srgb, var(--navy) 10%, transparent); opacity: .75; transition: opacity .25s, background .25s; }
+.viz-pp:hover, .viz-pp:focus-visible { opacity: 1; background: var(--blush-lite); }
+.viz-pp svg { width: 14px; height: 14px; }
+.viz-pp .i-play { display: none; }
+.viz-pp[aria-pressed="true"] .i-play { display: block; }
+.viz-pp[aria-pressed="true"] .i-pause { display: none; }
+.hero-viz .caption { margin-top: 12px; max-width: 46ch; }
+/* theme tiles: a colour dot instead of a sequence number, no arrows (the themes are parallel areas) */
+.t-row .t-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--th, var(--steel)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--navy) 14%, transparent); transform: translateY(-1px); align-self: center; }
+.tile:hover .t-row .t-dot { background: var(--white); }
+.tile .t-sub { padding-left: calc(10px + 14px + 8px); }
 
 /* ---------- theme tiles: four equal, small research figures ---------- */
 .tiles > li, .tiles > li:nth-child(n) { grid-column: span 3; }
@@ -212,7 +226,7 @@
 .tile .w-cap { font-size: 12.5px; padding: 14px 16px; }
 @media (max-width: 980px) {
   .hero-grid { grid-template-columns: 1fr; }
-  .hero-photo { order: 1; }
+  .hero-viz { order: 1; justify-self: start; width: min(100%, 360px); }
   .tiles > li, .tiles > li:nth-child(n) { grid-column: span 6; }
 }
 @media (max-width: 560px) {

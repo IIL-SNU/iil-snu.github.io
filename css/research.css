@@ -124,3 +124,10 @@
 @media (max-width: 640px) { .t-subh { flex-wrap: wrap; gap: 4px 14px; } }
 .t-keys .k-wide { grid-column: 1 / -1; }
 .ix-img.ix-none { background: var(--th); }
+
+/* parallel themes (PI 2026-10-15): a colour dot instead of a sequence number */
+.ix-dot { display: block; width: 10px; height: 10px; border-radius: 50%; background: var(--th, var(--steel)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--navy) 14%, transparent); }
+.theme[data-th] .t-n { display: block; min-width: 0; width: 14px; height: 14px; padding: 0; border-radius: 50%; background: var(--th); align-self: center; box-shadow: 0 0 0 1px color-mix(in srgb, var(--navy) 14%, transparent); }
+.ix-t:has(.ix-dot) { flex-direction: row; align-items: center; gap: 10px; }
+.ix-dot { flex: none; }
+.t-fig .media.mat-white > img { padding: 4% 6%; }
