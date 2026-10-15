@@ -814,9 +814,9 @@ IIL.newsMedia = [
   "i": 78,
   "date": "2022-03",
   "match": "YJ and HS's <a href=\"https://ieeexplore.ieee.org/document/97",
-  "src": "assets/research/lensless/uv-imprint-concept-and-process.png",
+  "src": "assets/research2/lensless/uv-imprint-3d-refocusing.jpg",
   "kind": "figure",
-  "alt": "UV-imprint lensless camera concept and process",
+  "alt": "3D refocusing with the UV-imprint integrated lensless camera",
   "bg": "light",
   "source": "lab research figure (existing site file, from the published paper)"
  },

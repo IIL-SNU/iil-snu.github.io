@@ -4,7 +4,7 @@
   "use strict";
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
   /* four research themes: virtual staining belongs to computational microscopy (H.PARENT in site.js) */
-  var TOPIC = { lensless: "Lensless cameras", vs: "Computational microscopy", speckle: "Speckle imaging", fp: "Computational microscopy" };
+  var TOPIC = { lensless: "Lensless cameras", vs: "Computational microscopy", speckle: "Dynamic speckle imaging", fp: "Computational microscopy" };
   /* research figure shown on each repository card */
   var R = "assets/research2/";
   var FIG = {

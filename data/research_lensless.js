@@ -98,9 +98,9 @@ window.IIL = window.IIL || {}; IIL.research = IIL.research || []; IIL.research.p
           "credit": "Y. Lee, H. Chae et al., IEEE Photonics J. 2022"
         },
         {
-          "src": "assets/research/lensless/uv-imprint-concept-and-process.png",
-          "alt": "Diagram of lensless imaging (PSF, raw image, deconvolution to a car photo), a cutaway of the camera with phase mask, cover glass and image sensor, and the imprint steps with a PDMS mold, PUA resin and UV curing",
-          "caption": "Lensless imaging concept and camera structure (left); the imprint process (right): replicate the master mask in PDMS, press it into resin on the sensor, cure with UV and peel off the mold.",
+          "src": "assets/research2/lensless/uv-imprint-process-and-device-structure.png",
+          "alt": "UV-imprint fabrication steps and the structure of the integrated lensless camera",
+          "caption": "UV-imprint fabrication: a PDMS mold cast on a diffuser is pressed onto PUA resin on the image sensor, cured with UV light and removed. Bottom: phase mask, cover glass and image sensor of the integrated camera.",
           "credit": "Y. Lee, H. Chae et al., IEEE Photonics J. 2022"
         }
       ],

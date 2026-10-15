@@ -200,11 +200,11 @@ IIL.newsPaperFigs = [
   "date": "2022-03",
   "match": "YJ and HS's <a href=\"https://ieeexplore.ieee.org/document/97",
   "pubId": "lee2022fabrication",
-  "src": "assets/research2/lensless/imprinted-phase-mask-micrograph.jpg",
-  "caption": "Micrograph of a phase mask fabricated by UV imprint lithography. Scale bar 0.5 mm.",
+  "src": "assets/research2/lensless/uv-imprint-3d-refocusing.jpg",
+  "caption": "3D refocusing with the integrated lensless camera: scene and raw image (left) and reconstructions focused at 8 cm and 20 cm from one raw image.",
   "credit": "Y. Lee, H. Chae et al., IEEE Photonics J. 2022",
-  "fit": "contain",
-  "source": "media_research.js (ETME 2025 talk deck, slide 5)"
+  "fit": "cover",
+  "source": "media_research.js (figure of the paper; 2026-10-15 replaces imprinted-phase-mask-micrograph, which was not from this paper)"
  },
  {
   "i": 87,

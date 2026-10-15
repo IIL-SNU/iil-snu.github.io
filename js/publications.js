@@ -4,7 +4,7 @@
   var H = window.H1, IIL = window.IIL || {}, esc = H.esc;
   var pubs = (IIL.pubs || []).slice().sort(function (a, b) { return b.year - a.year; });
   /* four themes; virtual staining is part of computational microscopy and stays available as a sub-filter */
-  var TOPICS = [["all", "All"], ["micro", "Computational microscopy"], ["vs", "Virtual staining"], ["lensless", "Lensless cameras"], ["speckle", "Speckle imaging"], ["hbi", "Interactive biology"], ["other", "Other"]];
+  var TOPICS = [["all", "All"], ["micro", "Computational microscopy"], ["vs", "Virtual staining"], ["lensless", "Lensless cameras"], ["speckle", "Dynamic speckle imaging"], ["hbi", "Interactive biology"], ["other", "Other"]];
   function topicsOf(p) {
     var t = [];
     (p.topics || []).forEach(function (x) {
@@ -32,7 +32,7 @@
     lee2023design: R + "lensless/custom-psfs-raw-and-reconstructions.jpg",
     yi2022singleshot: R + "speckle/rssi-principle.jpg",
     baek2022lensless: R + "lensless/polarization-camera-exploded-render.png",
-    lee2022fabrication: "assets/research/lensless/uv-imprint-concept-and-process.png", /* the camera photo is on the Lensless Cameras page */
+    lee2022fabrication: R + "lensless/uv-imprint-process-and-device-structure.png", /* figure of the paper; the camera photo is on the Lensless Cameras page */
     yi2021remember: R + "hbi/remember-pipeline.png",
     lee2021smartphonebased: "assets/research/fp/smartphone-fp-blood-smear-amplitude-phase.jpg"
   };

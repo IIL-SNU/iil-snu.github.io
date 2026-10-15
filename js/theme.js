@@ -41,7 +41,7 @@
     fp: "The Imaging Intelligence Laboratory led by Seung Ah Lee at Seoul National University develops computational microscopes based on Fourier ptychographic microscopy (FPM) for wide-field, high-resolution and quantitative phase imaging, including a smartphone FPM {lee2021smartphonebased}, FPM that uses an OLED display as the light source {lee2024highresolution}, single-shot FPM for quantitative phase video {yoon2025singleshot} and polarization-resolved (vectorial) FPM for birefringence imaging {chae2026pupil}. The same microscopes are used for virtual staining of unstained tissue slides {chae2024restoring}.",
     vs: "Within computational microscopy, Seung Ah Lee's laboratory develops phase-to-stain virtual staining for digital pathology: Fourier ptychographic microscopes measure the quantitative phase of unstained tissue slides, and neural networks convert it into images of chemically stained slides. Published work covers the restoration of faded H&E slides {chae2024restoring} and fast virtual staining with learned illumination {lee2026semisupervised}.",
     lensless: "Seung Ah Lee's Imaging Intelligence Laboratory at Seoul National University develops lensless cameras in which a thin phase mask replaces the lens: phase masks with designed point-spread functions fabricated in one grayscale-lithography exposure {lee2023design}, phase masks imprinted directly on an image sensor {lee2022fabrication}, snapshot polarization and hyperspectral lensless cameras {baek2022lensless;kim2023apertureencoded} and physics-guided reconstruction networks {bae2026integrated}.",
-    speckle: "Seung Ah Lee's Imaging Intelligence Laboratory at Seoul National University develops rolling-shutter speckle imaging (RSSI), which measures blood flow from a single frame of a standard CMOS image sensor {yi2022singleshot}, together with a spatiotemporal speckle-correlation model {yi2024improvements}, rolling-shutter speckle plethysmography for pulse waveforms at the fingertip {lee2024rolling} and physics-guided neural networks for real-time analysis {byun2026physicsguided}.",
+    speckle: "Seung Ah Lee's Imaging Intelligence Laboratory at Seoul National University develops dynamic speckle imaging of blood flow: rolling-shutter speckle imaging (RSSI), which measures blood flow from a single frame of a standard CMOS image sensor {yi2022singleshot}, together with a spatiotemporal speckle-correlation model {yi2024improvements}, rolling-shutter speckle plethysmography for pulse waveforms at the fingertip {lee2024rolling} and physics-guided neural networks for real-time analysis {byun2026physicsguided}.",
     hbi: "Seung Ah Lee and her laboratory developed interactive biology (human-biology interaction) systems in which a microscope and a projector let people interact in real time with living, light-responsive Euglena cells {lee2015trap}, including an immersive installation {lee2020microaquarium} and a review of the field of micro-HBI {lee2022microhbi}. This is a past area of work."
   };
   /* figures that no other page shows (data/media_research.js; phase-to-he-and-ihc-split was the Home tile of the former
@@ -75,6 +75,10 @@
     var facts = (x.facts || []).filter(function (f) { return !SKIP_FACT.test(f.value); });
     return figs.map(function (f) {
       var png = /\.png$/.test(f.src);
+      /* looping video with its poster (H.video: muted, pauses offscreen, poster only with reduced motion) */
+      if (f.video) return '<figure class="t-fig th-fig"><div class="media has-vid" style="aspect-ratio:' + (f.w || 16) + " / " + (f.h || 9) + '">' +
+        H.video(f.video, f.src, f.alt) + H.vidLabels(f.labels) + "</div>" +
+        '<figcaption class="caption">' + esc(f.caption) + ' <span class="credit">' + esc(f.credit) + "</span></figcaption></figure>";
       return '<figure class="t-fig th-fig"><div class="media natural' + (png ? " mat-white" : "") + '"' + (png ? "" : ' data-loupe="2.2"') + ">" +
         H.img(f.src, f.alt, { sizes: "(max-width: 900px) 100vw, 760px" }) + "</div>" +
         '<figcaption class="caption">' + esc(f.caption) + ' <span class="credit">' + esc(f.credit) + "</span></figcaption></figure>";
@@ -148,7 +152,7 @@
   }).join("");
   $("th-pubcount").textContent = pubs.length + " publications";
 
-  H.reveal(); H.loupe();
+  H.reveal(); H.loupe(); H.videos();
   var h0 = decodeURIComponent(location.hash.slice(1));
   if (h0) { var el = document.getElementById(h0); if (el) requestAnimationFrame(function () { el.scrollIntoView(); }); }
 })();

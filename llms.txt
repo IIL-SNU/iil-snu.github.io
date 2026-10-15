@@ -2,13 +2,13 @@
 
 > The Imaging Intelligence Laboratory in the Department of Mechanical Engineering at Seoul National University develops optical imaging instruments and the algorithms that reconstruct their images. Current work includes Fourier ptychographic and polarization microscopes that measure quantitative phase and birefringence, virtual staining of unstained tissue slides, lensless cameras with fabricated phase masks, and rolling-shutter speckle imaging of blood flow. The laboratory is led by Prof. Seung Ah Lee. Korean name: 지능형 이미징 연구실 (이승아 교수). Earlier work: interactive biology. Formerly the Optical Imaging Systems Laboratory (OISL), Yonsei University (2018–2025).
 
-지능형 이미징 연구실은 서울대학교에서 새로운 광학 영상 장비와 영상 복원 알고리즘을 함께 연구합니다. 푸리에 타이코그래피 현미경, 무염색 조직의 가상 염색, 위상 마스크 기반 렌즈리스 카메라, 레이저 스페클 혈류 영상이 주요 연구 주제입니다. 이승아 교수가 연구실을 이끌고 있습니다.
+서울대학교 기계공학부 지능형 이미징 연구실은 광학 영상 장비와, 그 장비로 얻은 영상을 복원하는 알고리즘을 개발합니다. 현미경 분야에서는 푸리에 타이코그래피 현미경과 무염색 조직의 가상 염색을 다룹니다. 카메라 분야에서는 위상 마스크를 쓴 렌즈리스 카메라와, 동적 스페클 이미징으로 혈류를 측정하는 기술을 개발합니다. 연구실 책임자는 이승아 교수입니다.
 
 ## Principal investigator
 
 Seung Ah Lee is an Associate Professor at Seoul National University working on optical imaging systems and computational imaging: microscopes, cameras and optical metrology and inspection instruments designed jointly with optics and AI-based image reconstruction. She received her B.S. in Electrical Engineering and M.S. in Electrical and Computer Engineering from Seoul National University and her Ph.D. in Electrical Engineering from Caltech, and was a faculty member in Electrical and Electronic Engineering at Yonsei University (2018–2025).
 
-이승아 교수는 서울대학교에서 광학 이미징 시스템과 계산 이미징(computational imaging)을 연구하고 있습니다. 현미경, 카메라, 광학 계측·검사 장비의 광학계와 AI 기반 영상 복원 알고리즘을 함께 설계합니다. 서울대학교에서 전기공학 학사와 전기컴퓨터공학 석사, 미국 Caltech에서 전기공학 박사 학위를 받았고, 2018년부터 2025년까지 연세대학교 전기전자공학부 교수로 재직했습니다.
+이승아 교수는 서울대학교에서 광학 이미징 시스템과 계산 이미징(computational imaging)을 연구합니다. 현미경, 카메라, 광학 계측·검사 장비를 개발하면서 광학계와 AI 영상 복원 알고리즘을 동시에 설계합니다. 서울대학교에서 전기공학 학사와 전기컴퓨터공학 석사 학위를, 미국 Caltech에서 전기공학 박사 학위를 받았습니다. 2018년부터 2025년까지 연세대학교 전기전자공학부 교수로 재직했습니다.
 
 - Profile: https://iilab.io/pi.html
 - Google Scholar: https://scholar.google.com/citations?user=dlRF9NAAAAAJ
@@ -51,7 +51,7 @@ A conventional camera needs a stack of precisely shaped lenses, and that stack s
 - Code: https://github.com/IIL-SNU/GAPC-ASM (Demo code of geometry-aware phase-compensation based angular spectrum method.)
 - Data: WiderCam, https://iilab.io/WiderCam
 
-### [Speckle Imaging](https://iilab.io/speckle-imaging.html)
+### [Dynamic Speckle Imaging](https://iilab.io/speckle-imaging.html)
 
 When laser light enters living tissue, moving red blood cells make the resulting speckle pattern flicker, and how fast it flickers reveals how fast blood flows. Measuring that directly usually takes cameras running at more than ten thousand frames per second. We turned an ordinary rolling-shutter image sensor, which reads out its rows microseconds apart, into that high-speed camera: with elongated speckles and the right physical model, one snapshot reveals both the flow speed and how much of the tissue is moving. Building on this rolling-shutter speckle imaging (RSSI), we map cerebral blood flow, record pulse waveforms from a fingertip, and use physics-guided neural networks for real-time analysis, a path toward low-cost, contrast-free monitoring of circulation.
 
@@ -73,7 +73,7 @@ Microscopic life is all around us, yet almost nobody gets to interact with it. H
 ## Pages
 
 - [Home](https://iilab.io/): overview, recent news
-- [Research](https://iilab.io/research.html): four themes (computational microscopy with virtual staining, lensless cameras, speckle imaging, interactive biology) and their projects
+- [Research](https://iilab.io/research.html): four themes (computational microscopy with virtual staining, lensless cameras, dynamic speckle imaging, interactive biology) and their projects
 - [Team](https://iilab.io/team.html): members, alumni, open positions
 - [Publications](https://iilab.io/publications.html): 53 papers with DOIs, 22 patents
 - [Resources](https://iilab.io/resources.html): code, datasets, hardware designs, courses

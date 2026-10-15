@@ -14,11 +14,12 @@
     hbi: "Microscopes and projectors coupled so that people can interact in real time with living, light-responsive microorganisms, used in museum exhibits, installations, games and artworks. This is a past area of work."
   };
   /* lead figure per theme (Virtual Staining uses the compare slider instead) and two key images.
-     PI 2026-10-15: the leads of the instrument themes show the lab's own hardware (smartphone FP microscope rendering, compact
-     lensless camera modules); the Tilia smartphone-FP result moved to the 2021 ACS Photonics news card. */
+     PI 2026-10-15: Computational Microscopy leads with the lab's smartphone FP microscope rendering (the Tilia smartphone-FP
+     result moved to the 2021 ACS Photonics news card); Lensless Cameras leads with a video of lensless image reconstruction
+     from the lab's own data (raw sensor image beside the reconstructed image), replacing the photo of camera modules. */
   var LEAD = {
     fp: { f: "smartphone-fp-render.png", ratio: "1010 / 770" },
-    lensless: { f: "lensless-modules-next-to-paper-clip.jpg", ratio: "4 / 3", loupe: 2.2 },
+    lensless: { f: "lensless-raw-to-reconstruction-hand-poster.jpg", video: "assets/research2/video/lensless-raw-to-reconstruction-hand.mp4", ratio: "1280 / 476", labels: ["Raw sensor image", "Reconstruction"] },
     speckle: { f: "rssi-raw-to-flow-map-wipe-poster.jpg", video: "assets/research2/video/rssi-raw-to-flow-map.mp4", ratio: "16 / 9" },
     hbi: { f: "remember-installation.jpg", ratio: "4 / 3", photo: true }
   };
@@ -58,10 +59,12 @@
   }
   var LOUPE_TIP = '<span class="loupe-tip" aria-hidden="true"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.6"/></svg>Magnify</span>';
 
+  /* PI 2026-10-15: one comparison only (phase to H&E); the faded-slide re-staining pair is no longer shown, and its two
+     images are claimed so that no project sheet shows them either */
   var PAIRS = [
-    { k: "re", tab: "Faded slide re-staining", fa: "well-stained-reference-roi.jpg", fb: "virtual-restained-roi.jpg", la: "Well-stained reference", lb: "Virtual re-stain", ar: "1184 / 852" },
     { k: "ph", tab: "Phase to H&E", fa: "phase-roi-glands.jpg", fb: "virtual-he-roi-glands.jpg", la: "Quantitative phase", lb: "Virtual H&E", ar: "1600 / 1310" }
   ];
+  H.claim("well-stained-reference-roi.jpg"); H.claim("virtual-restained-roi.jpg");
   PAIRS.forEach(function (p) {
     var A = H.mrGet(p.fa), B = H.mrGet(p.fb);
     p.a = A.src; p.b = B.src; p.aa = A.alt; p.ab = B.alt; p.cap = A.caption + " " + B.caption; p.credit = B.credit;
@@ -104,7 +107,7 @@
     H.claim(f.src); if (L.video) H.claim(L.video);
     var lead = L.video ? H.video(L.video, f.src, f.alt) : H.img(f.src, f.alt, { sizes: "(max-width: 900px) 100vw, 800px" });
     return '<figure class="t-fig"><div class="media' + (L.video ? " has-vid" : "") + (/\.png$/.test(f.src) ? " contain mat-white" : "") + '" data-clip' + (L.loupe ? ' data-loupe="' + L.loupe + '"' : "") +
-      ' style="aspect-ratio:' + L.ratio + '">' + lead + (L.loupe ? LOUPE_TIP : "") + "</div>" + cap(f) + "</figure>";
+      ' style="aspect-ratio:' + L.ratio + '">' + lead + H.vidLabels(L.labels) + (L.loupe ? LOUPE_TIP : "") + "</div>" + cap(f) + "</figure>";
   }
   function projRows(t) {
     return (t.projects || []).map(function (p) {
@@ -153,9 +156,9 @@
       '<span class="cmp-lab l" aria-hidden="true">' + esc(p.la) + '</span><span class="cmp-lab r" aria-hidden="true">' + esc(p.lb) + "</span>" +
       '<input class="cmp-range" type="range" min="0" max="100" value="50" step="0.5" aria-label="Compare the two images">' +
       "</div>" +
-      '<div class="chips cmp-tabs" role="group" aria-label="Comparison">' + PAIRS.map(function (q, i) {
+      (PAIRS.length > 1 ? '<div class="chips cmp-tabs" role="group" aria-label="Comparison">' + PAIRS.map(function (q, i) {
         return '<button class="chip" type="button" data-pair="' + i + '" aria-pressed="' + (i === 0) + '">' + esc(q.tab) + "</button>";
-      }).join("") + "</div>" +
+      }).join("") + "</div>" : "") +
       '<figcaption class="caption" id="cmp-cap">' + esc(p.cap) + ' Drag the handle to compare. <span class="credit">' + esc(p.credit) + "</span></figcaption></figure>";
   }
   var cmp = document.getElementById("cmp");
@@ -183,7 +186,7 @@
       cio.observe(cmp);
     }
     var tabs = document.querySelector(".cmp-tabs");
-    tabs.addEventListener("click", function (e) {
+    if (tabs) tabs.addEventListener("click", function (e) {
       var b = e.target.closest("[data-pair]"); if (!b) return;
       var p = PAIRS[+b.getAttribute("data-pair")];
       tabs.querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", String(c === b)); });

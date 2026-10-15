@@ -254,3 +254,9 @@
   .hero-viz .viz { width: 100%; }
 }
 @media (max-width: 980px) { .hero-viz { justify-self: center; width: min(100%, 460px); margin: 8px auto 0; } }
+/* Computational Microscopy tile: the row of the lab's FP microscopes (2160 x 450) is wider than the tile, so it pans slowly
+   left and right (ping-pong, eased); with reduced motion and in still captures it stays centred (PI 2026-10-15) */
+.tile .media > img.pan-x { object-fit: cover; object-position: 0% 50%; background: var(--white); animation: pan-x 18s cubic-bezier(.45, 0, .55, 1) infinite alternate; }
+@keyframes pan-x { from { object-position: 0% 50%; } to { object-position: 100% 50%; } }
+@media (prefers-reduced-motion: reduce) { .tile .media > img.pan-x { animation: none; object-position: 50% 50%; } }
+.still .tile .media > img.pan-x { animation: none; object-position: 50% 50%; }

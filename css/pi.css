@@ -133,3 +133,7 @@
   .p-pi .site-header .brand { min-width: 0; white-space: normal; font-size: 13px; line-height: 1.25; }
   .p-pi .site-header .menu-btn { padding: 0 13px; flex: none; }
 }
+/* 2026-10-15: full (uncropped) portrait, larger, rounded rectangle */
+.pi-ph { width: clamp(220px, 22vw, 300px); aspect-ratio: 720 / 817; border-radius: calc(var(--r) + 6px); }
+.pi-ph img { object-position: 50% 0; }
+@media (max-width: 760px) { .pi-ph { width: min(70vw, 260px); } }

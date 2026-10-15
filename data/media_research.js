@@ -1,4 +1,4 @@
-// Curated research imagery (v4 2026-10-03: added real RSSI/FPVS repository data, speckle videos; "place" = page that owns the image; "hidden" = removed, see "note"; v7 2026-10-13: all LED-array/LED-matrix photos hidden per PI)
+// Curated research imagery (v4 2026-10-03: added real RSSI/FPVS repository data, speckle videos; "place" = page that owns the image; "hidden" = removed, see "note"; v7 2026-10-13: all LED-array/LED-matrix photos hidden per PI; v8 2026-10-15: UV-imprint figures replaced with the paper's own, lensless raw-to-reconstruction videos, hyperspectral Fig. 1, FP hardware row)
 // for the IIL website (generated 2026-10-02).
 // status: 'published' = shown in a published paper or matching a published result; 'presented' = shown in public talks/posters only (no numbers to be quoted).
 // Contact sheet: _dev/media_research_sheet.jpg
@@ -199,7 +199,9 @@ IIL.mediaResearch = [
     "status": "published",
     "width": 2267,
     "height": 1459,
-    "source": "~/Downloads/2026기계학회_ Design and Fabrication of Lensless Computational Cameras for Task-Specific Imaging and Sensing.pptx (ETME 2025 invited talk, Dec 2025), slide 52, image s52_3403f7d8.jpg"
+    "source": "~/Downloads/2026기계학회_ Design and Fabrication of Lensless Computational Cameras for Task-Specific Imaging and Sensing.pptx (ETME 2025 invited talk, Dec 2025), slide 52, image s52_3403f7d8.jpg",
+    "hidden": true,
+    "note": "2026-10-15: this photograph is part of the Home lensless tile movie (video/turing-mask-zoom.mp4), so it is not shown again (one image, one place)."
   },
   {
     "src": "assets/research2/lensless/phase-mask-against-light.jpg",
@@ -249,7 +251,9 @@ IIL.mediaResearch = [
     "status": "published",
     "width": 868,
     "height": 786,
-    "source": "~/Downloads/2026기계학회_ Design and Fabrication of Lensless Computational Cameras for Task-Specific Imaging and Sensing.pptx (ETME 2025 invited talk, Dec 2025), slide 5, image s05_c2f3000c.png"
+    "source": "~/Downloads/2026기계학회_ Design and Fabrication of Lensless Computational Cameras for Task-Specific Imaging and Sensing.pptx (ETME 2025 invited talk, Dec 2025), slide 5, image s05_c2f3000c.png",
+    "hidden": true,
+    "note": "PI 2026-10-15: wrong data. This micrograph is not a figure of the UV-imprint paper (Y. Lee, H. Chae et al., IEEE Photonics J. 2022); it came from a deck slide that mixes several prototypes. Replaced by uv-imprint-process-and-device-structure, uv-imprint-real-scene-reconstructions, uv-imprint-measured-psf and uv-imprint-3d-refocusing (figures of the paper as reproduced on slide 15 of ~/Downloads/Lensless Computational Camera for Smart Imaging.pdf, Jun 2022)."
   },
   {
     "src": "assets/research2/lensless/lensless-modules-next-to-paper-clip.jpg",
@@ -261,7 +265,9 @@ IIL.mediaResearch = [
     "status": "presented",
     "width": 1600,
     "height": 1200,
-    "source": "~/Downloads/2026기계학회_ Design and Fabrication of Lensless Computational Cameras for Task-Specific Imaging and Sensing.pptx (ETME 2025 invited talk, Dec 2025), slide 27, image s27_6d7de21f.jpg"
+    "source": "~/Downloads/2026기계학회_ Design and Fabrication of Lensless Computational Cameras for Task-Specific Imaging and Sensing.pptx (ETME 2025 invited talk, Dec 2025), slide 27, image s27_6d7de21f.jpg",
+    "hidden": true,
+    "note": "PI 2026-10-15: removed from the Lensless Cameras lead; replaced by the raw-to-reconstruction video (lensless-raw-to-reconstruction-hand)."
   },
   {
     "src": "assets/research2/lensless/grayscale-lithography-setup.jpg",
@@ -1536,5 +1542,141 @@ IIL.mediaResearch = [
     "height": 415,
     "source": "lab-website/assets/research/hbi/remember-pipeline.jpg",
     "place": "publications"
+  },
+  {
+    "src": "assets/research2/video/lensless-raw-to-reconstruction-hand-poster.jpg",
+    "theme": "lensless",
+    "project": "",
+    "kind": "animation",
+    "caption": "Video: raw image recorded by a lensless depth camera (left) and the all-in-focus image reconstructed from it by a network trained on synthetic data (right). The scene is a wooden hand model and a ball on a rotating stage.",
+    "credit": "Lensless depth camera, invited talk at Optica Imaging Congress 2025 (journal paper in preparation)",
+    "status": "presented",
+    "width": 1280,
+    "height": 476,
+    "source": "~/Downloads/COSI_2025_v3.2_snu_template_add_indoor_imaging.pptx (invited talk 3M4A, Optica Imaging Congress 2025, 18 Aug 2025), slide 25, GIFs image202 (raw) and image200 (reconstructed RGB), 100 frames at 150 ms; side by side, H.264 by _dev/mk_lensless_vid.py",
+    "added": "2026-10-15",
+    "video": "assets/research2/video/lensless-raw-to-reconstruction-hand.mp4",
+    "role": "poster",
+    "labels": [
+      "Raw sensor image",
+      "Reconstruction"
+    ]
+  },
+  {
+    "src": "assets/research2/video/lensless-raw-to-reconstruction-blocks-poster.jpg",
+    "theme": "lensless",
+    "project": "",
+    "kind": "animation",
+    "caption": "Video: raw images recorded by a lensless depth camera (left) and the all-in-focus images reconstructed from them (right), for alphabet blocks on a rotating stage and a block moving away from the camera on a linear stage (10 to 40 cm).",
+    "credit": "Lensless depth camera, invited talk at Optica Imaging Congress 2025 (journal paper in preparation)",
+    "status": "presented",
+    "width": 1280,
+    "height": 476,
+    "source": "~/Downloads/COSI_2025_v3.2_snu_template_add_indoor_imaging.pptx (invited talk 3M4A, Optica Imaging Congress 2025, 18 Aug 2025), slides 24 and 20, GIFs image193/image194 and image158/image156, 100 frames each at 150 ms; side by side, H.264 by _dev/mk_lensless_vid.py",
+    "added": "2026-10-15",
+    "place": "lensless-cameras",
+    "video": "assets/research2/video/lensless-raw-to-reconstruction-blocks.mp4",
+    "role": "poster",
+    "labels": [
+      "Raw sensor image",
+      "Reconstruction"
+    ]
+  },
+  {
+    "src": "assets/research2/lensless/uv-imprint-process-and-device-structure.png",
+    "theme": "lensless",
+    "project": "uv-imprint-integrated-camera",
+    "kind": "diagram",
+    "caption": "UV-imprint fabrication (left to right, top to bottom): a PDMS mold is cast on a diffuser and peeled off, pressed onto PUA resin on the image sensor, cured with UV light and removed, leaving the phase mask on the sensor. Bottom: structure of the integrated camera (phase mask, cover glass, image sensor).",
+    "credit": "Y. Lee, H. Chae et al., IEEE Photonics J. 2022",
+    "status": "published",
+    "width": 1800,
+    "height": 1120,
+    "source": "Figure of the paper (doi:10.1109/JPHOT.2022.3157373, CC BY) as reproduced on slide 15 'Integrated Lensless Cameras' of ~/Downloads/Lensless Computational Camera for Smart Imaging.pdf (Yonsei OISL seminar, Jun 2022); IEEE Xplore PDF download was blocked (HTTP 502/403), so the panels were extracted from the deck PDF, process diagram and device-structure panel",
+    "added": "2026-10-15",
+    "place": "publications"
+  },
+  {
+    "src": "assets/research2/lensless/uv-imprint-real-scene-reconstructions.jpg",
+    "theme": "lensless",
+    "project": "uv-imprint-integrated-camera",
+    "kind": "result",
+    "caption": "Real scenes imaged with the integrated lensless camera: reconstructed images (top), raw sensor images and the scenes (bottom).",
+    "credit": "Y. Lee, H. Chae et al., IEEE Photonics J. 2022",
+    "status": "published",
+    "width": 1063,
+    "height": 486,
+    "source": "Figure of the paper (doi:10.1109/JPHOT.2022.3157373, CC BY) as reproduced on slide 15 'Integrated Lensless Cameras' of ~/Downloads/Lensless Computational Camera for Smart Imaging.pdf (Yonsei OISL seminar, Jun 2022); IEEE Xplore PDF download was blocked (HTTP 502/403), so the panels were extracted from the deck PDF, imaging-results panel, real-scene columns only (display scenes with third-party pictures and a scene with people left out)",
+    "added": "2026-10-15"
+  },
+  {
+    "src": "assets/research2/lensless/uv-imprint-measured-psf.jpg",
+    "theme": "lensless",
+    "project": "uv-imprint-integrated-camera",
+    "kind": "result",
+    "caption": "Measured point-spread function of the integrated camera with its imprinted phase mask (red, green and blue channels; inset: magnified region).",
+    "credit": "Y. Lee, H. Chae et al., IEEE Photonics J. 2022",
+    "status": "published",
+    "width": 542,
+    "height": 764,
+    "source": "Figure of the paper (doi:10.1109/JPHOT.2022.3157373, CC BY) as reproduced on slide 15 'Integrated Lensless Cameras' of ~/Downloads/Lensless Computational Camera for Smart Imaging.pdf (Yonsei OISL seminar, Jun 2022); IEEE Xplore PDF download was blocked (HTTP 502/403), so the panels were extracted from the deck PDF, 3D-refocusing panel (PSF)",
+    "added": "2026-10-15"
+  },
+  {
+    "src": "assets/research2/lensless/uv-imprint-3d-refocusing.jpg",
+    "theme": "lensless",
+    "project": "uv-imprint-integrated-camera",
+    "kind": "result",
+    "caption": "3D refocusing with the integrated lensless camera: scene and raw image (left) and reconstructions focused at 8 cm and 20 cm from one raw image.",
+    "credit": "Y. Lee, H. Chae et al., IEEE Photonics J. 2022",
+    "status": "published",
+    "width": 1635,
+    "height": 484,
+    "source": "Figure of the paper (doi:10.1109/JPHOT.2022.3157373, CC BY) as reproduced on slide 15 'Integrated Lensless Cameras' of ~/Downloads/Lensless Computational Camera for Smart Imaging.pdf (Yonsei OISL seminar, Jun 2022); IEEE Xplore PDF download was blocked (HTTP 502/403), so the panels were extracted from the deck PDF, 3D-refocusing panel",
+    "added": "2026-10-15",
+    "place": "home"
+  },
+  {
+    "src": "assets/research2/lensless/hyperspectral-device-and-lvf-principle.jpg",
+    "theme": "lensless",
+    "project": "snapshot-hyperspectral-camera",
+    "kind": "hardware",
+    "caption": "The snapshot hyperspectral lensless camera: a linear variable filter in front of a phase mask on a monochrome image sensor (left). The filter passes a different wavelength band in each region, so the point-spread function becomes a stack of spectral PSFs (right); one raw image is reconstructed into a hyperspectral data stack (bottom).",
+    "credit": "T. Kim et al., APL Photonics 2023",
+    "status": "published",
+    "width": 2048,
+    "height": 1086,
+    "source": "Fig. 1 of T. Kim et al., APL Photonics 8, 066109 (2023), doi:10.1063/5.0150797 (open access, CC BY 4.0); extracted from ~/Downloads/066109_1_5.0150797.pdf",
+    "added": "2026-10-15"
+  },
+  {
+    "src": "assets/research2/fp/fp-hardware-family-row.png",
+    "theme": "fp",
+    "project": "",
+    "kind": "hardware",
+    "caption": "Fourier ptychographic microscopes built in the laboratory",
+    "credit": "Imaging Intelligence Laboratory",
+    "status": "published",
+    "width": 2160,
+    "height": 450,
+    "source": "_build/figs2/micro/A2_FP_hardware_family_CAD_row_kspe_p20.png (KSPE 2025 deck, slide 20); slide chevron at top centre painted white",
+    "added": "2026-10-15",
+    "place": "home"
+  },
+  {
+    "src": "assets/research2/video/turing-mask-zoom-poster.jpg",
+    "theme": "lensless",
+    "project": "custom-phase-masks",
+    "kind": "animation",
+    "caption": "Video: a fabricated phase mask with a Turing-pattern relief, held in tweezers, then backlit.",
+    "credit": "Imaging Intelligence Laboratory",
+    "status": "published",
+    "width": 1280,
+    "height": 960,
+    "source": "assets/research2/video/turing-mask-zoom.mp4 (10 s loop from the lab's macro photographs turing-phase-mask-tweezers.jpg and turing-phase-mask-photo.jpg)",
+    "added": "2026-10-15",
+    "place": "home",
+    "video": "assets/research2/video/turing-mask-zoom.mp4",
+    "role": "poster"
   }
 ];

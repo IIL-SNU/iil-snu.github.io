@@ -1,4 +1,4 @@
-/* Research themes: Speckle Imaging (order 4) and Interactive Biology (order 5).
+/* Research themes: Dynamic Speckle Imaging (order 4; renamed from "Speckle Imaging" 2026-10-15, PI) and Interactive Biology (order 5).
    Generated 2026-10-01. Public-safe: published or publicly presented work only. */
 window.IIL = window.IIL || {};
 IIL.research = IIL.research || [];
@@ -6,7 +6,7 @@ IIL.research.push(
 {
   "key": "speckle",
   "order": 4,
-  "title": "Speckle Imaging",
+  "title": "Dynamic Speckle Imaging",
   "short": "Speckle",
   "tagline": "Reading blood flow from the flicker of laser speckle, captured in a single camera frame.",
   "summary": "When laser light enters living tissue, moving red blood cells make the resulting speckle pattern flicker, and how fast it flickers reveals how fast blood flows. Measuring that directly usually takes cameras running at more than ten thousand frames per second. We turned an ordinary rolling-shutter image sensor, which reads out its rows microseconds apart, into that high-speed camera: with elongated speckles and the right physical model, one snapshot reveals both the flow speed and how much of the tissue is moving. Building on this rolling-shutter speckle imaging (RSSI), we map cerebral blood flow, record pulse waveforms from a fingertip, and use physics-guided neural networks for real-time analysis, a path toward low-cost, contrast-free monitoring of circulation.",
