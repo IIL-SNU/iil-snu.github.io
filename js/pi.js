@@ -19,8 +19,8 @@
      then the career sentence and the research paragraph of data/team.js */
   var ID = IIL.identity || {};
   var bio = ID.piIntro ? [ID.piIntro, ID.piCareer].concat((pi.bio || []).slice(1)) : (pi.bio || []).slice();
-  /* third paragraph: service and teaching, from the CV (Academic and Professional Services; Teaching) and data/teaching.js */
-  bio.push("Her professional service includes General Chair of the Computational Optical Sensing and Imaging (COSI) conference at the Optica Imaging Congress (2024, 2025), Conference Co-chair at SPIE Photonics West (2024–2026) and Director of International Affairs of the Optical Society of Korea. At Seoul National University she teaches Optical Physics and Design to undergraduate students and Computational Optical Imaging to graduate students.");
+  /* third paragraph: professional service, from the CV (Academic and Professional Services; Teaching) and data/teaching.js */
+  bio.push("Her professional service includes General Chair of the Computational Optical Sensing and Imaging (COSI) conference at the Optica Imaging Congress (2024, 2025), Conference Co-chair at SPIE Photonics West (2024–2026) and Director of International Affairs of the Optical Society of Korea.");
   $("bio-c").innerHTML = bio.map(function (p, i) { return '<p data-rv style="--i:' + i + '">' + esc(p) + "</p>"; }).join("");
 
   /* ---------- research interests ---------- */
@@ -95,35 +95,6 @@
   $("hon-c").innerHTML = '<ol class="hon" data-stagger>' + HONORS.map(function (h) {
     return '<li data-rv><span class="hon-y">' + esc(h[0]) + '</span><span class="hon-t">' + esc(h[1]) + "</span></li>";
   }).join("") + "</ol>";
-
-  /* ---------- selected publications (data/pubs.js; Prof. Lee as corresponding or lead author) ---------- */
-  var SEL = ["bae2026integrated", "chae2024restoring", "lee2024rolling", "lee2023design", "kim2023apertureencoded", "yi2022singleshot", "lee2021smartphonebased", "lee2014smartphonebased"];
-  var NOTE = { kim2023apertureencoded: "Editor's pick" }; /* CV: "(Editor's pick, Featured in AIP Scilight)" */
-  var byId = {}; (IIL.pubs || []).forEach(function (p) { if (p.id) byId[p.id] = p; });
-  function authors(a) { return esc(a).replace(/Lee, S\.A\.\*?/g, function (m) { return "<b>" + m + "</b>"; }); }
-  $("pub-c").innerHTML = '<ol class="pubs" data-stagger>' + SEL.map(function (id) {
-    var p = byId[id]; if (!p) return "";
-    var note = p.note || NOTE[id] || "";
-    var href = p.url || (p.doi ? "https://doi.org/" + p.doi : "");
-    return '<li data-rv><p class="pb-m"><span class="pb-v">' + esc(p.venueShort || p.venue) + '</span><span class="pb-y">' + esc(p.year) + "</span>" +
-      (note ? '<span class="pb-n">' + esc(note) + "</span>" : "") + "</p>" +
-      '<p class="pb-t">' + (href ? '<a href="' + esc(href) + '" target="_blank" rel="noopener"><span class="ul-t">' + esc(p.title) + "</span> " + H.ext + "</a>" : esc(p.title)) + "</p>" +
-      '<p class="pb-a">' + authors(p.authors) + "</p>" +
-      (p.plain ? '<p class="pb-p">' + esc(p.plain) + "</p>" : "") + "</li>";
-  }).join("") + "</ol>" +
-    '<p class="ps-more" data-rv><a class="btn" href="publications.html">All publications ' + H.arrow + "</a>" +
-    (ln.scholar ? '<a class="btn" href="' + esc(ln.scholar) + '" target="_blank" rel="noopener">Google Scholar ' + H.ext + "</a>" : "") + "</p>";
-
-  /* ---------- teaching (data/teaching.js) ---------- */
-  var T = IIL.teaching || {}, cur = T.current || [], past = T.past || [];
-  var LV = { undergraduate: "Undergraduate", graduate: "Graduate" };
-  $("tea-c").innerHTML =
-    '<h3 class="meta" data-rv>Seoul National University</h3><ul class="tc" data-stagger>' + cur.map(function (t) {
-      return '<li data-rv><p class="tc-t">' + esc(t.title) + (t.titleKo ? ' <span class="ko" lang="ko">' + esc(t.titleKo) + "</span>" : "") + "</p>" +
-        '<p class="tc-m">' + esc([LV[t.level] || "", (t.terms || []).join(", ")].filter(Boolean).join(" · ")) + "</p></li>";
-    }).join("") + "</ul>" +
-    (past.length ? '<h3 class="meta tc-h2" data-rv>Yonsei University, 2018–2025</h3><p class="sv-txt" data-rv>' + past.map(function (t) { return esc(t.title); }).join(", ") + "</p>" : "") +
-    '<p class="ps-more" data-rv><a class="ul" href="resources.html#courses">Course pages and materials</a> ' + H.arrow + "</p>";
 
   /* ---------- contact ---------- */
   $("con-c").innerHTML = '<dl class="ct" data-rv>' +

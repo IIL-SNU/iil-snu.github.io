@@ -27,7 +27,9 @@ IIL.pubs = [
    "Kim, J.",
    "Chang, H.",
    "Lee, S.A."
-  ]
+  ],
+  "highlight": true,
+  "plain": "Recovers blood-flow and static-scattering maps from a single rolling-shutter speckle frame with a physics-guided neural network."
  },
  {
   "id": "bae2026integrated",
