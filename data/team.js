@@ -154,29 +154,6 @@ IIL.pi = {
    it is explicit and not derived from "since". */
 IIL.members = [
   {
-    "slug": "nick-durr",
-    "name": "Nicholas J. Durr",
-    "role": "Visiting Faculty",
-    "group": "faculty",
-    "photo": "assets/people/nick-durr.jpg",
-    "education": [
-      "Ph.D. in Biomedical Engineering, The University of Texas at Austin (2010)",
-      "B.S. in Electrical Engineering and Computer Science, University of California, Berkeley (2003)"
-    ],
-    "prior": [
-      "Associate Professor of Biomedical Engineering, Johns Hopkins University"
-    ],
-    "interests": [
-      "Computational Biophotonics",
-      "Optics and Microscopy",
-      "Endoscopy",
-      "Medical Devices"
-    ],
-    "links": {
-      "web": "https://durr.jhu.edu/"
-    }
-  },
-  {
     "slug": "yong-guk-kang",
     "name": "Yong Guk Kang",
     "role": "Research Professor",
@@ -228,6 +205,29 @@ IIL.members = [
       "email": "mailto:changyoonyi@snu.ac.kr"
     },
     "office": "Bldg. 302 Rm. 411A"
+  },
+  {
+    "slug": "nick-durr",
+    "name": "Nicholas J. Durr",
+    "role": "Visiting Faculty",
+    "group": "faculty",
+    "photo": "assets/people/nick-durr.jpg",
+    "education": [
+      "Ph.D. in Biomedical Engineering, The University of Texas at Austin (2010)",
+      "B.S. in Electrical Engineering and Computer Science, University of California, Berkeley (2003)"
+    ],
+    "prior": [
+      "Associate Professor of Biomedical Engineering, Johns Hopkins University"
+    ],
+    "interests": [
+      "Computational Biophotonics",
+      "Optics and Microscopy",
+      "Endoscopy",
+      "Medical Devices"
+    ],
+    "links": {
+      "web": "https://durr.jhu.edu/"
+    }
   },
   {
     "slug": "jaewoo-jung",
