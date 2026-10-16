@@ -37,7 +37,7 @@
     fp: H.FIG_THEME.fp, vs: H.FIG_THEME.vs,
     lensless: ["uv-imprint-integrated-camera-prototype-clean.jpg", "phase-mask-height-map-3d.jpg", "polarization-camera-pipeline.png"],
     speckle: ["rssi-flow-phantom-linearity.jpg", "rsspg-cold-pressor.jpg"],
-    hbi: ["microaquarium-installation.jpg", "remember-installation-pet-photos.jpg"]
+    hbi: ["euglpollock-tablet-drawing-poster.jpg", "euglpollock-painting-poster.jpg", "microaquarium-installation.jpg", "remember-installation-pet-photos.jpg"]
   };
   var TOPICS = { fp: ["fp", "microscopy", "vs"], lensless: ["lensless"], speckle: ["speckle"], hbi: ["hbi"] };
   var PATENTS = { fp: ["US11880965B2"], lensless: ["US12108134B2", "US12062190B2"] };

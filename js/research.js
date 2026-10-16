@@ -12,7 +12,7 @@
     fp: { f: "pupil-multiplexing-fp-render.png", ratio: "1600 / 1175", tight: true },
     lensless: { f: "uv-imprint-real-scene-reconstructions.jpg", ratio: "1063 / 486" },
     speckle: { f: "rssi-raw-to-flow-map-wipe-poster.jpg", video: "assets/research2/video/rssi-raw-to-flow-map.mp4", ratio: "16 / 9" },
-    hbi: { f: "remember-installation-touch.jpg", ratio: "692 / 540", photo: true }
+    hbi: { f: "microaquarium-shadow-play-poster.jpg", video: "assets/research2/video/microaquarium-shadow-play.mp4", ratio: "16 / 9" }
   };
   Object.keys(LEAD).forEach(function (k) { LEAD[k].fig = H.mrGet(LEAD[k].f); });
   var KEYS = {

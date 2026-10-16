@@ -126,7 +126,7 @@
     fp: { pan: true, sub: "Fourier ptychography, phase and polarization imaging, virtual staining" },
     lensless: { video: "assets/research2/video/turing-mask-zoom.mp4", pos: "50% 50%", sub: "Lensless camera hardware designed for each application, and the algorithms that reconstruct its images" },
     speckle: { video: "assets/research2/video/rssi-in-vivo-time-lapse.mp4", pos: "50% 50%", sub: "Analyzing speckle from dynamic scattering to measure sample dynamics, such as blood flow" },
-    hbi: { pos: "50% 50%", sub: "Interactive experiments with living microorganisms" }
+    hbi: { video: "assets/research2/video/microaquarium-hand-gesture.mp4", pos: "50% 50%", sub: "Interactive experiments with living microorganisms" }
   };
   Object.keys(TILE).forEach(function (k) {
     var n = H.FIG_HOME[k], f = (/^assets\//.test(n) ? H.findFig(n) : H.mrGet(n)) || {};
