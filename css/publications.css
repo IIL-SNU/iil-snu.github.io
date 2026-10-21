@@ -7,7 +7,7 @@
 .search svg { position: absolute; left: 16px; width: 16px; height: 16px; color: var(--ink-3); pointer-events: none; }
 .search input { width: 100%; height: 44px; padding: 0 16px 0 42px; border: 0; border-radius: 999px; background: var(--bg-2); box-shadow: inset 0 0 0 1px var(--line); font-size: 15px; color: var(--navy); transition: box-shadow .3s, background .3s; }
 .search input::placeholder { color: var(--ink-4); }
-.search input:focus { outline: none; background: var(--white); box-shadow: inset 0 0 0 1.5px var(--steel), 0 0 0 4px color-mix(in srgb, var(--blush) 60%, transparent); }
+.search input:focus { outline: none; background: var(--white); box-shadow: inset 0 0 0 1.5px var(--steel), 0 0 0 4px color-mix(in srgb, var(--sky) 60%, transparent); }
 .tb-count { margin-left: auto; white-space: nowrap; }
 
 .pubs-sec { padding: clamp(24px, 3vw, 40px) 0 0; }
@@ -19,7 +19,7 @@
 .pub + .pub { border-top: 1px solid var(--line); }
 .pub.hl { grid-template-columns: 220px 1fr; }
 .pub-fig { display: block; aspect-ratio: 4 / 3; border-radius: 14px; align-self: start; }
-.pub-fig.wash::after { background: linear-gradient(160deg, transparent 30%, color-mix(in srgb, var(--blush) 40%, transparent) 70%, color-mix(in srgb, var(--steel) 55%, transparent)); }
+.pub-fig.wash::after { background: linear-gradient(160deg, transparent 30%, color-mix(in srgb, var(--lavender) 40%, transparent) 70%, color-mix(in srgb, var(--steel) 55%, transparent)); }
 .pub.hl:hover .pub-fig img { transform: scale(1.06); }
 .pub.hl:hover .pub-fig.wash::after { opacity: 1; }
 .pub-t { font-size: 17px; font-weight: 500; line-height: 1.45; color: var(--navy); }
@@ -35,7 +35,7 @@
 
 .patents { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .pat { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 18px 20px; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--line); transition: background .3s, box-shadow .3s, transform .5s var(--out); }
-.pat:hover { background: var(--blush-soft); box-shadow: inset 0 0 0 1px var(--blush); transform: translateY(-2px); }
+.pat:hover { background: var(--sky-soft); box-shadow: inset 0 0 0 1px var(--sky); transform: translateY(-2px); }
 .pat-t { font-size: 15px; font-weight: 500; line-height: 1.45; }
 .pat-i { font-size: 13.5px; color: var(--ink-3); }
 .pat-i strong { color: var(--navy); font-weight: 600; }
@@ -65,7 +65,7 @@
 .yr:nth-of-type(4n+1) .yr-n { background: var(--sky); }
 .yr:nth-of-type(4n+2) .yr-n { background: var(--blush); }
 .yr:nth-of-type(4n+3) .yr-n { background: var(--steel); color: var(--white); }
-.pub.hl { padding: 18px; margin: 6px 0; border-radius: 20px; background: linear-gradient(120deg, var(--sky-lite), var(--blush-lite)); }
+.pub.hl { padding: 18px; margin: 6px 0; border-radius: 20px; background: linear-gradient(120deg, var(--sky-lite), var(--mist)); }
 .pub.hl + .pub { border-top: 0; }
 .pub { border-radius: 14px; transition: background .3s; }
 .pub:not(.hl):hover { background: color-mix(in srgb, var(--lavender) 18%, var(--white)); }

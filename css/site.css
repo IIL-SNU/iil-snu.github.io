@@ -21,11 +21,11 @@
   --sky-soft: color-mix(in srgb, var(--sky) 30%, var(--white));
   --sky-mid: color-mix(in srgb, var(--sky) 60%, var(--white));
   --lav-soft: color-mix(in srgb, var(--lavender) 24%, var(--white));
-  --blush-soft: color-mix(in srgb, var(--blush) 38%, var(--white));
+  --blush-soft: color-mix(in srgb, var(--sky) 24%, var(--white)); /* 2026-10-21: cool tint; blush kept for small accents only */
   --line: color-mix(in srgb, var(--navy) 11%, transparent);
   --line-2: color-mix(in srgb, var(--navy) 20%, transparent);
   --wash: linear-gradient(180deg, color-mix(in srgb, var(--navy) 0%, transparent) 30%, color-mix(in srgb, var(--steel) 42%, transparent) 62%, color-mix(in srgb, var(--navy) 88%, transparent) 100%);
-  --glow: 0 18px 50px -18px color-mix(in srgb, var(--steel) 45%, transparent), 0 0 0 1px color-mix(in srgb, var(--blush) 70%, transparent);
+  --glow: 0 18px 50px -18px color-mix(in srgb, var(--steel) 45%, transparent), 0 0 0 1px color-mix(in srgb, var(--sky) 70%, transparent);
   --shadow: 0 1px 2px color-mix(in srgb, var(--navy) 6%, transparent), 0 12px 32px -16px color-mix(in srgb, var(--navy) 24%, transparent);
 
   --font: "Plus Jakarta Sans", "Noto Sans KR", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -81,24 +81,24 @@ a:hover .arr, button:hover .arr { transform: translateX(4px); }
 
 /* ---------- buttons, chips ---------- */
 .btn { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 20px; border-radius: 999px; font-size: 14.5px; font-weight: 500; box-shadow: inset 0 0 0 1px var(--line-2); transition: background .3s var(--ease), color .3s, box-shadow .3s; white-space: nowrap; }
-.btn:hover { background: var(--blush-soft); box-shadow: inset 0 0 0 1px var(--blush); }
+.btn:hover { background: var(--sky-soft); box-shadow: inset 0 0 0 1px var(--sky); }
 .btn.solid { background: var(--navy); color: var(--white); box-shadow: none; }
 .btn.solid:hover { background: var(--steel); }
 .btn.light { background: var(--white); color: var(--navy); box-shadow: none; }
-.btn.light:hover { background: var(--blush); }
+.btn.light:hover { background: var(--sky); }
 .icon-btn { width: 44px; height: 44px; border-radius: 50%; display: inline-grid; place-items: center; box-shadow: inset 0 0 0 1px var(--line-2); transition: background .3s, box-shadow .3s, transform .3s var(--out); flex: none; }
-.icon-btn:hover { background: var(--blush-soft); box-shadow: inset 0 0 0 1px var(--blush); }
+.icon-btn:hover { background: var(--sky-soft); box-shadow: inset 0 0 0 1px var(--sky); }
 .icon-btn:active { transform: scale(.94); }
 .icon-btn svg { width: 16px; height: 16px; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px; border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line-2); transition: background .25s, color .25s, box-shadow .25s; }
-.chip:hover { background: var(--blush-soft); box-shadow: inset 0 0 0 1px var(--blush); color: var(--navy); }
+.chip:hover { background: var(--sky-soft); box-shadow: inset 0 0 0 1px var(--sky); color: var(--navy); }
 .chip[aria-pressed="true"] { background: var(--navy); color: var(--white); box-shadow: none; }
 .chip .n { font-size: 12px; color: var(--ink-4); font-variant-numeric: tabular-nums; }
 .chip[aria-pressed="true"] .n { color: var(--sky); }
 .copy { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; margin-left: 6px; border-radius: 999px; font-size: 12.5px; font-weight: 600; letter-spacing: .02em; color: var(--steel); box-shadow: inset 0 0 0 1px var(--line-2); transition: background .25s, color .25s, box-shadow .25s; vertical-align: 1px; }
-.copy:hover { background: var(--blush-soft); box-shadow: inset 0 0 0 1px var(--blush); }
-.copy.done { background: var(--blush); color: var(--navy); box-shadow: none; }
+.copy:hover { background: var(--sky-soft); box-shadow: inset 0 0 0 1px var(--sky); }
+.copy.done { background: var(--sky); color: var(--navy); box-shadow: none; }
 .tag { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--sky-soft); color: var(--steel); font-size: 12px; font-weight: 600; letter-spacing: .02em; white-space: nowrap; }
 .tag.blush { background: var(--blush-soft); color: var(--navy); }
 
@@ -171,7 +171,7 @@ button:hover > .media.zoom > img, .hover-host:hover .media.zoom > img, .hover-ho
 /* loupe (cursor-following magnifier on research figures) */
 .loupe-host { cursor: crosshair; }
 .loupe { position: absolute; left: 0; top: 0; z-index: 4; width: var(--ls, 200px); height: var(--ls, 200px); margin: calc(var(--ls, 200px) / -2) 0 0 calc(var(--ls, 200px) / -2); border-radius: 50%; pointer-events: none; background-repeat: no-repeat; background-color: var(--white);
-  box-shadow: 0 0 0 3px var(--white), 0 0 0 4px color-mix(in srgb, var(--blush) 80%, transparent), 0 22px 50px -12px color-mix(in srgb, var(--navy) 55%, transparent);
+  box-shadow: 0 0 0 3px var(--white), 0 0 0 4px color-mix(in srgb, var(--sky) 80%, transparent), 0 22px 50px -12px color-mix(in srgb, var(--navy) 55%, transparent);
   opacity: 0; transform: scale(.6); transition: opacity .3s var(--ease), transform .45s var(--out); }
 .loupe.on { opacity: 1; transform: scale(1); }
 .loupe-tip { position: absolute; right: 14px; top: 14px; z-index: 3; display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 999px; background: color-mix(in srgb, var(--white) 88%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font-size: 12px; font-weight: 600; color: var(--navy); pointer-events: none; transition: opacity .3s; }
@@ -226,7 +226,7 @@ dialog { color: var(--navy); }
 .f-email { color: var(--white); background: linear-gradient(var(--blush), var(--blush)) 0 100% / 100% 1px no-repeat; transition: background-size .35s var(--ease); }
 .f-email:hover { background-size: 0 1px; background-position: 100% 100%; }
 .site-footer .copy { color: var(--white); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--white) 30%, transparent); }
-.site-footer .copy:hover, .site-footer .copy.done { background: var(--blush); color: var(--navy); box-shadow: none; }
+.site-footer .copy:hover, .site-footer .copy.done { background: var(--sky); color: var(--navy); box-shadow: none; }
 .f-ko { display: block; margin-top: 14px; font-size: 13.5px; color: var(--lavender); }
 .f-bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 48px; padding-top: 22px; border-top: 1px solid color-mix(in srgb, var(--white) 14%, transparent); font-size: 13px; color: var(--lavender); }
 .f-bottom nav { display: flex; gap: 20px; flex-wrap: wrap; }
@@ -261,7 +261,7 @@ dialog { color: var(--navy); }
 :root {
   --sky-lite: color-mix(in srgb, var(--sky) 45%, var(--white));
   --lav-lite: color-mix(in srgb, var(--lavender) 38%, var(--white));
-  --blush-lite: color-mix(in srgb, var(--blush) 44%, var(--white));
+  --blush-lite: color-mix(in srgb, var(--sky) 34%, var(--white));
   --steel-lite: color-mix(in srgb, var(--steel) 14%, var(--white));
 }
 /* theme colour assignment: fp sky, vs blush, lensless lavender, speckle steel, hbi navy */
@@ -290,8 +290,8 @@ body .chip[data-th][aria-pressed="true"]::before { background: var(--th-ink); op
 body .chip[data-th][aria-pressed="true"] .n { color: inherit; opacity: .75; }
 body .chip[data-th="all"][aria-pressed="true"] { background: var(--steel); }
 
-/* page heads: soft sky to blush wash */
-body .page-head { background: linear-gradient(120deg, var(--sky-lite) 0%, color-mix(in srgb, var(--lavender) 22%, var(--white)) 55%, var(--blush-lite) 100%); }
+/* page heads: soft sky to lavender wash with a faint blush edge (2026-10-21: less pink) */
+body .page-head { background: linear-gradient(120deg, var(--sky-lite) 0%, color-mix(in srgb, var(--lavender) 24%, var(--white)) 70%, color-mix(in srgb, var(--blush) 18%, var(--white)) 100%); }
 body .page-head .eyebrow { color: var(--steel); }
 
 /* footer: navy with steel sub-band */

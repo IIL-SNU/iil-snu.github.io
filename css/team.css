@@ -101,7 +101,7 @@ a.al-n:hover .arr { transform: translate(2px, -2px); }
 /* ---------- open positions band ---------- */
 .jb-sec { padding: clamp(40px, 5vw, 72px) 0; background: var(--mist); }
 .jb { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) auto; align-items: center; gap: 18px clamp(20px, 3vw, 44px); padding: clamp(20px, 2.4vw, 28px) clamp(20px, 3vw, 36px); border-radius: 24px;
-  background: linear-gradient(100deg, var(--blush-lite) 0%, color-mix(in srgb, var(--blush) 30%, var(--sky-lite)) 55%, var(--sky-lite) 100%); }
+  background: linear-gradient(100deg, var(--lav-soft) 0%, color-mix(in srgb, var(--lavender) 20%, var(--sky-lite)) 55%, var(--sky-lite) 100%); }
 .jb-h .small { margin-top: 4px; color: var(--ink-2); }
 .jb-l { display: flex; flex-wrap: wrap; gap: 8px; }
 .jb-l li { display: inline-flex; align-items: center; gap: 10px; height: 38px; padding: 0 16px; border-radius: 999px; background: color-mix(in srgb, var(--white) 78%, transparent); font-size: 14px; font-weight: 500; color: var(--navy); }
