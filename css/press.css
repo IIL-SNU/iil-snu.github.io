@@ -14,7 +14,9 @@
 .pr-g[data-k="2"] .pr-n { background: var(--blush-soft); color: var(--navy); }
 .pr-g[data-k="3"] .pr-n { background: var(--steel-lite); }
 .pr-t { font-size: clamp(16px, 1.3vw, 18px); font-weight: 600; line-height: 1.4; color: var(--navy); letter-spacing: -.005em; }
-.pr-x { margin-top: 6px; font-size: 14.5px; line-height: 1.6; color: var(--ink-2); max-width: 72ch; }
+.pr-x { margin-top: 6px; font-size: 14.5px; line-height: 1.6; color: var(--ink-2); max-width: 92ch; text-wrap: pretty; }
+.pr-x .pr-s { text-wrap: pretty; }
+.p-ko .pr-x .pr-s { display: block; }
 .pr-p { margin-top: 6px; font-size: 13.5px; color: var(--ink-3); }
 
 /* articles: two columns on wide screens */

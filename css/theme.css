@@ -61,6 +61,13 @@
 
 /* ---------- Korean page ---------- */
 .p-ko { word-break: keep-all; }
+.p-ko p, .p-ko li, .p-ko .h2 { text-wrap: pretty; }
+.p-ko .th-head .lede { text-wrap: pretty; }
+.p-ko .ko-s { display: block; text-wrap: pretty; }
+.ko-pi-list { list-style: none; margin: 0; padding: 0; }
+.ko-pi-list li { position: relative; padding: 9px 0 9px 18px; border-top: 1px solid var(--line); font-size: 16px; line-height: 1.6; color: var(--ink-2); }
+.ko-pi-list li:last-child { border-bottom: 1px solid var(--line); }
+.ko-pi-list li::before { content: ""; position: absolute; left: 2px; top: 19px; width: 6px; height: 6px; border-radius: 50%; background: var(--steel); }
 .ko-areas { display: grid; gap: 18px; }
 .ko-area { padding: 26px 28px; border-radius: var(--r); background: var(--white); box-shadow: inset 0 0 0 1px var(--line); }
 .ko-area .h2 { margin-bottom: 10px; }
@@ -80,7 +87,7 @@
 }
 .th-fig .media.natural img { max-height: 520px; object-fit: contain; }
 .p-ko .h1 .ko-en { display: block; margin-top: 8px; font-size: .5em; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
-.p-ko .th-head .lede { max-width: 66ch; }
+.p-ko .th-head .lede { max-width: 78ch; }
 .ko-pi-sec .h2 a:hover { color: var(--steel); }
 /* sub-area section (Virtual staining on the Computational Microscopy page) */
 .th-sub { margin-top: clamp(24px, 3vw, 40px); }

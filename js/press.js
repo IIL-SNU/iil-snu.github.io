@@ -34,7 +34,7 @@
     return '<li class="pr-g" data-rv data-k="' + (k % 4) + '">' +
       '<p class="pr-d">' + esc(month(g.date, lang)) + '<span class="pr-n">' + esc(T.art(its.length)) + "</span></p>" +
       '<div class="pr-b"><h4 class="pr-t">' + esc(c.t) + "</h4>" +
-      '<p class="pr-x">' + esc(c.d) + "</p>" +
+      '<p class="pr-x">' + String(c.d).split(/(?<=[.다])\s+(?=\S)/).map(function (s) { return '<span class="pr-s">' + esc(s) + "</span>"; }).join(" ") + "</p>" +
       (g.paper ? '<p class="pr-p"><a class="ul" href="' + esc(g.paper.url) + '" target="_blank" rel="noopener" lang="en">' + esc(g.paper.label) + "</a></p>" : "") +
       '<ul class="pr-items">' + first.map(function (it) { return item(it, lang); }).join("") + "</ul>" +
       (rest.length ? '<details class="pr-more"><summary data-more="' + esc(T.more(rest.length)) + '" data-less="' + esc(T.less) + '"><span>' + esc(T.more(rest.length)) + '</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></summary>' +
