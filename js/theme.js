@@ -129,6 +129,18 @@
       (p.era === "pre" ? ' <span class="tag plain">Before IIL</span>' : "") + "</p></li>";
   }).join("");
   $("th-pubcount").textContent = pubs.length + " publications";
+  var fund = (IIL.funding || []).filter(function (f) { return f.th === KEY; });
+  var gov = fund.filter(function (f) { return !f.industry; }), ind = fund.filter(function (f) { return f.industry; });
+  if (fund.length) $("th-fund").innerHTML = '<div class="sec-top th-fund-top"><h2 class="h2" data-rv>Funding</h2><p class="small" data-rv>' + gov.length + " grants</p></div>" +
+    '<ol class="th-publist th-fundlist">' + gov.map(function (f) {
+      return '<li data-rv><p class="th-pt">' + esc(f.title) + "</p>" +
+        '<p class="th-pa">' + esc(f.funder) + (f.program ? ", " + esc(f.program) : "") + "</p>" +
+        '<p class="th-pv">' + esc(f.years) + " &middot; " + esc(f.role) + "</p></li>";
+    }).join("") +
+    ind.map(function (f) {
+      return '<li data-rv><p class="th-pt">Industry-sponsored research</p><p class="th-pa">' +
+        f.list.map(function (x) { return esc(x[0]) + " (" + esc(x[1]) + ")"; }).join(", ") + "</p></li>";
+    }).join("") + "</ol>";
   H.reveal(); H.loupe(); H.videos();
   var h0 = decodeURIComponent(location.hash.slice(1));
   if (h0) { var el = document.getElementById(h0); if (el) requestAnimationFrame(function () { el.scrollIntoView(); }); }

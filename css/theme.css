@@ -95,3 +95,6 @@
 .th-sub .th-fact { max-width: 78ch; margin-top: 16px; }
 .th-subgrid { margin-top: clamp(32px, 4vw, 52px); }
 .th-subp { margin-top: clamp(40px, 5vw, 64px); }
+
+/* funded projects under the theme publications (PI 2026-10-22) */
+.th-fund-top { margin-top: clamp(48px, 6vw, 80px); }
