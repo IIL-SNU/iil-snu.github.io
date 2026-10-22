@@ -22,7 +22,7 @@
     speckle: ["rssi-physics-network-comparison.jpg", "speckle-eye-movement-setup.png"],
     hbi: []
   };
-  var IDX = { fp: "lily-root-birefringence-detail-b.jpg", lensless: "measured-psf-voronoi.jpg", speckle: "rssi-raw-speckle-closeup.jpg", hbi: "remember-installation-stones.jpg" };
+  var IDX = { fp: "lily-root-birefringence-detail-b.jpg", lensless: "measured-psf-voronoi.jpg", speckle: "rssi-raw-speckle-closeup.jpg", hbi: "micro-hbi-systems-montage.jpg" };
   H.claimElsewhere();
   var themes = H.themes();
   var all = [];

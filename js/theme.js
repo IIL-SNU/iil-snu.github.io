@@ -27,17 +27,17 @@
   }
   function fact(k, fallback) { return esc(FACT[k] || fallback).replace(/\{([^}]+)\}/g, function (m, ids) { return cite(ids.split(";")); }); }
   var FACT = {
-    fp: "Seung Ah Lee's Imaging Intelligence Laboratory at Seoul National University develops Fourier ptychographic microscopes (FPM) for wide-field, high-resolution quantitative phase imaging: a smartphone FPM {lee2021smartphonebased}, FPM with an OLED display as the light source {lee2024highresolution}, single-shot FPM {yoon2025singleshot} and polarization-resolved FPM {chae2026pupil}, also used for virtual staining {chae2024restoring}.",
-    vs: "Seung Ah Lee's laboratory develops virtual staining for digital pathology: neural networks convert the quantitative phase of unstained tissue slides, measured by FPM, into images of stained slides {chae2024restoring;lee2026semisupervised}.",
-    lensless: "Seung Ah Lee's Imaging Intelligence Laboratory at Seoul National University develops lensless cameras: phase masks made by grayscale lithography {lee2023design} or directly on the image sensor {lee2022fabrication}, polarization and hyperspectral lensless cameras {baek2022lensless;kim2023apertureencoded} and physics-guided reconstruction {bae2026integrated}.",
-    speckle: "Seung Ah Lee's Imaging Intelligence Laboratory at Seoul National University develops rolling-shutter speckle imaging (RSSI), which measures blood flow from a single frame of a standard CMOS sensor {yi2022singleshot;yi2024improvements}, with applications to fingertip pulse waveforms {lee2024rolling} and real-time analysis by physics-guided neural networks {byun2026physicsguided}.",
-    hbi: "Seung Ah Lee and her laboratory developed interactive biology systems in which people interact in real time with light-responsive Euglena cells through a microscope and a projector {lee2015trap;lee2020microaquarium}, and reviewed the field of micro-HBI {lee2022microhbi}."
+    fp: "IIL develops computational microscopes that capture wide-field, high-resolution images with quantitative phase and polarization contrast, and applies them to label-free imaging of cells and tissue.",
+    vs: "IIL develops virtual staining for digital pathology, turning the quantitative phase of unstained tissue slides into images of stained slides.",
+    lensless: "IIL develops lensless cameras and learned optics: thin phase masks designed and fabricated for each application, and reconstruction algorithms that combine physical models with deep learning.",
+    speckle: "IIL develops dynamic speckle imaging, which analyzes speckle from dynamic scattering to measure the dynamics of a sample, such as blood flow, with standard image sensors.",
+    hbi: "IIL develops interactive biology systems in which people interact in real time with living, light-responsive microorganisms through a microscope and a projector."
   };
   var FIGS = {
     fp: H.FIG_THEME.fp, vs: H.FIG_THEME.vs,
     lensless: ["uv-imprint-integrated-camera-prototype-clean.jpg", "phase-mask-height-map-3d.jpg", "polarization-camera-pipeline.png"],
     speckle: ["rssi-flow-phantom-linearity.jpg", "rsspg-cold-pressor.jpg"],
-    hbi: ["euglpollock-tablet-drawing-poster.jpg", "euglpollock-painting-poster.jpg", "microaquarium-installation.jpg", "remember-installation-pet-photos.jpg"]
+    hbi: ["euglpollock-tablet-drawing-poster.jpg", "euglpollock-painting-poster.jpg", "trapit-light-trap-sequence.jpg", "trapit-system-overview.png", "microaquarium-installation.jpg"]
   };
   var TOPICS = { fp: ["fp", "microscopy", "vs"], lensless: ["lensless"], speckle: ["speckle"], hbi: ["hbi"] };
   var PATENTS = { fp: ["US11880965B2"], lensless: ["US12108134B2", "US12062190B2"] };
@@ -71,9 +71,7 @@
         H.img(f.src, f.alt, { sizes: "(max-width: 900px) 100vw, 760px" }) + "</div>" +
         '<figcaption class="caption">' + esc(f.caption) + ' <span class="credit">' + esc(f.credit) + "</span></figcaption></figure>";
     }).join("") +
-      (facts.length ? '<div class="th-facts"><h3 class="meta th-h">Key results</h3><dl>' + facts.map(function (f) {
-        return "<div><dt>" + esc(f.value) + "</dt><dd>" + esc(f.label) + ' <span class="credit">' + esc(f.ref) + "</span></dd></div>";
-      }).join("") + "</dl></div>" : "");
+      "";
   }
   function sentences(s) {
     var out = [], cur = "";
