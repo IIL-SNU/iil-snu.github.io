@@ -65,7 +65,7 @@
 .yr:nth-of-type(4n+1) .yr-n { background: var(--sky); }
 .yr:nth-of-type(4n+2) .yr-n { background: var(--blush); }
 .yr:nth-of-type(4n+3) .yr-n { background: var(--steel); color: var(--white); }
-.pub.hl { padding: 18px; margin: 6px 0; border-radius: 20px; background: linear-gradient(120deg, var(--sky-lite), var(--mist)); }
+.pub.hl { padding: 18px; margin: 6px 0; border-radius: 20px; background: linear-gradient(120deg, var(--sky-lite) 0%, var(--sky-lite) 45%, var(--blush-lite) 100%); }
 .pub.hl + .pub { border-top: 0; }
 .pub { border-radius: 14px; transition: background .3s; }
 .pub:not(.hl):hover { background: color-mix(in srgb, var(--lavender) 18%, var(--white)); }

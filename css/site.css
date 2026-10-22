@@ -21,7 +21,7 @@
   --sky-soft: color-mix(in srgb, var(--sky) 30%, var(--white));
   --sky-mid: color-mix(in srgb, var(--sky) 60%, var(--white));
   --lav-soft: color-mix(in srgb, var(--lavender) 24%, var(--white));
-  --blush-soft: color-mix(in srgb, var(--sky) 24%, var(--white)); /* 2026-10-21: cool tint; blush kept for small accents only */
+  --blush-soft: color-mix(in srgb, var(--blush) 20%, var(--white)); /* 2026-10-22: blush kept, about half the earlier strength */ /* 2026-10-21: cool tint; blush kept for small accents only */
   --line: color-mix(in srgb, var(--navy) 11%, transparent);
   --line-2: color-mix(in srgb, var(--navy) 20%, transparent);
   --wash: linear-gradient(180deg, color-mix(in srgb, var(--navy) 0%, transparent) 30%, color-mix(in srgb, var(--steel) 42%, transparent) 62%, color-mix(in srgb, var(--navy) 88%, transparent) 100%);
@@ -261,7 +261,7 @@ dialog { color: var(--navy); }
 :root {
   --sky-lite: color-mix(in srgb, var(--sky) 45%, var(--white));
   --lav-lite: color-mix(in srgb, var(--lavender) 38%, var(--white));
-  --blush-lite: color-mix(in srgb, var(--sky) 34%, var(--white));
+  --blush-lite: color-mix(in srgb, var(--blush) 26%, var(--white));
   --steel-lite: color-mix(in srgb, var(--steel) 14%, var(--white));
 }
 /* theme colour assignment: fp sky, vs blush, lensless lavender, speckle steel, hbi navy */
@@ -291,7 +291,7 @@ body .chip[data-th][aria-pressed="true"] .n { color: inherit; opacity: .75; }
 body .chip[data-th="all"][aria-pressed="true"] { background: var(--steel); }
 
 /* page heads: soft sky to lavender wash with a faint blush edge (2026-10-21: less pink) */
-body .page-head { background: linear-gradient(120deg, var(--sky-lite) 0%, color-mix(in srgb, var(--lavender) 24%, var(--white)) 70%, color-mix(in srgb, var(--blush) 18%, var(--white)) 100%); }
+body .page-head { background: linear-gradient(120deg, var(--sky-lite) 0%, color-mix(in srgb, var(--lavender) 24%, var(--white)) 60%, var(--blush-lite) 100%); }
 body .page-head .eyebrow { color: var(--steel); }
 
 /* footer: navy with steel sub-band */

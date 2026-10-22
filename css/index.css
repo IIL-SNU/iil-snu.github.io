@@ -180,10 +180,10 @@
 .ev .panel.k-award { background: var(--blush-lite); }
 .ev .panel.k-funding { background: var(--steel); }
 .ev .panel.k-funding .p-kind, .ev .panel.k-funding .p-date { color: var(--white); }
-.ev .panel.k-event, .ev .panel.k-other { background: linear-gradient(135deg, var(--sky), var(--lav-soft)); }
+.ev .panel.k-event, .ev .panel.k-other { background: linear-gradient(135deg, var(--sky), var(--blush-lite)); }
 .ev:hover, .ev:focus-within { box-shadow: 0 18px 44px -18px color-mix(in srgb, var(--navy) 40%, transparent), 0 0 0 2px var(--sky); }
 /* team teaser on a lavender band (2026-10-21: was blush) */
-.team-sec { background: linear-gradient(135deg, color-mix(in srgb, var(--lavender) 22%, var(--white)), color-mix(in srgb, var(--steel) 22%, var(--white))); }
+.team-sec { background: linear-gradient(135deg, color-mix(in srgb, var(--lavender) 24%, var(--white)) 0%, color-mix(in srgb, var(--lavender) 18%, var(--white)) 55%, var(--blush-lite) 100%); }
 .team-sec .eyebrow { color: var(--navy); }
 .faces img { box-shadow: 0 0 0 3px var(--blush-lite); }
 .news-sec .chip:not([aria-pressed="true"]) { background: color-mix(in srgb, var(--white) 70%, transparent); box-shadow: none; }
