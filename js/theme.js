@@ -35,9 +35,9 @@
   };
   var FIGS = {
     fp: H.FIG_THEME.fp, vs: H.FIG_THEME.vs,
-    lensless: ["uv-imprint-integrated-camera-prototype-clean.jpg", "phase-mask-height-map-3d.jpg", "polarization-camera-pipeline.png"],
-    speckle: ["rssi-flow-phantom-linearity.jpg", "rsspg-cold-pressor.jpg"],
-    hbi: ["euglpollock-tablet-drawing-poster.jpg", "euglpollock-painting-poster.jpg", "trapit-light-trap-sequence.jpg", "trapit-system-overview.png", "microaquarium-installation.jpg"]
+    lensless: ["uv-imprint-integrated-camera-prototype-clean.jpg", "lensless-voronoi-mask-height-map-rotating-poster.jpg", "polarization-camera-pipeline.png"],
+    speckle: ["dynamic-scatterers-concept-poster.jpg", "rolling-shutter-speckle-slow-vs-fast-sim-poster.jpg"],
+    hbi: ["euglpollock-tablet-drawing-poster.jpg", "euglpollock-painting-poster.jpg", "trapit-touchscreen-light-ring-poster.jpg", "trapit-system-overview.png", "microaquarium-installation.jpg"]
   };
   var TOPICS = { fp: ["fp", "microscopy", "vs"], lensless: ["lensless"], speckle: ["speckle"], hbi: ["hbi"] };
   var PATENTS = { fp: ["US11880965B2"], lensless: ["US12108134B2", "US12062190B2"] };
