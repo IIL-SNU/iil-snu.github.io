@@ -202,7 +202,7 @@
       return "<li>" + (r.url ? '<a class="ul" href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.label) + "</a>" : esc(r.label)) + "</li>";
     }).join("");
     art.innerHTML =
-      '<header class="pv-head"><p class="meta">' + esc(p.years) + (p.status === "ongoing" ? ", ongoing" : "") + '</p><h2 class="h1 pv-title" id="p-title">' + esc(p.title) + "</h2></header>" +
+      '<header class="pv-head"><p class="meta">' + esc(p.years) + (p.status === "ongoing" ? ", ongoing" : "") + "</p>" + '<h2 class="h1 pv-title" id="p-title">' + esc(p.title) + "</h2></header>" +
       '<p class="pv-p">' + esc(para(p)) + "</p>" +
       (figs.length ? '<div class="pv-figs n' + figs.length + '">' + figs.map(function (f, k) { return figure(f, k === 0); }).join("") + "</div>" : "") +
       (refs ? '<div class="pv-meta"><h3 class="meta">References</h3><ul>' + refs + "</ul></div>" : "") +
