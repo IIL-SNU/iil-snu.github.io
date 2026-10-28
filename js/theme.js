@@ -35,9 +35,9 @@
   };
   var FIGS = {
     fp: H.FIG_THEME.fp, vs: H.FIG_THEME.vs,
-    lensless: ["uv-imprint-integrated-camera-prototype-clean.jpg", "phase-mask-height-map-3d.jpg", "polarization-camera-pipeline.png"],
-    speckle: ["rssi-flow-phantom-linearity.jpg", "rsspg-cold-pressor.jpg"],
-    hbi: ["euglpollock-tablet-drawing-poster.jpg", "euglpollock-painting-poster.jpg", "trapit-light-trap-sequence.jpg", "trapit-system-overview.png", "microaquarium-installation.jpg"]
+    lensless: ["uv-imprint-integrated-camera-prototype-clean.jpg", "lensless-voronoi-mask-height-map-rotating-poster.jpg", "polarization-camera-pipeline.png"],
+    speckle: ["dynamic-scatterers-concept-poster.jpg", "rolling-shutter-speckle-slow-vs-fast-sim-poster.jpg"],
+    hbi: ["euglpollock-tablet-drawing-poster.jpg", "euglpollock-painting-poster.jpg", "trapit-touchscreen-light-ring-poster.jpg", "trapit-system-overview.png", "microaquarium-installation.jpg"]
   };
   var TOPICS = { fp: ["fp", "microscopy", "vs"], lensless: ["lensless"], speckle: ["speckle"], hbi: ["hbi"] };
   var PATENTS = { fp: ["US11880965B2"], lensless: ["US12108134B2", "US12062190B2"] };
@@ -129,6 +129,18 @@
       (p.era === "pre" ? ' <span class="tag plain">Before IIL</span>' : "") + "</p></li>";
   }).join("");
   $("th-pubcount").textContent = pubs.length + " publications";
+  var fund = (IIL.funding || []).filter(function (f) { return f.th === KEY; });
+  var gov = fund.filter(function (f) { return !f.industry; }), ind = fund.filter(function (f) { return f.industry; });
+  if (fund.length) $("th-fund").innerHTML = '<div class="sec-top th-fund-top"><h2 class="h2" data-rv>Funding</h2><p class="small" data-rv>' + gov.length + " grants</p></div>" +
+    '<ol class="th-publist th-fundlist">' + gov.map(function (f) {
+      return '<li data-rv><p class="th-pt">' + esc(f.title) + "</p>" +
+        '<p class="th-pa">' + esc(f.funder) + (f.program ? ", " + esc(f.program) : "") + "</p>" +
+        '<p class="th-pv">' + esc(f.years) + " &middot; " + esc(f.role) + "</p></li>";
+    }).join("") +
+    ind.map(function (f) {
+      return '<li data-rv><p class="th-pt">Industry-sponsored research</p><p class="th-pa">' +
+        f.list.map(function (x) { return esc(x[0]) + " (" + esc(x[1]) + ")"; }).join(", ") + "</p></li>";
+    }).join("") + "</ol>";
   H.reveal(); H.loupe(); H.videos();
   var h0 = decodeURIComponent(location.hash.slice(1));
   if (h0) { var el = document.getElementById(h0); if (el) requestAnimationFrame(function () { el.scrollIntoView(); }); }
