@@ -17,7 +17,7 @@
   Object.keys(LEAD).forEach(function (k) { LEAD[k].fig = H.mrGet(LEAD[k].f); });
   var KEYS = {
     fp: ["live-cells-brightfield-vs-phase.jpg", "tissue-phase-3d-surface.jpg"],
-    vs: ["virtual-he-whole-slide.jpg", "virtual-ihc-vs-chemical-ihc.jpg"],
+    vs: ["vs-fp-prototype-open.jpg", "virtual-he-whole-slide.jpg"],
     lensless: ["phase-mask-and-camera-prototype-strip-clean.jpg"],
     speckle: ["rssi-physics-network-comparison.jpg", "speckle-eye-movement-setup.png"],
     hbi: []
