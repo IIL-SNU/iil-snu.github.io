@@ -131,16 +131,19 @@
   $("th-pubcount").textContent = pubs.length + " publications";
   var fund = (IIL.funding || []).filter(function (f) { return f.th === KEY; });
   var gov = fund.filter(function (f) { return !f.industry; }), ind = fund.filter(function (f) { return f.industry; });
-  if (fund.length) $("th-fund").innerHTML = '<div class="sec-top th-fund-top"><h2 class="h2" data-rv>Funding</h2><p class="small" data-rv>' + gov.length + " grants</p></div>" +
-    '<ol class="th-publist th-fundlist">' + gov.map(function (f) {
-      return '<li data-rv><p class="th-pt">' + esc(f.title) + "</p>" +
-        '<p class="th-pa">' + esc(f.funder) + (f.program ? ", " + esc(f.program) : "") + "</p>" +
-        '<p class="th-pv">' + esc(f.years) + " &middot; " + esc(f.role) + "</p></li>";
-    }).join("") +
-    ind.map(function (f) {
-      return '<li data-rv><p class="th-pt">Industry-sponsored research</p><p class="th-pa">' +
-        f.list.map(function (x) { return esc(x[0]) + " (" + esc(x[1]) + ")"; }).join(", ") + "</p></li>";
-    }).join("") + "</ol>";
+  /* PI 2026-11-07: funding sits right under the summary, before code, data and patents */
+  var bottom = $("th-fund"); if (bottom) bottom.innerHTML = "";
+  if (fund.length) {
+    var side = $("th-fund-side");
+    if (!side) { side = document.createElement("div"); side.id = "th-fund-side"; side.className = "th-fundside"; var res = $("th-res"); res.parentNode.insertBefore(side, res); }
+    var partners = []; ind.forEach(function (f) { partners = partners.concat(f.list || []); });
+    side.innerHTML = '<h3 class="meta th-h">Funding <span class="fs-n">' + gov.length + " grants" + (partners.length ? ", " + partners.length + " industry partners" : "") + "</span></h3>" +
+      '<ol class="fs-list">' + gov.map(function (f) {
+        return '<li><p class="fs-t">' + esc(f.title) + '</p><p class="fs-m"><span class="fs-y">' + esc(f.years) + "</span> " + esc(f.funder) + (f.program ? " &middot; " + esc(f.program) : "") +
+          (f.role ? ' <span class="fs-r">' + esc(f.role) + "</span>" : "") + "</p></li>";
+      }).join("") + "</ol>" +
+      (partners.length ? '<p class="fs-ind"><span class="fs-ik">Industry-sponsored research</span> ' + partners.map(function (x) { return '<span class="fs-chip">' + esc(x[0]) + " <span>" + esc(x[1]) + "</span></span>"; }).join("") + "</p>" : "");
+  }
   H.reveal(); H.loupe(); H.videos();
   var h0 = decodeURIComponent(location.hash.slice(1));
   if (h0) { var el = document.getElementById(h0); if (el) requestAnimationFrame(function () { el.scrollIntoView(); }); }

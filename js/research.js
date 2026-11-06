@@ -108,7 +108,7 @@
     var media = leadFig(t) + keyFigs(t);
     var projects = projRows(t);
     return '<section class="theme' + "" + '" data-th="' + esc(t.key) + '" id="' + esc(t.key) + '" aria-labelledby="h-' + esc(t.key) + '"><div class="wrap">' +
-      '<header class="t-head"><span class="t-n" aria-hidden="true" data-rv></span><h2 class="h1" id="h-' + esc(t.key) + '" data-rv>' + esc(t.title) + '</h2><span class="meta t-y" data-rv>' + span(t)  + "</span></header>" +
+      '<header class="t-head"><span class="t-n" aria-hidden="true" data-rv></span><h2 class="h1" id="h-' + esc(t.key) + '" data-rv>' + (H.themePage[t.key] ? '<a class="t-hlink" href="' + H.themePage[t.key] + '">' + esc(t.title) + ' <span class="t-harr" aria-hidden="true">&#8594;</span></a>' : esc(t.title)) + '</h2><span class="meta t-y" data-rv>' + span(t)  + "</span></header>" +
       '<div class="t-grid"><div class="t-text"><p class="lede" data-rv>' + esc(PLAIN[t.key] || t.summary) + "</p>" +
       '<h3 class="meta t-ph" data-rv>Projects <span class="n">' + (t.projects || []).length + '</span></h3><ul class="p-list" data-stagger>' + projects + "</ul>" +
       (H.themePage[t.key] ? '<p class="t-page" data-rv><a class="btn" href="' + H.themePage[t.key] + '">' + esc(t.title) + ": papers, code and projects " + H.arrow + "</a></p>" : "") + "</div>" +
