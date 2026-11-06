@@ -239,7 +239,7 @@
   renderRail();
   var mem = IIL.members || [];
   var total = mem.length + (IIL.pi ? 1 : 0);
-  document.getElementById("team-line").innerHTML = "The laboratory has " + total + ' members, led by <a class="ul" href="pi.html">Prof. Seung Ah Lee</a>.';
+  document.getElementById("team-line").innerHTML = "The laboratory has " + total + " members.";
   document.getElementById("faces").innerHTML = [IIL.pi].concat(mem).filter(Boolean).map(function (m) {
     var img = '<img src="' + H.base + esc(H.face(m.photo, true)) + '" alt="' + esc(m === IIL.pi ? "Prof. " + m.name + ", profile" : m.name) + '" width="46" height="46" loading="lazy" decoding="async">';
     return "<li>" + (m === IIL.pi ? '<a class="f-pi" href="pi.html">' + img + "</a>" : img) + '<span class="nm" aria-hidden="true">' + esc(m.name) + "</span></li>";

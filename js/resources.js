@@ -69,7 +69,7 @@
       '<a class="btn light" href="' + esc(IIL.repoOrg) + '" target="_blank" rel="noopener">Open on GitHub ' + H.ext + "</a>";
   }
   var T = IIL.teaching || {};
-  document.getElementById("t-note").textContent = "Courses taught by Prof. Seung Ah Lee at Seoul National University (since 2025) and Yonsei University (2018–2025).";
+  document.getElementById("t-note").textContent = "Courses taught at Seoul National University since 2025 and at Yonsei University from 2018 to 2025.";
   function lvl(c) { return c.level ? c.level.charAt(0).toUpperCase() + c.level.slice(1) : ""; }
   document.getElementById("current").innerHTML = (T.current || []).map(function (c, i) {
     return '<li data-rv><article class="course k' + i + '"><div class="c-top"><span class="c-code">' + esc(c.code) + '</span><span class="tag">' + esc(lvl(c)) + "</span></div>" +
