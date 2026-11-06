@@ -238,17 +238,8 @@
   rail.addEventListener("click", function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
   renderRail();
   var mem = IIL.members || [];
-  var ROLES = [["Research Professor", "a research professor", "research professors"], ["Postdoctoral Fellow", "a postdoctoral fellow", "postdoctoral fellows"],
-    ["Visiting Faculty", "a visiting faculty member", "visiting faculty members"]];
-  var parts = ['<a class="ul" href="pi.html">Prof. Seung Ah Lee</a>'];
-  ROLES.forEach(function (r) {
-    var n = mem.filter(function (m) { return m.role === r[0]; }).length;
-    if (n) parts.push(n === 1 ? r[1] : n + " " + r[2]);
-  });
-  if (mem.some(function (m) { return m.group === "grad"; })) parts.push("graduate students");
-  var interns = mem.some(function (m) { return m.group === "intern"; });
   var total = mem.length + (IIL.pi ? 1 : 0);
-  document.getElementById("team-line").innerHTML = total + " people: " + parts.join(", ") + (interns ? " and undergraduate interns." : ".");
+  document.getElementById("team-line").innerHTML = "The laboratory has " + total + ' members, led by <a class="ul" href="pi.html">Prof. Seung Ah Lee</a>.';
   document.getElementById("faces").innerHTML = [IIL.pi].concat(mem).filter(Boolean).map(function (m) {
     var img = '<img src="' + H.base + esc(H.face(m.photo, true)) + '" alt="' + esc(m === IIL.pi ? "Prof. " + m.name + ", profile" : m.name) + '" width="46" height="46" loading="lazy" decoding="async">';
     return "<li>" + (m === IIL.pi ? '<a class="f-pi" href="pi.html">' + img + "</a>" : img) + '<span class="nm" aria-hidden="true">' + esc(m.name) + "</span></li>";
