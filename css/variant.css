@@ -41,6 +41,3 @@
   .hero { min-height: 0; }
   .hero .viz::after { background: linear-gradient(180deg, rgba(255,255,255,.9) 0%, rgba(255,255,255,.82) 60%, rgba(255,255,255,.95) 100%); }
 }
-
-/* hero wave colours across the width, like the page-head gradient (PI 2026-11-07, G3): sky to blush, teal peaks on the right */
-:root { --wave-sets: #CDE6EC #1B768E #012538 / #FCEFEF #FB9833 #1B768E; }

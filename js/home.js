@@ -70,22 +70,13 @@
         }
       }
     })();
-    /* colour sets across the width (left to right), like the page-head gradient; --wave-sets: "light mid deep / light mid deep / ..." */
-    var SETS = (CS.getPropertyValue("--wave-sets").trim() || "").split("/").map(function (s) { return s.trim().split(/\s+/); }).filter(function (s) { return s.length === 3; });
-    if (!SETS.length) SETS = [["--sky", "--steel", "--navy"]];
-    var hc = function (v) { if (v.indexOf("--") === 0) return hx(v); v = v.replace("#", ""); return [parseInt(v.slice(0, 2), 16), parseInt(v.slice(2, 4), 16), parseInt(v.slice(4, 6), 16)]; };
-    var NS = SETS.length, LUTS = SETS.map(function (s) {
-      var L1 = hc(s[0]), mw = L1.map(function (v) { return Math.round(255 + (v - 255) * .45); });
-      var ST = [[0, [255, 255, 255]], [.28, mw], [.55, L1], [.8, hc(s[1])], [1, hc(s[2])]], LU = new Float32Array(256 * 3);
-      for (var l = 0; l < 256; l++) {
-        var t0 = l / 255, zz = 1; while (zz < ST.length - 1 && ST[zz][0] < t0) zz++;
-        var S0 = ST[zz - 1], S1 = ST[zz], w = (t0 - S0[0]) / (S1[0] - S0[0] || 1);
-        for (var ch = 0; ch < 3; ch++) LU[l * 3 + ch] = S0[1][ch] + (S1[1][ch] - S0[1][ch]) * w;
-      }
-      return LU;
-    });
-    var CA = new Uint8Array(NZ), CB = new Uint8Array(NZ), CW = new Float32Array(NZ);
-    for (var cz3 = 0; cz3 < NZ; cz3++) { var f = NS > 1 ? Math.max(0, Math.min(1, (cz3 / (NZ - 1) - .42) / .5)) * (NS - 1) : 0, ia = Math.min(NS - 1, Math.floor(f)); CA[cz3] = ia; CB[cz3] = Math.min(NS - 1, ia + 1); var fw = f - ia; CW[cz3] = fw * fw * (3 - 2 * fw); }
+    var STOPS = [[0, [255, 255, 255]], [.28, mixw], [.55, SKY], [.8, hx("--steel")], [1, hx("--navy")]];
+    var LUT = new Uint8ClampedArray(256 * 3);
+    for (var l = 0; l < 256; l++) {
+      var t0 = l / 255, zz = 1; while (zz < STOPS.length - 1 && STOPS[zz][0] < t0) zz++;
+      var S0 = STOPS[zz - 1], S1 = STOPS[zz], w = (t0 - S0[0]) / (S1[0] - S0[0] || 1);
+      for (var ch = 0; ch < 3; ch++) LUT[l * 3 + ch] = S0[1][ch] + (S1[1][ch] - S0[1][ch]) * w;
+    }
     var COS = new Float32Array(1024); for (var i7 = 0; i7 < 1024; i7++) COS[i7] = Math.cos(2 * Math.PI * i7 / 1024);
     var oc = document.createElement("canvas"); oc.width = NZ; oc.height = N;
     var octx = oc.getContext("2d"), img = octx.createImageData(NZ, N), px = img.data;
@@ -98,8 +89,8 @@
       for (var p = 0, o2 = 0; p < NP; p++, o2 += 4) {
         var tn = TONE[p];
         var v = Math.min(1, Math.pow(tn, .8) * ENV[p % NZ] * 1.08);
-        var q2 = (v * 255) | 0, cz4 = p % NZ, La = LUTS[CA[cz4]], Lb = LUTS[CB[cz4]], wb = CW[cz4]; q2 *= 3;
-        px[o2] = La[q2] + (Lb[q2] - La[q2]) * wb; px[o2 + 1] = La[q2 + 1] + (Lb[q2 + 1] - La[q2 + 1]) * wb; px[o2 + 2] = La[q2 + 2] + (Lb[q2 + 2] - La[q2 + 2]) * wb;
+        var q2 = (v * 255) | 0; q2 *= 3;
+        px[o2] = LUT[q2]; px[o2 + 1] = LUT[q2 + 1]; px[o2 + 2] = LUT[q2 + 2];
       }
       octx.putImageData(img, 0, 0);
     }
