@@ -8,14 +8,15 @@
   function mail(l) { return String((l || {}).email || "").replace(/^mailto:/i, "").trim(); }
   var people = [{ id: "pi", isPI: true, name: pi.name, role: pi.role || "Group Leader", group: "pi", photo: pi.photo, interests: pi.interests || [], web: "", email: (pi.contact || {}).email || "" }]
     .concat(members.map(function (m) {
-      return { id: m.slug, name: m.name, role: m.role, group: m.group, photo: m.photo, interests: m.interests || [], web: (m.links || {}).web || "", email: mail(m.links) };
+      return { id: m.slug, name: m.name, role: m.role, group: m.group, photo: m.photo, interests: m.interests || [], web: (m.links || {}).web || "", email: mail(m.links), phone: m.phone || "", office: m.office || "" };
     }));
   var byId = {};
   people.forEach(function (p) { byId[p.id] = p; });
   var GROUPS = [
     { k: "lead", name: "Faculty and researchers", test: function (p) { return p.isPI || p.group === "faculty" || p.group === "postdoc"; } },
     { k: "grad", name: "Graduate students", test: function (p) { return p.group === "grad"; } },
-    { k: "intern", name: "Undergraduate interns", test: function (p) { return p.group === "intern"; } }
+    { k: "intern", name: "Undergraduate interns", test: function (p) { return p.group === "intern"; } },
+    { k: "admin", name: "Administration", test: function (p) { return p.group === "admin"; } }
   ];
   var GLOBE = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM1.5 8h13M8 1.5c2 2.2 2 10.8 0 13M8 1.5c-2 2.2-2 10.8 0 13" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>';
   var PERSON = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5.4" r="2.9" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M2.6 14.2c.6-2.9 2.8-4.5 5.4-4.5s4.8 1.6 5.4 4.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
@@ -35,13 +36,15 @@
       '<p class="cd-r">' + esc(p.role) + "</p>" +
       (p.interests.length ? '<p class="cd-k">Research interests</p><p class="cd-i">' + p.interests.map(esc).join(", ") + "</p>" : "") +
       emailRow(p) +
+      (p.phone ? '<p class="cd-ph">' + esc(p.phone) + "</p>" : "") +
+      (p.office && p.group === "admin" ? '<p class="cd-ph">' + esc(p.office) + "</p>" : "") +
       (p.web ? '<p class="cd-lk"><a class="lk" href="' + esc(p.web) + '" target="_blank" rel="noopener" aria-label="Homepage of ' + esc(p.name) + '">' + GLOBE + "<span>Homepage</span></a></p>" : "");
   }
   function node(p) {
     var li = document.createElement("li");
     li.className = "nd" + (p.isPI ? " pi" : "");
     li.setAttribute("data-id", p.id);
-    var inner = '<span class="nd-ph">' + H.img(H.face(p.photo, true), p.isPI ? "Portrait of Professor " + p.name : p.name, { wh: [480, 600] }) + "</span>" +
+    var inner = '<span class="nd-ph">' + (p.photo ? H.img(H.face(p.photo, true), p.isPI ? "Portrait of Professor " + p.name : p.name, { wh: [480, 600] }) : '<span class="nd-ph0">' + PERSON + "</span>") + "</span>" +
       '<span class="nd-n">' + esc(p.name) + "</span>" +
       '<span class="nd-r">' + esc(p.role) + "</span>";
     li.innerHTML = (p.isPI
