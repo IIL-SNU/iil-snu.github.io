@@ -41,3 +41,6 @@
   .hero { min-height: 0; }
   .hero .viz::after { background: linear-gradient(180deg, rgba(255,255,255,.9) 0%, rgba(255,255,255,.82) 60%, rgba(255,255,255,.95) 100%); }
 }
+
+/* the background animation is visible from the first paint; it does not wait for the scroll reveal (PI 2026-11-09) */
+.rv-on .hero .hero-viz[data-rv] { opacity: 1; transform: none; transition: none; }
