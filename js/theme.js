@@ -34,7 +34,8 @@
     hbi: "IIL develops interactive biology systems in which people interact in real time with living, light-responsive microorganisms through a microscope and a projector."
   };
   var FIGS = {
-    fp: H.FIG_THEME.fp, vs: H.FIG_THEME.vs,
+    /* hardware photos: only the prototype with its cover removed (PI 2026-11-10); the research page also shows it, so it is not claimed */
+    fp: H.FIG_THEME.fp, vs: ["vs-fp-prototype-open.jpg"].concat(H.FIG_THEME.vs),
     lensless: ["uv-imprint-integrated-camera-prototype-clean.jpg", "lensless-voronoi-mask-height-map-rotating-poster.jpg", "polarization-camera-pipeline.png"],
     speckle: ["dynamic-scatterers-concept-poster.jpg", "rolling-shutter-speckle-slow-vs-fast-sim-poster.jpg"],
     hbi: ["euglpollock-tablet-drawing-poster.jpg", "euglpollock-painting-poster.jpg", "trapit-touchscreen-light-ring-poster.jpg", "trapit-system-overview.png", "microaquarium-installation.jpg"]

@@ -160,7 +160,7 @@
   H.themeTitle = function (k) { var t = H.themeData(H.mainKey(k)); return t ? t.title : ""; };
   H.FIG_HOME = { fp: "fp-hardware-family-row.png", lensless: "turing-mask-zoom-poster.jpg",
     speckle: "rssi-in-vivo-time-lapse-poster.jpg", hbi: "microaquarium-hand-gesture-poster.jpg" };
-  H.FIG_THEME = { fp: ["vectorial-fp-microscope-photo.jpg", "fp-high-res-he-glands.jpg"], vs: ["vs-fp-prototype-enclosed.jpg", "rgb-led-fp-for-vs-datasets.jpg", "phase-to-he-and-ihc-split.jpg"],
+  H.FIG_THEME = { fp: ["pupil-plane-multiplexing-schematic.png", "fp-high-res-he-glands.jpg"], vs: ["phase-to-he-and-ihc-split.jpg"],
     lensless: ["lensless-raw-to-reconstruction-blocks-poster.jpg", "assets/research/lensless/uv-imprint-integrated-camera-prototype.jpg", "phase-mask-height-map-3d.jpg"] };
   H.FIG_OTHER = ["lensless-camera-schematic.png", "ifin-mask-height-and-psfs.jpg", "live-cells-fp-phase-full-fov.jpg", "uv-imprint-process-and-device-structure.png", "uv-imprint-3d-refocusing.jpg"];
   H.claimElsewhere = function () {
